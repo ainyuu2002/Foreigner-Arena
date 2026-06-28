@@ -1,0 +1,193 @@
+using UnityEngine;
+using FA.Core;
+
+namespace FA.Specials
+{
+    /// <summary>
+    /// ENTRY-POINT special/super (research §3.3) — MonoBehaviour SONG SONG <c>CombatController</c> (P5),
+    /// TÁCH KHỎI CharacterMotor để FA.Specials KHÔNG reference FA.Movement/FA.Combat (§1.3). Mỗi Update
+    /// hỏi parser (qua ICombatContext ở Core): motion vừa hoàn tất + nút edge → tra <see cref="MoveSetData"/>
+    /// → kiểm mana (IManaSpender) → ConsumePress (special "thắng" normal) → ChangeState(Special/Super).
+    ///
+    /// THỨ TỰ ƯU TIÊN vs CombatController (research §3.3 cách A — KHUYẾN NGHỊ): đặt Script Execution Order
+    /// của SpecialController TRƯỚC CombatController. Khi special ăn input nó ConsumePress(nút) → frame đó
+    /// CombatController thấy edge đã tiêu thụ → KHÔNG ra normal. Dùng đúng cơ chế consume P4, KHÔNG cần 2
+    /// module nói chuyện trực tiếp.
+    ///
+    /// GATE: special motion-input chỉ khi GROUNDED + ground-neutral (Idle/Walk — giống P5). Super dùng
+    /// ĐƯỢC CẢ TRÊN KHÔNG (GDD §4.2) → bỏ gate grounded cho super, chỉ chặn khi đang ở state combat lạ
+    /// (đang đánh/hurt — tránh hủy hitstun). Mana TRỪ TRƯỚC ChangeState (research §4.3).
+    /// </summary>
+    [DisallowMultipleComponent]
+    public sealed class SpecialController : MonoBehaviour
+    {
+        [Header("Tham chiếu (cùng prefab)")]
+        [Tooltip("AnimationEventRelay cùng object Animator — SpecialState/SuperState subscribe RecoveryEnd.")]
+        [SerializeField] private AnimationEventRelay relay;
+
+        [Tooltip("Bảng special/super (MoveSetData, Core). Thêm đòn = thêm ENTRY asset (extensible).")]
+        [SerializeField] private MoveSetData moveSet;
+
+        [Tooltip("HitboxController cùng prefab (P5) — set MoveData hiện hành cho special CÓ HITBOX TRỰC " +
+                 "TIẾP (reversal/anti-air). Projectile KHÔNG dùng cái này (ProjectileSpawner gán riêng). " +
+                 "Bỏ trống nếu mọi special đều là projectile.")]
+        [SerializeField] private MonoBehaviour hitboxController; // optional, gọi qua reflection-free SendMessage
+
+        // ICombatContext + IManaSpender lấy từ cùng prefab (CharacterMotor / ManaBar implement). Phụ
+        // thuộc Core interface, KHÔNG class module khác (§1.3).
+        private ICombatContext _ctx;
+        private IManaSpender _mana;
+        private SpecialState _specialState;
+        private SuperState _superState;
+
+        private void Awake()
+        {
+            _ctx = GetComponent<ICombatContext>();
+            _mana = GetComponentInChildren<IManaSpender>(); // ManaBar có thể ở object con
+            if (relay == null) relay = GetComponentInChildren<AnimationEventRelay>();
+
+            if (_ctx == null)
+            {
+                Debug.LogError("[SpecialController] Thiếu ICombatContext (CharacterMotor) trên prefab.", this);
+                enabled = false;
+                return;
+            }
+            _specialState = new SpecialState(_ctx, relay);
+            _superState = new SuperState(_ctx, relay);
+        }
+
+        // ===== Cờ trạng thái (FacingController/khác gate auto-face nếu cần — đối xứng CombatController) =====
+        public bool IsSpecial => ReferenceEquals(_ctx?.Machine.CurrentState, _specialState);
+        public bool IsSuper => ReferenceEquals(_ctx?.Machine.CurrentState, _superState);
+
+        private void Update()
+        {
+            if (_ctx == null || _ctx.Parser == null || moveSet == null) return;
+
+            // 1) SUPER trước (nút riêng, air-usable). Quét entry có category=Super.
+            if (TrySuper()) return;
+
+            // 2) SPECIAL motion-input (ground-only ở P9). Chỉ khi đang ground-neutral.
+            if (!CanSpecialNow()) return;
+            TrySpecial();
+        }
+
+        /// <summary>Super: nút Super1/Super2 edge + đủ mana → vào SuperState (cho cả trên không).</summary>
+        private bool TrySuper()
+        {
+            // Đang ở state combat LẠ (không phải state Movement của Motor)? Cho phép — Motor chặn riêng;
+            // nhưng tránh kích super khi đang special/super rồi (đang khóa input đến RecoveryEnd).
+            if (IsSpecial || IsSuper) return false;
+
+            int win = _ctx.EdgeWindow;
+            for (int i = 0; i < moveSet.Count; i++)
+            {
+                MoveSetData.Entry e = moveSet.Get(i);
+                if (e.move == null || e.move.category != MoveCategory.Super) continue;
+                if (e.button != InputButton.Super1 && e.button != InputButton.Super2) continue;
+                if (!_ctx.Parser.WasPressedWithin(e.button, win)) continue;
+
+                // Mana check TRƯỚC ChangeState. Thiếu → KHÔNG consume edge/animation (research §4.3).
+                if (!SpendIfNeeded(e.move)) { return false; }
+
+                _ctx.Parser.ConsumePress(e.button, win); // 1 nhấn = 1 super (research §4.10).
+                _superState.SetMove(e.move);
+                _ctx.Machine.ChangeState(_superState);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>Special: motion khớp + nút L/M/H edge + (đủ mana nếu cost) → vào SpecialState.</summary>
+        private bool TrySpecial()
+        {
+            int win = _ctx.EdgeWindow;
+            int facing = _ctx.Facing;
+
+            for (int i = 0; i < moveSet.Count; i++)
+            {
+                MoveSetData.Entry e = moveSet.Get(i);
+                if (e.move == null || e.move.category != MoveCategory.Special) continue;
+
+                // CHARGE = cơ chế GIỮ→NHẢ (GDD §5 P9). Entry charge-able (có biến thể charged + chargeFrames>0)
+                // KÍCH KHI NHẢ nút (release edge): đo số frame đã giữ NGAY TRƯỚC khi nhả → ≥ chargeFrames thì
+                // ra biến thể charged, chưa đủ thì ra biến thể base. Entry thường (không charge) vẫn kích khi
+                // NHẤN (press edge) như cũ. Tách rõ 2 entry-point ⇒ biến thể charged ĐẠT ĐƯỢC, không double-fire.
+                bool chargeable = e.charged != null && e.move.chargeFrames > 0;
+
+                MoveData chosen;
+                bool releaseTrigger;
+                if (chargeable)
+                {
+                    if (!_ctx.Parser.WasReleasedWithin(e.button, win))
+                    {
+                        // ĐANG GIỮ để charge (chưa nhả): nếu motion entry này ĐÃ KHỚP (charge thực sự
+                        // active) thì nút đang giữ THUỘC về charged-special → CONSUME press edge ngay để
+                        // CombatController (chạy sau) KHÔNG bắn normal trong lúc giữ. Vẫn KHÔNG kích đòn,
+                        // chờ release edge ở frame sau. Yêu cầu motion != None để KHÔNG nuốt normal vô cớ
+                        // (entry charge không-motion sẽ không suppress nút normal cùng tên).
+                        if (e.motion != MotionInput.None &&
+                            _ctx.Parser.HeldFrames(e.button) > 0 &&
+                            _ctx.Parser.TryMatchMotion(e.motion, MotionWindow, facing))
+                        {
+                            _ctx.Parser.ConsumePress(e.button, win);
+                        }
+                        continue;
+                    }
+                    int held = _ctx.Parser.HeldFramesBeforeRelease(e.button, win);
+                    chosen = held >= e.move.chargeFrames ? e.charged : e.move;
+                    releaseTrigger = true;
+                }
+                else
+                {
+                    if (!_ctx.Parser.WasPressedWithin(e.button, win)) continue;
+                    chosen = e.move;
+                    releaseTrigger = false;
+                }
+
+                // Motion phải khớp trong cửa sổ motion (rộng hơn edge).
+                if (e.motion != MotionInput.None &&
+                    !_ctx.Parser.TryMatchMotion(e.motion, MotionWindow, facing)) continue;
+
+                if (!SpendIfNeeded(chosen)) return false; // thiếu mana → không consume/whiff.
+
+                // Tiêu thụ đúng loại edge đã kích (1 nhấn/nhả = 1 đòn; special "thắng" normal qua ConsumePress).
+                if (releaseTrigger) _ctx.Parser.ConsumeRelease(e.button, win);
+                else _ctx.Parser.ConsumePress(e.button, win);
+
+                // Special CÓ HITBOX TRỰC TIẾP (reversal/anti-air) cần MoveData cho HitboxController. Projectile
+                // KHÔNG (ProjectileSpawner gán khi spawn). Gọi SetCurrentMove qua SendMessage để FA.Specials
+                // KHÔNG ref FA.Combat (§1.3) — HitboxController (P5) có method public SetCurrentMove(MoveData).
+                if (hitboxController != null)
+                    hitboxController.SendMessage("SetCurrentMove", chosen, SendMessageOptions.DontRequireReceiver);
+
+                _specialState.SetMove(chosen);
+                _ctx.Machine.ChangeState(_specialState);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>Đủ mana? Trừ ngay nếu move có cost. move không cost (0 ô) → luôn true. Thiếu ô → false.</summary>
+        private bool SpendIfNeeded(MoveData move)
+        {
+            int cost = move.manaCostUnits;
+            if (cost <= 0) return true;
+            if (_mana == null) return false; // có cost nhưng không có thanh mana → không cho ra.
+            return _mana.TrySpend(cost);
+        }
+
+        /// <summary>Special motion chỉ khi GROUNDED & đang Idle/Walk (ground-neutral). Super không qua đây.</summary>
+        private bool CanSpecialNow()
+        {
+            if (!_ctx.IsGrounded) return false;
+            IState s = _ctx.Machine.CurrentState;
+            return ReferenceEquals(s, _ctx.IdleState()) || ReferenceEquals(s, _ctx.WalkState());
+        }
+
+        // Cửa sổ motion: dùng EdgeWindow×2 tạm (motion cần nhiều frame hơn edge). InputConfigSO có
+        // motionWindow nhưng ICombatContext chưa expose → nhân đôi edge cho gần đúng (CẦN TEST; chỉnh
+        // bằng cách mở rộng ICombatContext sau nếu muốn đọc đúng InputConfigSO.motionWindow).
+        private int MotionWindow => _ctx.EdgeWindow * 2;
+    }
+}

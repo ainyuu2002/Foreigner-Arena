@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb08a301b90819040bb296ea78e3554e, type: 3}
+  m_Name: Harness_CharacterRegistry
+  m_EditorClassIdentifier: FA.GameFlow::FA.GameFlow.CharacterRegistrySO
+  entries:
+  - displayName: Harness Fighter
+    icon: {fileID: 0}
+    prefabP1: {fileID: 3898550398890612528, guid: e82030a469676e6428780b6c3fb592ec, type: 3}
+    prefabP2: {fileID: 1767559637319753129, guid: f8cef16d93ebf5d46aebf8cea4410c08, type: 3}

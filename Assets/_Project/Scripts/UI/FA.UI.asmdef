@@ -1,0 +1,16 @@
+{
+    "name": "FA.UI",
+    "rootNamespace": "FA.UI",
+    "references": [
+        "FA.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

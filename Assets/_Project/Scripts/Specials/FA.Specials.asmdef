@@ -1,0 +1,16 @@
+{
+    "name": "FA.Specials",
+    "rootNamespace": "FA.Specials",
+    "references": [
+        "FA.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

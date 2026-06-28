@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa57a6e0c0a5e1114a0a0a0a0a0a0a0a, type: 3}
+  m_Name: StageConfig_Ice
+  m_EditorClassIdentifier: FA.Stage::FA.Stage.StageConfigSO
+  breakThreshold: 100
+  wallImpactMinSpeed: 12
+  wallRecovers: 1
+  wallRecoverDelay: 5
+  wallRecoverPerSec: 20
+  crackedHitboxDamagePercent: 3
+  snowstormInterval: 12
+  snowstormDuration: 5
+  snowstormRandomJitter: 3
+  snowstormNudgeInterval: 0.4
+  snowstormPushForce: 3
+  snowstormSlowFactor: 0.85
+  firePercentPerSec: 2.5
+  fireStillSpeedEpsilon: 0.1
+  lavaRiseSpeed: 0.4
+  lavaWarningLead: 2.5
+  lavaWarningBlinkPeriod: 0.25

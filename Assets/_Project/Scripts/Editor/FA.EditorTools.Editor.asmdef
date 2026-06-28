@@ -1,0 +1,25 @@
+{
+    "name": "FA.EditorTools.Editor",
+    "rootNamespace": "FA.EditorTools",
+    "references": [
+        "FA.Core",
+        "FA.Combat",
+        "FA.Resources",
+        "FA.UI",
+        "FA.GameFlow",
+        "FA.Stage",
+        "FA.Movement",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
