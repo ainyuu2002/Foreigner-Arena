@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace FA.Core
@@ -121,5 +122,37 @@ namespace FA.Core
         [Header("Hitstop")]
         [Tooltip("Số frame freeze cả 2 khi trúng (4–8). P5 dùng (Animator.speed=0 tạm). CẦN TEST.")]
         [Min(0)] public int hitstopFrames = 6;
+
+        [Header("Di chuyển trong đòn (P14 — Move Motion)")]
+        [Tooltip("Danh sách CÚ ĐẨY TỨC THỜI (impulse), FACING-RELATIVE: x = TIẾN dương (lùi âm), " +
+                 "y = LÊN dương. Đơn vị = VẬN TỐC (m/s) vì controller SET linearVelocity (KHÔNG phải lực — " +
+                 "deterministic, không phụ thuộc mass). Animation Event MoveImpulse(i) trên clip chọn phần tử " +
+                 "thứ i (timing 100% từ clip — QUY TẮC VÀNG §1.1, KHÔNG số frame trong code). " +
+                 "y!=0 mới set vy (lao chéo lên), y==0 GIỮ vy hiện tại (không phá rơi/đứng). " +
+                 "Rỗng = không có impulse. Vd nH lao tới [(6,0)]; lao chéo [(4,3)]. CẦN TEST.")]
+        public List<Vector2> motionImpulses = new List<Vector2>();
+
+        [Tooltip("Vận tốc ngang SUSTAINED (m/s) khi cửa sổ MoveDriftOn..MoveDriftOff đang mở — " +
+                 "FACING-RELATIVE (dương = tiến). Mỗi FixedTick controller GÁN vx = facing×driftSpeed (đè " +
+                 "trôi tự nhiên) → trượt đều, dừng dứt khoát khi MoveDriftOff. 0 = không drift. " +
+                 "Vd đá tiến chân trượt: 2.5. CẦN TEST.")]
+        public float driftSpeed = 0f;
+
+        /// <summary>
+        /// CỔNG NO-REGRESSION (P14): true nếu đòn này có khai báo bất kỳ chuyển động nào (impulse hoặc
+        /// drift). State chỉ UỶ QUYỀN vx cho MoveMotionController khi true; false ⇒ giữ NGUYÊN hành vi cũ
+        /// (ghì vx=0 mặt đất) như P5/P9. Mọi MoveData cũ (không điền 2 field trên) ⇒ false ⇒ đứng yên y hệt.
+        /// </summary>
+        public bool HasMoveMotion =>
+            (motionImpulses != null && motionImpulses.Count > 0) || driftSpeed != 0f;
+
+        [Header("Nối đòn (P15 — Combo Chain)")]
+        [Tooltip("Các đòn NỐI TIẾP (target combo / rekka). RỖNG = một-nhấn-một-đòn y như P5/P9 (cổng " +
+                 "no-regression). Mỗi mắt: nút + (tùy) motion + điều kiện (Always = nối tự do trong cửa " +
+                 "sổ cancel; OnHit = đòn này phải TRÚNG, block không tính) + MoveData kế. Cửa sổ nối = " +
+                 "Animation Event CancelWindowOpen/Close trên clip (KHÔNG số frame ở đây — QUY TẮC VÀNG " +
+                 "§1.1). Vd JJJ: nL1.followUps=[{L,None,Always,nL2}], nL2.followUps=[{L,None,OnHit,nL3}]. " +
+                 "Áp cho MỌI move (normal/special/super).")]
+        public List<FollowUp> followUps = new List<FollowUp>();
     }
 }

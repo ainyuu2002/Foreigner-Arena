@@ -18,7 +18,7 @@ MonoBehaviour:
   clip: {fileID: 7400000, guid: c35aa2b44620e844790c56db59589c26, type: 2}
   motion: 0
   button: 4
-  chargeFrames: 0
+  chargeFrames: 10
   manaCostUnits: 0
   rageCost: 0
   requiresRageMode: 0
@@ -27,6 +27,7 @@ MonoBehaviour:
   baseKnockback: 5
   knockbackGrowth: 0.1
   isSpike: 0
+  causesLaunch: 0
   role: 1
   onBlockAdvantage: 0
   onHitAdvantage: 0
@@ -34,3 +35,5 @@ MonoBehaviour:
   hitsHigh: 1
   hitstunFrames: 12
   hitstopFrames: 4
+  motionImpulses: []
+  driftSpeed: 0

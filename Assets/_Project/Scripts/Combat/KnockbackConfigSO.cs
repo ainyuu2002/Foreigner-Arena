@@ -35,12 +35,10 @@ namespace FA.Combat
         [Tooltip("Weight chuẩn: force × (referenceWeight / victimMass). Nặng hơn ref → bay ít hơn. CẦN TEST.")]
         [Min(0.01f)] public float referenceWeight = 1f;
 
-        [Tooltip("Combo coi như KẾT THÚC sau N fixed-step không có hit mới → apply pending knockback " +
-                 "(GDD §3.6 'bay sau combo'). PHẢI ≥ ComboCounter.comboResetFrames(24) để victim không bay " +
-                 "trước khi combo thật đứt. RÀNG BUỘC: release > hurtstun đòn (nL/nM/nH=12/16/20) nên victim " +
-                 "sẽ HẾT hurtstun TRƯỚC khi bay — HurtState đọc IPendingKnockback để Ở LẠI Hurt (không về " +
-                 "neutral trước khi bị bốc vào tumble). CẦN TEST.")]
-        [Min(1)] public int knockbackReleaseFrames = 26;
+        // (P16) ĐÃ BỎ `knockbackReleaseFrames` (P7 cũ = 26): không còn chờ timer "combo coi như kết thúc"
+        // mới văng. KnockbackResolver giờ VĂNG tại Animation Event KnockbackPoint (frame hit cuối) — bay
+        // ngay khi hết hitstop; attacker đang nối → không raise launch → không văng. Xem
+        // [[phase16-knockback]] / [[phase7-knockback]].
 
         [Header("DI (Directional Influence) — digital")]
         [Tooltip("DI xoay vector knockback tối đa ±N° theo input victim (digital, vài độ §5 CLAUDE.md). " +

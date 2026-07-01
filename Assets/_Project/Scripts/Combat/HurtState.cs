@@ -102,9 +102,11 @@ namespace FA.Combat
             if (_framesLeft > 0) _framesLeft--;
             if (_framesLeft > 0) return;
 
-            // (P7 neutral-gap fix) hurtstun (≤20f) < knockbackReleaseFrames (26f): nếu resolver còn
-            // knockback CHỜ áp trên victim này → Ở LẠI Hurt, KHÔNG về Idle (resolver sẽ bốc vào tumble).
-            // Tránh victim về neutral ~6 frame rồi mới bị bốc bay. Prefab không có resolver (null) → bỏ qua.
+            // (P7/P16 neutral-gap fix) Nếu resolver còn knockback CHỜ áp trên victim này → Ở LẠI Hurt,
+            // KHÔNG về Idle (resolver sẽ bốc vào tumble). P16 bỏ release-timer 26f: pending áp tại
+            // hitstop+1 (thường < hurtstun) ⇒ neutral-gap gần như biến mất → ổn hơn P7. Khi attacker nối
+            // (CancelPending) → HasPendingKnockback=false → về neutral như mọi hit-trong-combo. Resolver
+            // null (prefab cũ) → bỏ qua nhánh này.
             if (_pendingKnockback != null && _pendingKnockback.HasPendingKnockback) return;
 
             // Hết hurtstun → về Idle/Walk theo ý định di chuyển hiện tại (đứng đất). Trên không vẫn
