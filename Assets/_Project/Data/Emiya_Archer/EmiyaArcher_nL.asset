@@ -24,9 +24,10 @@ MonoBehaviour:
   requiresRageMode: 0
   baseDamagePercent: 3
   launchAngle: 45
-  baseKnockback: 5
+  baseKnockback: 3
   knockbackGrowth: 0.1
   isSpike: 0
+  causesLaunch: 0
   role: 0
   onBlockAdvantage: 0
   onHitAdvantage: 0
@@ -34,3 +35,12 @@ MonoBehaviour:
   hitsHigh: 1
   hitstunFrames: 12
   hitstopFrames: 4
+  motionImpulses:
+  - {x: 2, y: 0}
+  - {x: 1, y: 0}
+  driftSpeed: 0
+  followUps:
+  - button: 2
+    motion: 0
+    condition: 0
+    nextMove: {fileID: 11400000, guid: 1ef98af51277f4f449fe7fd7b4c4ebb9, type: 2}

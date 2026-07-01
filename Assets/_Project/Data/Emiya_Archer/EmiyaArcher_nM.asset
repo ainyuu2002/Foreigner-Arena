@@ -35,3 +35,6 @@ MonoBehaviour:
   hitsHigh: 1
   hitstunFrames: 16
   hitstopFrames: 6
+  motionImpulses:
+  - {x: 5, y: 0}
+  driftSpeed: 0

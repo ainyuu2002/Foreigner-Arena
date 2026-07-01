@@ -33,6 +33,8 @@ GameObject:
   - component: {fileID: 1217392058149142661}
   - component: {fileID: 8609899418826600019}
   - component: {fileID: 5415616662416377954}
+  - component: {fileID: -5399839138248078643}
+  - component: {fileID: 8980736283600721634}
   m_Layer: 11
   m_Name: Emiya Archer
   m_TagString: Untagged
@@ -247,7 +249,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 584454292511064029}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 56a5e3bd14c230a4f945d1b053de1398, type: 3}
   m_Name: 
@@ -288,6 +290,8 @@ MonoBehaviour:
   cancelWindowCloseChannel: {fileID: 0}
   footstepChannel: {fileID: 0}
   spawnProjectileChannel: {fileID: 0}
+  hurtboxOffChannel: {fileID: 0}
+  hurtboxOnChannel: {fileID: 0}
 --- !u!114 &5635288751740709915
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295,7 +299,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 584454292511064029}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4d8a38291b3056408f27e059b4c3b49, type: 3}
   m_Name: 
@@ -318,6 +322,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FA.Combat::FA.Combat.CombatController
   relay: {fileID: -6127148562445082577}
   hitboxController: {fileID: 1356918369982899276}
+  onComboContinues: {fileID: 11400000, guid: cb6aab99b2e1f35498f01071451d3a68, type: 2}
   nL: {fileID: 11400000, guid: 4de8e94b78966f94c82db45040bed02a, type: 2}
   nM: {fileID: 11400000, guid: f6c76decc45333b438e359f2f41a30db, type: 2}
   nH: {fileID: 11400000, guid: 498d5c43d94e5c34e829099016774eb2, type: 2}
@@ -441,6 +446,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FA.Combat::FA.Combat.KnockbackResolver
   onHitConfirmed: {fileID: 11400000, guid: c562eebe48484723967febf4e694280c, type: 2}
+  onComboContinues: {fileID: 11400000, guid: cb6aab99b2e1f35498f01071451d3a68, type: 2}
   config: {fileID: 11400000, guid: 839d36856b5a9b34db9995a819ad63b4, type: 2}
   percent: {fileID: 8364922129431121209}
   knockback: {fileID: 143961383263140265}
@@ -529,6 +535,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FA.Specials::FA.Specials.SpecialController
   relay: {fileID: -6127148562445082577}
   moveSet: {fileID: 0}
+  onComboContinues: {fileID: 11400000, guid: cb6aab99b2e1f35498f01071451d3a68, type: 2}
   hitboxController: {fileID: 0}
 --- !u!114 &5415616662416377954
 MonoBehaviour:
@@ -548,6 +555,34 @@ MonoBehaviour:
   hitChannel: {fileID: 11400000, guid: 08c5467211d11d347a546463f7ceb315, type: 2}
   projectilePrefabs: []
   projectileSpeed: 10
+--- !u!114 &-5399839138248078643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c14590c1cb9db6a4680c82e7926c364e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Core::FA.Core.MoveMotionController
+  body: {fileID: 0}
+  relay: {fileID: 0}
+--- !u!114 &8980736283600721634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7f546a5a26cfd844b3715a45b5863e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Core::FA.Core.HitConfirmTracker
+  onHitConfirmed: {fileID: 11400000, guid: c562eebe48484723967febf4e694280c, type: 2}
+  root: {fileID: 0}
 --- !u!1 &1147203450710317211
 GameObject:
   m_ObjectHideFlags: 0

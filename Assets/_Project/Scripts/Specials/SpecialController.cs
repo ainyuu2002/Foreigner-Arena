@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using FA.Core;
 
 namespace FA.Specials
@@ -28,6 +29,12 @@ namespace FA.Specials
         [Tooltip("Bảng special/super (MoveSetData, Core). Thêm đòn = thêm ENTRY asset (extensible).")]
         [SerializeField] private MoveSetData moveSet;
 
+        [Tooltip("(P16) OnKnockbackLaunch (GameObjectEventChannelSO) — Special/SuperState RAISE tại Animation " +
+                 "Event KnockbackPoint (frame hit cuối) khi KHÔNG nối → victim VĂNG pending. CÙNG asset gán " +
+                 "vào KnockbackResolver (listen) & CombatController. Bỏ trống = đòn KHÔNG văng (chỉ spike/launcher).")]
+        [FormerlySerializedAs("onComboContinues")]
+        [SerializeField] private GameObjectEventChannelSO onKnockbackLaunch;
+
         [Tooltip("HitboxController cùng prefab (P5) — set MoveData hiện hành cho special CÓ HITBOX TRỰC " +
                  "TIẾP (reversal/anti-air). Projectile KHÔNG dùng cái này (ProjectileSpawner gán riêng). " +
                  "Bỏ trống nếu mọi special đều là projectile.")]
@@ -52,8 +59,18 @@ namespace FA.Specials
                 enabled = false;
                 return;
             }
-            _specialState = new SpecialState(_ctx, relay);
-            _superState = new SuperState(_ctx, relay);
+            // (P14) MoveMotionController cùng prefab (Core) — uỷ quyền vx cho special/super CÓ chuyển động.
+            // Null ở prefab cũ → các state giữ hành vi cũ (no-regression).
+            var motion = GetComponent<MoveMotionController>();
+            // (P15) HitConfirmTracker cùng prefab (Core) — follow-up điều kiện OnHit. Null → coi như chưa trúng.
+            // hitboxController truyền vào state để BeginMove re-point MoveData mỗi mắt nối (qua SendMessage).
+            var hitConfirm = GetComponent<HitConfirmTracker>();
+            // (P16) Root attacker → raise OnKnockbackLaunch (so HitData.Attacker bên victim).
+            GameObject attackerRoot = transform.root.gameObject;
+            _specialState = new SpecialState(_ctx, relay, motion, hitboxController, hitConfirm,
+                                             onKnockbackLaunch, attackerRoot);
+            _superState = new SuperState(_ctx, relay, motion, hitboxController, hitConfirm,
+                                         onKnockbackLaunch, attackerRoot);
         }
 
         // ===== Cờ trạng thái (FacingController/khác gate auto-face nếu cần — đối xứng CombatController) =====
@@ -155,12 +172,10 @@ namespace FA.Specials
                 if (releaseTrigger) _ctx.Parser.ConsumeRelease(e.button, win);
                 else _ctx.Parser.ConsumePress(e.button, win);
 
-                // Special CÓ HITBOX TRỰC TIẾP (reversal/anti-air) cần MoveData cho HitboxController. Projectile
-                // KHÔNG (ProjectileSpawner gán khi spawn). Gọi SetCurrentMove qua SendMessage để FA.Specials
-                // KHÔNG ref FA.Combat (§1.3) — HitboxController (P5) có method public SetCurrentMove(MoveData).
-                if (hitboxController != null)
-                    hitboxController.SendMessage("SetCurrentMove", chosen, SendMessageOptions.DontRequireReceiver);
-
+                // (P15) Re-point MoveData hitbox đã CHUYỂN vào SpecialState.BeginMove (gọi SendMessage
+                // "SetCurrentMove") để mỗi mắt nối tự cập nhật — KHÔNG cần gọi ở đây nữa. FA.Specials vẫn
+                // KHÔNG ref FA.Combat (§1.3) vì BeginMove cũng dùng SendMessage. Projectile dùng
+                // ProjectileSpawner riêng → DontRequireReceiver an toàn.
                 _specialState.SetMove(chosen);
                 _ctx.Machine.ChangeState(_specialState);
                 return true;
