@@ -14,25 +14,34 @@ namespace FA.Combat
     /// Literal Combat StateId = 18. Animator: state "GroundBounce" transition Any State theo StateId==18,
     /// Has Exit Time OFF, BỎ Can Transition To Self. KHÔNG zero velocity (để bounciness văng lên) — khác
     /// WallSplat (dán). Gate "đã rời đất" tránh kẹt frame 0 (relay vừa va = vẫn đang chạm).
+    ///
+    /// FAILSAFE chống kẹt (cùng lớp bug wall-splat-sát-đất của LauncherState): nếu cú nảy bị hấp thụ hết
+    /// (bounciness thấp / prefab CHƯA gán bounceMaterial) → victim KHÔNG rời đất → _leftGround không bao
+    /// giờ true → kẹt 18 vĩnh viễn. Sau groundedFailsafeFrames không rời được đất → trả về tumble
+    /// (tumble có failsafe riêng sẽ đáp về Idle).
     /// </summary>
     public sealed class GroundBounceState : IState
     {
         public const int GroundBounceStateId = 18;
 
         private readonly ICombatContext _ctx;
+        private readonly KnockbackConfigSO _config;
         private readonly LauncherState _tumble;
 
         private bool _leftGround;
+        private int _stuckFrames; // failsafe: đếm frame vẫn dính đất sau va (nảy không nhấc nổi).
 
-        public GroundBounceState(ICombatContext ctx, LauncherState tumble)
+        public GroundBounceState(ICombatContext ctx, KnockbackConfigSO config, LauncherState tumble)
         {
             _ctx = ctx;
+            _config = config;
             _tumble = tumble;
         }
 
         public void Enter()
         {
             _leftGround = false;
+            _stuckFrames = 0;
             _ctx.Animator.SetInteger(CoreAnimatorParams.StateId, GroundBounceStateId);
             _ctx.SetHitstun(true); // ground-bounce = đang bị juggle → Air Dodge bị chặn.
         }
@@ -46,6 +55,15 @@ namespace FA.Combat
             if (!_ctx.IsGrounded) { _leftGround = true; }
 
             if (_leftGround)
+            {
+                _ctx.Machine.ChangeState(_tumble);
+                return;
+            }
+
+            // FAILSAFE (xem doc class): nảy bị hấp thụ → không rời đất nổi → về tumble sau N frame.
+            _stuckFrames++;
+            int failsafe = _config != null ? _config.groundedFailsafeFrames : 8;
+            if (_stuckFrames >= failsafe)
                 _ctx.Machine.ChangeState(_tumble);
         }
 

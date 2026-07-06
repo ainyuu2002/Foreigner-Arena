@@ -84,10 +84,13 @@ namespace FA.Combat
             var hitConfirm = GetComponent<HitConfirmTracker>();
             // (P16) Root attacker truyền vào AttackState để raise OnKnockbackLaunch (so HitData.Attacker bên victim).
             GameObject attackerRoot = transform.root.gameObject;
+            // (Fix mượt combat) HitstopController cùng prefab — Hurt/Block ĐỨNG đồng hồ stun + hoãn
+            // pushback trong hitstop (IsFrozen). Null (prefab/test thiếu) → hành vi đếm-liên-tục cũ.
+            var hitstop = GetComponent<HitstopController>();
             _attackState = new AttackState(_ctx, relay, motion, hitboxController, hitConfirm,
                                            onKnockbackLaunch, attackerRoot);
-            _hurtState = new HurtState(_ctx, hurtPushback, hurtVariantCount, pendingKnockback);
-            _blockState = new BlockState(_ctx);
+            _hurtState = new HurtState(_ctx, hurtPushback, hurtVariantCount, pendingKnockback, hitstop);
+            _blockState = new BlockState(_ctx, hitstop);
         }
 
         // ===== Getter state combat (cùng module — HitReaction/Facing dùng) =====

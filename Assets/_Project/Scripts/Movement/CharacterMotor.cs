@@ -179,6 +179,27 @@ namespace FA.Movement
             if (data != null) body.gravityScale = data.gravityScale;
         }
 
+        /// <summary>Tay cầm đang PAIR với Motor này — cho haptics/rumble (GamepadRumble). Scheme
+        /// Gamepad → đúng pad theo gamepadIndex (P2 không rung nhầm tay P1); Keyboard → null (không
+        /// rumble); AnyDevice → Gamepad.current (tay cầm active gần nhất, null nếu không cắm).
+        /// Resolve MỖI LẦN GỌI (không cache) — bền với rút/cắm tay cầm giữa trận.</summary>
+        public Gamepad PairedGamepad
+        {
+            get
+            {
+                switch (inputScheme)
+                {
+                    case InputScheme.Gamepad:
+                        var pads = Gamepad.all;
+                        return pads.Count > gamepadIndex ? pads[gamepadIndex] : null;
+                    case InputScheme.Keyboard:
+                        return null;
+                    default:
+                        return Gamepad.current;
+                }
+            }
+        }
+
         public IState IdleState() => _idle;
         public IState WalkState() => _walk;
         public IState JumpState() => _jump;

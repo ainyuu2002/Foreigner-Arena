@@ -1675,7 +1675,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 2.7424877
+  orthographic size: 3.0716338
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1700,7 +1700,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.2608898, y: -0.8015807, z: -5}
+  m_LocalPosition: {x: -0.7908896, y: 0.81923616, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2044,7 +2044,7 @@ Transform:
   m_GameObject: {fileID: 611124980}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.4937568, y: -0.79895, z: 0}
+  m_LocalPosition: {x: -1.0257071, y: -0.71940637, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2602,7 +2602,7 @@ Transform:
   m_GameObject: {fileID: 821364090}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.4937568, y: -0.79895, z: -5}
+  m_LocalPosition: {x: -1.0257071, y: -0.71940637, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2622,13 +2622,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineGroupFraming
   FramingMode: 2
   FramingSize: 0.8
-  CenterOffset: {x: 0, y: 0}
+  CenterOffset: {x: 0, y: -0.5}
   Damping: 2
   SizeAdjustment: 2
   LateralAdjustment: 0
   FovRange: {x: 1, y: 100}
   DollyRange: {x: -100, y: 100}
-  OrthoSizeRange: {x: 1, y: 1000}
+  OrthoSizeRange: {x: 3, y: 10}
 --- !u!1 &844984170
 GameObject:
   m_ObjectHideFlags: 0
@@ -5804,6 +5804,10 @@ PrefabInstance:
       propertyPath: onManaSegmentsChanged
       value: 
       objectReference: {fileID: 11400000, guid: 2cfd00c5e1582174aa69bc53841af11b, type: 2}
+    - target: {fileID: 143961383263140265, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
+      propertyPath: opponentBodyCollider
+      value: 
+      objectReference: {fileID: 2118249522}
     - target: {fileID: 584454292511064029, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
       propertyPath: m_Name
       value: Archer (1)
@@ -5842,11 +5846,11 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: ba323a94d1867ee4aa38c9840bdfe92d, type: 2}
     - target: {fileID: 5807218119454530032, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.14
+      value: 3.08
       objectReference: {fileID: 0}
     - target: {fileID: 5807218119454530032, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.84
+      value: -0.67
       objectReference: {fileID: 0}
     - target: {fileID: 5807218119454530032, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6149,6 +6153,10 @@ PrefabInstance:
       propertyPath: onManaSegmentsChanged
       value: 
       objectReference: {fileID: 11400000, guid: a1eb72dcbe389bd459df6a89ddd99bd3, type: 2}
+    - target: {fileID: 143961383263140265, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
+      propertyPath: opponentBodyCollider
+      value: 
+      objectReference: {fileID: 409998679}
     - target: {fileID: 584454292511064029, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
       propertyPath: m_Name
       value: Archer

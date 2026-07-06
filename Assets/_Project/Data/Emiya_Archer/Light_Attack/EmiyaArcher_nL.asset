@@ -10,31 +10,37 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6c4b9168800b97d4eb5191c6042d08ba, type: 3}
-  m_Name: EmiyaArcher_nM
+  m_Name: EmiyaArcher_nL
   m_EditorClassIdentifier: FA.Core::FA.Core.MoveData
-  moveId: nM1
+  moveId: nL1
   category: 0
-  animatorStateId: 9
-  clip: {fileID: 7400000, guid: da0e862e0f2df7f4a9a59587d99aa874, type: 2}
+  animatorStateId: 8
+  clip: {fileID: 7400000, guid: 3c1e87836ffdf4d43bcb485f54693564, type: 2}
   motion: 0
-  button: 3
+  button: 2
   chargeFrames: 0
   manaCostUnits: 0
   rageCost: 0
   requiresRageMode: 0
-  baseDamagePercent: 5
-  launchAngle: 45
-  baseKnockback: 5
+  baseDamagePercent: 3
+  launchAngle: 20
+  baseKnockback: 3
   knockbackGrowth: 0.1
   isSpike: 0
-  causesLaunch: 1
+  causesLaunch: 0
   role: 0
   onBlockAdvantage: 0
   onHitAdvantage: 0
   hitsLow: 0
   hitsHigh: 1
-  hitstunFrames: 16
+  hitstunFrames: 12
   hitstopFrames: 6
   motionImpulses:
-  - {x: 5, y: 0}
+  - {x: 2, y: 0}
+  - {x: 1, y: 0}
   driftSpeed: 0
+  followUps:
+  - button: 2
+    motion: 0
+    condition: 0
+    nextMove: {fileID: 11400000, guid: 1ef98af51277f4f449fe7fd7b4c4ebb9, type: 2}

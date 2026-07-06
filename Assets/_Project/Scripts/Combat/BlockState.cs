@@ -26,20 +26,38 @@ namespace FA.Combat
 
         private readonly ICombatContext _ctx;
 
-        private bool _low;        // true = block-Low (Back+Down), false = block-High (Back).
-        private int _framesLeft;  // số FixedUpdate blockstun còn lại (đếm hợp lệ — phản ứng bị đòn).
+        // Hitstop cùng prefab (cùng module) — ĐỨNG đồng hồ blockstun + hoãn pushback trong freeze
+        // (đối xứng HurtState). Null → đếm liên tục như cũ (no-regression).
+        private readonly HitstopController _hitstop;
 
-        public BlockState(ICombatContext ctx) => _ctx = ctx;
+        private bool _low;         // true = block-Low (Back+Down), false = block-High (Back).
+        private int _framesLeft;   // số FixedUpdate blockstun còn lại (đếm hợp lệ — phản ứng bị đòn).
+        private float _pushVx;     // pushback ra-xa-địch chờ áp (đẩy dần ra rìa — GDD).
+        private bool _pushPending; // áp 1 lần ở FixedTick kế SAU hitstop (không thì bị zero-velocity nuốt).
+
+        public BlockState(ICombatContext ctx, HitstopController hitstop = null)
+        {
+            _ctx = ctx;
+            _hitstop = hitstop;
+        }
 
         /// <summary>Loại block hiện hành — HitReactionController đọc để khớp HitsHigh/HitsLow.</summary>
         public bool IsLow => _low;
 
         /// <summary>HitReactionController gọi TRƯỚC ChangeState(Block) khi đỡ trúng. Nếu ĐANG block
-        /// (đỡ tiếp) → refresh blockstun + cập nhật cao↔thấp (ChangeState sẽ no-op self → không giật).</summary>
-        public void SetBlock(bool low, int blockstunFrames)
+        /// (đỡ tiếp) → refresh blockstun + cập nhật cao↔thấp (ChangeState sẽ no-op self → không giật).
+        /// pushbackVx = vận tốc ngang ra-xa-địch (đã nhân dấu FacingSign) — áp PENDING ở FixedTick sau
+        /// hitstop, KHÔNG set thẳng velocity tại frame trúng (hitstop zero-velocity sẽ nuốt, và kết quả
+        /// phụ thuộc thứ tự subscriber OnHitLanded — không deterministic).</summary>
+        public void SetBlock(bool low, int blockstunFrames, float pushbackVx = 0f)
         {
             bool already = ReferenceEquals(_ctx.Machine.CurrentState, this);
             _framesLeft = Mathf.Max(1, blockstunFrames);
+            if (pushbackVx != 0f)
+            {
+                _pushVx = pushbackVx;
+                _pushPending = true;
+            }
             if (_low != low)
             {
                 _low = low;
@@ -56,10 +74,20 @@ namespace FA.Combat
 
         public void FixedTick(float dt)
         {
-            // Đứng thủ: ghì vx≈0 khi đứng đất (giữ vy cho gravity). Pushback khi đỡ trúng do
-            // HitReactionController áp ở frame trúng → frame sau mới ghì lại → vẫn lùi dần ra rìa.
-            if (_ctx.IsGrounded)
+            // ĐỨNG YÊN trong hitstop (đối xứng HurtState): không đếm blockstun, không áp/ghì velocity.
+            if (_hitstop != null && _hitstop.IsFrozen) return;
+
+            if (_pushPending)
             {
+                // Pushback ra-xa-địch 1 lần SAU hitstop (đẩy dần ra rìa — GDD). Frame sau ghì lại vx=0.
+                _pushPending = false;
+                Vector2 pv = _ctx.Body.linearVelocity;
+                pv.x = _pushVx;
+                _ctx.Body.linearVelocity = pv;
+            }
+            else if (_ctx.IsGrounded)
+            {
+                // Đứng thủ: ghì vx≈0 khi đứng đất (giữ vy cho gravity).
                 Vector2 v = _ctx.Body.linearVelocity;
                 v.x = 0f;
                 _ctx.Body.linearVelocity = v;
