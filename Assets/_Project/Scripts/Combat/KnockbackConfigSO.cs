@@ -49,7 +49,13 @@ namespace FA.Combat
         public bool enableSDI = false;
 
         [Header("Wall Splat")]
-        [Tooltip("Tốc độ va tường tối thiểu để DÁN tường (dưới = chỉ mất đà, Rigidbody2D tự xử). CẦN TEST.")]
+        [Tooltip("BẬT cơ chế DÁN tường (WallSplat 17)? Quyết định người dùng 2026-07-02: TẮT — va tường " +
+                 "khi bị đòn LUÔN BẬT RA bằng PhysicsMaterial2D bounciness (như bóng, hấp thụ theo hệ số " +
+                 "trên material), không dán. Tick lại nếu muốn kiểu SFV wall-splat.")]
+        public bool enableWallSplat = false;
+
+        [Tooltip("Tốc độ va tường tối thiểu để DÁN tường (dưới = chỉ mất đà, Rigidbody2D tự xử). " +
+                 "Chỉ dùng khi enableWallSplat bật. CẦN TEST.")]
         [Min(0f)] public float wallSplatSpeedThreshold = 12f;
 
         [Tooltip("Số fixed-step DÁN tường (stun) trước khi rơi xuống juggle tiếp. CẦN TEST.")]
@@ -69,6 +75,12 @@ namespace FA.Combat
         [Header("Tumble / về-ground")]
         [Tooltip("Tốc độ tổng dưới ngưỡng này + chạm đất → THOÁT tumble về Idle/Walk (hết bay). CẦN TEST.")]
         [Min(0f)] public float tumbleEndSpeed = 1.5f;
+
+        [Tooltip("FAILSAFE chống kẹt: vào Tumble/GroundBounce khi ĐÃ đứng đất (wall-splat sát đất, bounce " +
+                 "bị hấp thụ, knockback trượt ngang) → không bao giờ 'rời đất' → gate landing _hasLeftGround " +
+                 "chặn vĩnh viễn. Sau N fixed-step liên tục trên đất không rời được (tumble: kèm hết đà) → " +
+                 "coi như đã đáp. CẦN TEST.")]
+        [Min(1)] public int groundedFailsafeFrames = 8;
 
         /// <summary>+1%/hit milestone (khớp ComboCounter) — KnockbackPercent gọi để cộng đúng GDD.</summary>
         public int MilestoneBonus(int comboCount)

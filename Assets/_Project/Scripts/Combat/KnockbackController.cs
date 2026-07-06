@@ -30,20 +30,40 @@ namespace FA.Combat
         [Tooltip("Material BOUNCE gán lên thân khi đang tumble (bounciness wall/ground). Bỏ trống = không nảy.")]
         [SerializeField] private PhysicsMaterial2D bounceMaterial;
 
+        [Header("Đối thủ (gán chéo tay trong scene — như FacingController.opponent)")]
+        [Tooltip("Collider2D THÂN đối thủ (kéo root đối thủ vào — capsule nằm trên root). Khi MÌNH đang " +
+                 "tumble/splat/bounce → IgnoreCollision với thân địch: xác bay XUYÊN người (không bị thân " +
+                 "attacker chặn cú knockback, không xô attacker, không nảy vào người). Null = giữ pushbox.")]
+        [SerializeField] private Collider2D opponentBodyCollider;
+
         // ICombatContext từ cùng prefab (CharacterMotor implement). Phụ thuộc Core interface.
         private ICombatContext _ctx;
+
+        // CombatController cùng prefab (CÙNG module — ref trực tiếp hợp lệ §1.3): hỏi IsHurt để giữ
+        // material NẢY cả khi đang Hurt giữa combo — quyết định người dùng 2026-07-02: đòn giữa chuỗi
+        // đẩy địch vào tường → địch BẬT RA (bounciness), không bị ép dính tường.
+        private CombatController _combat;
 
         private LauncherState _tumble;
         private WallSplatState _wallSplat;
         private GroundBounceState _groundBounce;
 
         private PhysicsMaterial2D _defaultMaterial;   // material thường (gỡ bounce khi về ground).
+        private bool _ignoringOpponent;               // cờ pushbox đang tắt (đổi mới gọi IgnoreCollision).
 
         public KnockbackConfigSO Config => config;
+
+        /// <summary>Cấp collider thân đối thủ runtime (P12 spawner/scene setup) — như FacingController.SetOpponent.</summary>
+        public void SetOpponentCollider(Collider2D c)
+        {
+            if (_ignoringOpponent) SetIgnoreOpponent(false); // gỡ ignore trên đối thủ CŨ trước khi đổi.
+            opponentBodyCollider = c;
+        }
 
         private void Awake()
         {
             _ctx = GetComponent<ICombatContext>();
+            _combat = GetComponent<CombatController>(); // null-safe (prefab thiếu → chỉ nảy khi tumble như cũ).
             if (bodyCollider == null) bodyCollider = GetComponentInChildren<CapsuleCollider2D>();
             if (config == null)
                 Debug.LogError("[KnockbackController] Thiếu KnockbackConfigSO.", this);
@@ -58,7 +78,7 @@ namespace FA.Combat
 
             _tumble = new LauncherState(_ctx, config);
             _wallSplat = new WallSplatState(_ctx, config, _tumble);
-            _groundBounce = new GroundBounceState(_ctx, _tumble);
+            _groundBounce = new GroundBounceState(_ctx, config, _tumble);
         }
 
         /// <summary>Đang ở 1 trong các air-reaction state (relay chỉ đổi splat/bounce khi đang tumble).</summary>
@@ -94,10 +114,40 @@ namespace FA.Combat
 
         private void Update()
         {
-            // Gỡ material nảy khi đã thoát mọi air-reaction state (về Idle/Walk/jump...) — tránh nảy lúc
-            // di chuyển thường (hồi quy P1–P3). Kiểm tra ở Update (đổi state có thể từ chính các state lo).
-            if (!IsTumbling && bodyCollider != null && bodyCollider.sharedMaterial == bounceMaterial)
+            // Material NẢY khi đang ở HIT-REACTION: tumble (P7) HOẶC Hurt giữa combo (quyết định người
+            // dùng: pushback đẩy địch vào tường → BẬT RA như bóng — bounciness lo, không code phản xạ).
+            // Gỡ khi về neutral — tránh nảy lúc đi/nhảy thường (hồi quy P1–P3). Quản 2 chiều ở Update
+            // (đổi state có thể từ nhiều nơi: HitReaction/resolver/chính các state).
+            if (bodyCollider == null) return;
+            bool tumbling = IsTumbling;
+            bool wantBounce = tumbling || (_combat != null && _combat.IsHurt);
+            if (wantBounce && bodyCollider.sharedMaterial != bounceMaterial)
+                ApplyBounceMaterial(true);
+            else if (!wantBounce && bodyCollider.sharedMaterial == bounceMaterial)
                 ApplyBounceMaterial(false);
+
+            // PUSHBOX 2 người: TẮT khi MÌNH đang bay knockback (tumble/splat/bounce) — xác bay xuyên
+            // người attacker (Smash-style): không bị thân địch chặn cú văng (nhất là bật tường bay
+            // ngược lại), không truyền động lượng xô attacker, không nảy bounce-material vào người.
+            // Hurt/Block mặt đất GIỮ pushbox (spacing kiểu SF — quyết định người dùng, case 1).
+            // Cờ _ignoringOpponent: chỉ gọi IgnoreCollision khi TRẠNG THÁI MÌNH đổi → 2 controller
+            // (mỗi bên 1 cái) không ghi đè nhau trên cùng cặp collider.
+            SetIgnoreOpponent(tumbling);
+        }
+
+        private void OnDisable()
+        {
+            // Trả pushbox khi bị disable giữa tumble (chết/respawn/đổi trận) — IgnoreCollision là trạng
+            // thái persistent của Physics2D, không tự hồi.
+            SetIgnoreOpponent(false);
+        }
+
+        private void SetIgnoreOpponent(bool ignore)
+        {
+            if (_ignoringOpponent == ignore) return;
+            if (bodyCollider == null || opponentBodyCollider == null) return;
+            Physics2D.IgnoreCollision(bodyCollider, opponentBodyCollider, ignore);
+            _ignoringOpponent = ignore;
         }
 
         private void ApplyBounceMaterial(bool on)
