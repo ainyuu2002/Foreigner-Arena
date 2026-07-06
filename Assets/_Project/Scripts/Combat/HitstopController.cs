@@ -34,6 +34,11 @@ namespace FA.Combat
         [SerializeField] private Animator animator;
 
         private int _framesLeft;            // số FixedUpdate còn freeze (0 = không freeze).
+
+        /// <summary>Đang trong hitstop? HurtState/BlockState (cùng module) hỏi để ĐÓNG BĂNG đồng hồ
+        /// hitstun/blockstun trong freeze — nếu vẫn đếm, thời gian hiển thị hurt = hitstun − hitstop
+        /// (vừa vào đã thoát) và pushback bị hitstop nuốt. Đồng hồ chỉ chạy khi hết freeze.</summary>
+        public bool IsFrozen => _framesLeft > 0;
         private Vector2 _savedVelocity;
         private float _savedGravityScale;
         private float _savedAnimatorSpeed;

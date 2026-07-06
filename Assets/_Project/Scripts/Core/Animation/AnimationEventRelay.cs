@@ -16,8 +16,11 @@ namespace FA.Core
     ///      Footstep/SpawnProjectile (sự kiện toàn cục, không phụ thuộc "ai").
     ///
     /// Danh sách tên method CỐ ĐỊNH (research §5): HitboxOn, HitboxOff, RecoveryEnd, CancelWindowOpen,
-    /// CancelWindowClose, Footstep, SpawnProjectile. Thêm tên mới = thêm 1 method ở đây + (tùy) 1 kênh.
-    /// Animation Event gọi tên KHÔNG có ở đây → Unity log warning → giữ danh sách này là duy nhất.
+    /// CancelWindowClose, Footstep, SpawnProjectile, HurtboxOff, HurtboxOn,
+    /// MoveImpulse, MoveDriftOn, MoveDriftOff (P14 — di chuyển trong đòn),
+    /// KnockbackPoint (P16 — frame hit-văng của đòn; chỉ frame có event này mới văng knockback). Thêm tên
+    /// mới = thêm 1 method ở đây + (tùy) 1 kênh. Animation Event gọi tên KHÔNG có ở đây → Unity log
+    /// warning → giữ danh sách này là duy nhất.
     /// </summary>
     public sealed class AnimationEventRelay : MonoBehaviour
     {
@@ -53,6 +56,17 @@ namespace FA.Core
         public event Action HurtboxOffEvent;
         /// <summary>(P10) BẬT lại hurtbox = kết thúc cửa sổ i-frame né.</summary>
         public event Action HurtboxOnEvent;
+        /// <summary>(P14) Áp 1 CÚ ĐẨY tức thời (impulse) trong đòn. int = chỉ số trong MoveData.motionImpulses
+        /// (0 nếu clip không truyền). MoveMotionController set linearVelocity theo facing.</summary>
+        public event Action<int> MoveImpulseEvent;
+        /// <summary>(P14) MỞ cửa sổ drift (vx sustained = facing×driftSpeed mỗi FixedTick tới khi Off).</summary>
+        public event Action MoveDriftOnEvent;
+        /// <summary>(P14) ĐÓNG cửa sổ drift (ngừng gán vx — trượt dừng dứt khoát).</summary>
+        public event Action MoveDriftOffEvent;
+        /// <summary>(P16) FRAME HIT-VĂNG của đòn (đặt trên hit CUỐI). Chỉ frame có event này mới quyết
+        /// văng knockback: attacker nghe → nếu KHÔNG đang nối thì raise OnKnockbackLaunch cho victim áp
+        /// pending. Hit thường (không có event) chỉ tích %/hitstun. KHÔNG đếm/đoán "hit cuối" trong code.</summary>
+        public event Action KnockbackPointEvent;
 
         // ===================== Method được Animation Event gọi =====================
         // Mỗi method CHỈ raise (decoupling §3.3). KHÔNG đếm frame, KHÔNG logic gameplay.
@@ -128,5 +142,21 @@ namespace FA.Core
             HurtboxOnEvent?.Invoke();
             if (hurtboxOnChannel != null) hurtboxOnChannel.RaiseEvent();
         }
+
+        /// <summary>(P14) Animation Event: cú đẩy tức thời (overload không tham số → index 0).</summary>
+        public void MoveImpulse() => MoveImpulse(0);
+
+        /// <summary>(P14) Animation Event: cú đẩy tức thời theo chỉ số (clip truyền Int).</summary>
+        public void MoveImpulse(int index) => MoveImpulseEvent?.Invoke(index);
+
+        /// <summary>(P14) Animation Event: mở cửa sổ drift.</summary>
+        public void MoveDriftOn() => MoveDriftOnEvent?.Invoke();
+
+        /// <summary>(P14) Animation Event: đóng cửa sổ drift.</summary>
+        public void MoveDriftOff() => MoveDriftOffEvent?.Invoke();
+
+        /// <summary>(P16) Animation Event: FRAME hit-văng (đặt trên hit CUỐI của đòn). Attacker state
+        /// nghe → xét nối; không nối thì raise OnKnockbackLaunch để victim văng pending.</summary>
+        public void KnockbackPoint() => KnockbackPointEvent?.Invoke();
     }
 }

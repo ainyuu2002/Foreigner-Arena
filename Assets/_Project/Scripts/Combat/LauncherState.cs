@@ -18,6 +18,13 @@ namespace FA.Combat
     /// landing-check sau khi đã rời đất → tránh "đáp ghost" ngay frame vào (knockback bốc lên rồi mới
     /// cho đáp). Wall-splat / ground-bounce do <see cref="KnockbackCollisionRelay"/> đổi state (không ở
     /// đây — state này chỉ lo tumble + về-ground).
+    ///
+    /// FAILSAFE chống kẹt (fix bug wall-splat sát đất): vào tumble khi ĐÃ grounded + velocity đã bị zero
+    /// (WallSplat vừa ghì) / knockback trượt ngang không bốc lên nổi → KHÔNG BAO GIỜ rời đất → gate trên
+    /// chặn landing VĨNH VIỄN (victim kẹt 16, nuốt input mãi). Nếu chưa-từng-rời-đất mà đứng trên đất với
+    /// tốc độ ≤ tumbleEndSpeed đủ groundedFailsafeFrames liên tục → coi như đã đáp, về Idle. KHÔNG phá
+    /// gate ghost-landing: launch thật có speed lớn ở các frame đầu (resolver vừa set velocity) → counter
+    /// reset, chưa kịp chạm ngưỡng đã rời đất.
     /// </summary>
     public sealed class LauncherState : IState
     {
@@ -27,6 +34,7 @@ namespace FA.Combat
         private readonly KnockbackConfigSO _config;
 
         private bool _hasLeftGround;
+        private int _groundedStuckFrames; // failsafe: đếm frame "trên đất + hết đà" khi chưa từng rời đất.
 
         public LauncherState(ICombatContext ctx, KnockbackConfigSO config)
         {
@@ -37,6 +45,7 @@ namespace FA.Combat
         public void Enter()
         {
             _hasLeftGround = false;
+            _groundedStuckFrames = 0;
             // Cầu nối code↔Animator (§3.1): set StateId → transition Tumble cấu hình TRONG Animator.
             _ctx.Animator.SetInteger(CoreAnimatorParams.StateId, TumbleStateId);
             _ctx.SetHitstun(true); // tumble = đang bị juggle → Air Dodge bị chặn (chỉ Burst thoát).
@@ -54,13 +63,23 @@ namespace FA.Combat
 
             // Landing-gate: phải rời đất ≥1 frame rồi mới cho landing-check (tránh đáp ghost).
             if (!grounded) { _hasLeftGround = true; return; }
-            if (!_hasLeftGround) return;
 
-            // Đã chạm đất sau khi rời đất: nếu tốc độ tổng đủ thấp → thoát tumble về ground-state.
-            // (Nảy/splat tốc-độ-cao đã do KnockbackCollisionRelay chặn trước khi tới đây.)
             float speed = _ctx.Body.linearVelocity.magnitude;
             float endSpeed = _config != null ? _config.tumbleEndSpeed : 1.5f;
-            if (speed > endSpeed) return; // còn trượt/đà → ở lại tumble (Rigidbody2D ma sát giảm dần).
+
+            if (!_hasLeftGround)
+            {
+                // FAILSAFE (xem doc class): chưa từng rời đất — còn đà (trượt ngang/sắp bốc lên) thì chờ;
+                // hết đà đủ N frame liên tục → không bao giờ bốc lên nổi nữa → coi như đã đáp.
+                if (speed > endSpeed) { _groundedStuckFrames = 0; return; }
+                _groundedStuckFrames++;
+                int failsafe = _config != null ? _config.groundedFailsafeFrames : 8;
+                if (_groundedStuckFrames < failsafe) return;
+            }
+            else if (speed > endSpeed)
+            {
+                return; // còn trượt/đà → ở lại tumble (Rigidbody2D ma sát giảm dần).
+            }
 
             _ctx.Machine.ChangeState(_ctx.IdleState());
         }
