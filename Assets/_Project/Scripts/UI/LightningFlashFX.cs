@@ -42,20 +42,34 @@ namespace FA.UI
             if (flashImage != null) SetAlpha(0f);
         }
 
+        /// <summary>
+        /// Kích 1 đợt chớp NGAY (ngoài loop ngẫu nhiên) — ProceduralLightning gọi khi burst sét lớn để
+        /// khung cảnh bừng sáng CÙNG NHỊP với tia. <paramref name="scale"/> nhân vào alpha đỉnh.
+        /// </summary>
+        public void FlashOnce(float scale = 1f)
+        {
+            if (flashImage != null && isActiveAndEnabled) StartCoroutine(FlickerBurst(scale));
+        }
+
         private IEnumerator Loop()
         {
             while (true)
             {
                 yield return new WaitForSecondsRealtime(Random.Range(intervalRange.x, intervalRange.y));
-                int n = Mathf.Max(1, flickers);
-                for (int i = 0; i < n; i++)
-                {
-                    // Nhịp sau yếu dần (chớp chính rồi dư âm) — trông tự nhiên hơn đều tăm tắp.
-                    SetAlpha(maxAlpha * Random.Range(0.55f, 1f) * (1f - 0.25f * i));
-                    yield return new WaitForSecondsRealtime(Random.Range(0.03f, 0.07f));
-                    SetAlpha(0f);
-                    yield return new WaitForSecondsRealtime(Random.Range(0.04f, 0.09f));
-                }
+                yield return FlickerBurst(1f);
+            }
+        }
+
+        private IEnumerator FlickerBurst(float scale)
+        {
+            int n = Mathf.Max(1, flickers);
+            for (int i = 0; i < n; i++)
+            {
+                // Nhịp sau yếu dần (chớp chính rồi dư âm) — trông tự nhiên hơn đều tăm tắp.
+                SetAlpha(maxAlpha * scale * Random.Range(0.55f, 1f) * (1f - 0.25f * i));
+                yield return new WaitForSecondsRealtime(Random.Range(0.03f, 0.07f));
+                SetAlpha(0f);
+                yield return new WaitForSecondsRealtime(Random.Range(0.04f, 0.09f));
             }
         }
 

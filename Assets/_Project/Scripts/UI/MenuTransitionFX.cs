@@ -28,6 +28,10 @@ namespace FA.UI
         [Tooltip("Cụm nội dung menu (BG + cột nút) — StartGame ẨN cụm này (canvas + overlay vẫn sống).")]
         [SerializeField] private GameObject content;
 
+        [Tooltip("Các object PHỤ ẩn cùng lúc với content khi StartGame — BG canvas riêng + FX world " +
+                 "(sét/tia lửa) nằm NGOÀI canvas menu nên không ẩn theo content được.")]
+        [SerializeField] private GameObject[] alsoHide;
+
         [Tooltip("RectTransform bị RUNG khi QuitGame (thường = cột nút).")]
         [SerializeField] private RectTransform shakeTarget;
 
@@ -68,9 +72,12 @@ namespace FA.UI
             SetAlpha(0.85f); yield return Wait(0.05f);
             SetAlpha(0f);    yield return Wait(0.06f);
 
-            // Phủ trắng kín → ẩn menu sau lớp phủ.
+            // Phủ trắng kín → ẩn menu (và BG/FX ngoài canvas) sau lớp phủ.
             yield return Fade(0f, 1f, 0.18f);
             if (content != null) content.SetActive(false);
+            if (alsoHide != null)
+                foreach (var go in alsoHide)
+                    if (go != null) go.SetActive(false);
 
             // Fade ra — lộ CharSelect.
             yield return Fade(1f, 0f, 0.35f);

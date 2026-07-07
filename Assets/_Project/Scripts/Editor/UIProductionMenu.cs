@@ -87,10 +87,14 @@ namespace FA.EditorTools
             UIKit.EnsureCamera();
             UIKit.EnsureEventSystem();
 
-            // Các tầng (sorting): HUD 100 (tắt sẵn) < Menu_Screens 200 < MainMenu 300 (mở đầu tiên).
+            // Các tầng (sorting): HUD 100 (tắt sẵn) < Menu_Screens 200 < MenuBG 250 < FX world 255-256
+            // < MainMenu 300. TẤT CẢ canvas chuyển Screen Space CAMERA — Overlay luôn đè renderer world
+            // → sét/tia lửa sẽ vô hình nếu giữ Overlay.
             GameObject hud = UIHudBuilder.Build(ch);
             GameObject menu = UIScreensBuilder.Build(ch);
-            GameObject mainMenu = UILobbyBuilder.BuildMainMenu();
+            GameObject mainMenu = UILobbyBuilder.BuildMainMenu(); // tự tạo MenuBG + MenuFX_* (camera-space).
+            UILobbyBuilder.ToCameraSpace(hud);
+            UILobbyBuilder.ToCameraSpace(menu);
             UILobbyBuilder.BuildSystems(ch, menu, hud);
             hud.SetActive(false); // MatchManager bật khi vào Match (matchHud).
 
@@ -106,7 +110,7 @@ namespace FA.EditorTools
             // Cảnh báo scene map thiếu trong Build Settings (LoadSceneAsync sẽ fail).
             var missing = UILobbyBuilder.MissingBuildScenes(ch.StageRegistry);
             var sb = new StringBuilder();
-            sb.AppendLine("[UIProduction] HOÀN TẤT dựng LOBBY v6 (FIX title tàng hình: ép sprite import Single — Multiple auto-slice làm Image chỉ vẽ 1 mảnh con; + banner neo trên + lót tối).");
+            sb.AppendLine("[UIProduction] HOÀN TẤT dựng LOBBY v7 (FX tầng 2: SÉT procedural quanh orb + TÀN LỬA bay 2 góc, đồng bộ chớp lóe; canvas → Screen Space Camera 3 tầng).");
             sb.AppendLine($"• Scene: {LobbyScenePath} — Play thử: START → chọn 2 nhân vật → chọn map → vào trận.");
             sb.AppendLine("• Art slot (thả PNG vào Assets/_Project/Art/UI/ rồi rebuild):");
             foreach (var s in UILobbyBuilder.ArtSlotStatus()) sb.AppendLine("    - " + s);

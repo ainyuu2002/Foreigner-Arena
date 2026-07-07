@@ -52,22 +52,24 @@ namespace FA.EditorTools
         private static readonly Color GlowQuit  = new Color(1f, 0.45f, 0.15f, 1f);     // glow nút QUIT (lửa)
 
         /// <summary>
-        /// Dựng canvas Main Menu + FX tầng 1: nền nhiệt (UIGradient+UIPulse), sét lóe (LightningFlashFX),
-        /// logo pulse nóng, nút glow (ButtonGlowFX), chuyển cảnh (MenuTransitionFX). CẤU TRÚC 1 ROOT
-        /// (prefab-safe): Content (BG+heat+column) / FlashLayer / TransitionOverlay — START chỉ ẩn Content
-        /// (canvas + overlay sống để coroutine chạy nốt).
+        /// Dựng Main Menu + FX. KIẾN TRÚC 3 TẦNG (Screen Space CAMERA — Overlay luôn đè world nên sét/lửa
+        /// world sẽ vô hình nếu giữ Overlay):
+        ///   • Canvas "MenuBG" (sorting 250): ảnh nền (chặn raycast + che CharSelect ở 200).
+        ///   • FX WORLD (sorting 255-256): ProceduralLightning tại orb + 2 FireSparks chân cột lửa —
+        ///     chen GIỮA nền và nút.
+        ///   • Canvas "MainMenu" (sorting 300): title/nút/chớp lóe/TransitionOverlay.
+        /// StartGame ẩn content + alsoHide (BG canvas + FX — chúng nằm ngoài canvas menu).
+        /// Lưu ý prefab MainMenu chỉ chứa canvas menu — scene Lobby mới là bản đầy đủ 3 tầng.
         /// </summary>
         public static GameObject BuildMainMenu()
         {
-            var canvas = UIKit.NewCanvas(MainMenuName, 300); // cao hơn Menu_Screens (200) + HUD (100).
-
-            // ── Content: mọi thứ nhìn thấy của menu (StartGame ẩn cụm này) ──
-            var content = UIKit.NewUI("Content", canvas.transform);
-            UIKit.StretchFull(content);
+            // ── Tầng 1: canvas NỀN riêng (sorting 250) ──
+            var bgCanvas = UIKit.NewCanvas("MenuBG", 250);
+            ToCameraSpace(bgCanvas);
 
             // Nền đặc + CHẶN raycast → không click xuyên xuống CharSelect khi menu đang mở.
             // ART SLOT "MainMenu_BG": có ảnh nền thật (tường + lửa + orb) → dùng thay nền code-only.
-            var bg = UIKit.NewUI("BG", content.transform);
+            var bg = UIKit.NewUI("BG", bgCanvas.transform);
             UIKit.StretchFull(bg);
             var bgSprite = FindSprite("MainMenu_BG");
             if (bgSprite != null)
@@ -79,8 +81,24 @@ namespace FA.EditorTools
             else
             {
                 UIKit.AddImage(bg, MenuBack, raycastTarget: true);
-                BuildHeatLayers(content.transform); // lửa giả code-only khi CHƯA có art.
+                BuildHeatLayers(bgCanvas.transform); // lửa giả code-only khi CHƯA có art.
             }
+
+            // ── Tầng 2: FX WORLD (sét + tia lửa) — camera menu ortho size 8 → đáy y=-7, mép x≈±14 ──
+            var lightningGo = new GameObject("MenuFX_LightningCore");
+            Undo.RegisterCreatedObjectUndo(lightningGo, "Create MenuFX");
+            lightningGo.transform.position = new Vector3(0f, 1.6f, 0f); // tâm orb của BG art.
+            var lightning = lightningGo.AddComponent<ProceduralLightning>();
+
+            var sparksL = MakeFireSparks("MenuFX_FireSparks_L", -11f);
+            var sparksR = MakeFireSparks("MenuFX_FireSparks_R", 11f);
+
+            // ── Tầng 3: canvas MENU (sorting 300) ──
+            var canvas = UIKit.NewCanvas(MainMenuName, 300);
+            ToCameraSpace(canvas);
+
+            var content = UIKit.NewUI("Content", canvas.transform);
+            UIKit.StretchFull(content);
 
             var col = UIKit.NewUI("Column", content.transform);
             var rt = col.GetComponent<RectTransform>();
@@ -111,6 +129,12 @@ namespace FA.EditorTools
             soB.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(bolt);
 
+            // Đồng bộ: burst sét procedural → kích chớp lóe màn hình cùng nhịp (điểm "điện ảnh" nhất).
+            var soL = new SerializedObject(lightning);
+            UIKit.SetObj(soL, "syncFlash", bolt);
+            soL.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(lightning);
+
             // ── TransitionOverlay: phủ chuyển cảnh (trên cùng, NGOÀI Content để sống sau khi ẩn menu) ──
             var overlayGo = UIKit.NewUI("TransitionOverlay", canvas.transform);
             UIKit.StretchFull(overlayGo);
@@ -126,6 +150,8 @@ namespace FA.EditorTools
             UIKit.SetObj(soF, "overlayGroup", group);
             UIKit.SetObj(soF, "content", content);
             UIKit.SetObj(soF, "shakeTarget", col.GetComponent<RectTransform>());
+            // BG canvas + FX world nằm NGOÀI canvas menu → StartGame phải ẩn kèm (kẻo che CharSelect ở 200).
+            UIKit.SetObjArray(soF, "alsoHide", new Object[] { bgCanvas, lightningGo, sparksL, sparksR });
             soF.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(fx);
 
@@ -135,6 +161,34 @@ namespace FA.EditorTools
             EditorUtility.SetDirty(startBtn);
             EditorUtility.SetDirty(quitBtn);
             return canvas;
+        }
+
+        /// <summary>
+        /// Chuyển canvas sang Screen Space CAMERA — bắt buộc để FX world (LineRenderer/Particle) chen được
+        /// giữa các tầng UI (Overlay LUÔN đè mọi renderer world). Sorting giữa canvas ↔ renderer world khi đó
+        /// tính theo sortingLayer/sortingOrder chung của 2D renderer.
+        /// </summary>
+        public static void ToCameraSpace(GameObject canvasGo)
+        {
+            var c = canvasGo.GetComponent<Canvas>();
+            c.renderMode = RenderMode.ScreenSpaceCamera;
+            c.worldCamera = Camera.main;
+            c.planeDistance = 50f;
+            EditorUtility.SetDirty(c);
+        }
+
+        /// <summary>Tạo 1 hệ tia lửa ở chân cột lửa (x = ±11 với camera ortho size 8, đáy màn hình y=-7).</summary>
+        private static GameObject MakeFireSparks(string name, float x)
+        {
+            var go = new GameObject(name);
+            Undo.RegisterCreatedObjectUndo(go, "Create MenuFX");
+            go.transform.position = new Vector3(x, -7.6f, 0f); // hơi dưới mép — tia "mọc" từ ngoài vào.
+            var fs = go.AddComponent<FireSparks>();            // RequireComponent tự thêm ParticleSystem.
+            var so = new SerializedObject(fs);
+            UIKit.SetFloat(so, "emitWidth", 5f);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(fs);
+            return go;
         }
 
         /// <summary>Lớp nền "nhiệt" — gradient cam-đỏ tan dần lên + pulse lệch pha (lửa âm ỉ đáy/2 bên).</summary>
