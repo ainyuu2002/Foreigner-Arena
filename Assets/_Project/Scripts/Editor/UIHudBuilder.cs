@@ -388,12 +388,15 @@ namespace FA.EditorTools
 
         private static T FindFirst<T>() where T : Object
         {
-            foreach (string guid in AssetDatabase.FindAssets($"t:{typeof(T).Name}"))
+            // Quét System.IO — KHÔNG tin AssetDatabase.FindAssets (trả rỗng thất thường trên máy này,
+            // root-cause vụ ref null; chi tiết xem UIChannels.FindExact).
+            foreach (string file in System.IO.Directory.GetFiles(
+                         "Assets/_Project", "*.asset", System.IO.SearchOption.AllDirectories))
             {
-                var a = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
+                var a = AssetDatabase.LoadAssetAtPath<T>(file.Replace('\\', '/'));
                 if (a != null) return a;
             }
-            foreach (string guid in AssetDatabase.FindAssets("t:ScriptableObject"))
+            foreach (string guid in AssetDatabase.FindAssets($"t:{typeof(T).Name}"))
             {
                 var a = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
                 if (a != null) return a;

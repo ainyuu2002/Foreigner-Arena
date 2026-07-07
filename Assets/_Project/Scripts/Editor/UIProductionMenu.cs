@@ -25,9 +25,12 @@ namespace FA.EditorTools
         public const string ScenesFolder = "Assets/_Project/Scenes";
         public const string PrefabsFolder = "Assets/_Project/Prefabs/UI";
         public const string BuildSceneName = "UI_Build";
+        public const string LobbySceneName = "Lobby";
         public static string BuildScenePath => $"{ScenesFolder}/{BuildSceneName}.unity";
+        public static string LobbyScenePath => $"{ScenesFolder}/{LobbySceneName}.unity";
         public static string HudPrefabPath => $"{PrefabsFolder}/{UIHudBuilder.HudName}.prefab";
         public static string MenuPrefabPath => $"{PrefabsFolder}/{UIScreensBuilder.MenuName}.prefab";
+        public static string MainMenuPrefabPath => $"{PrefabsFolder}/{UILobbyBuilder.MainMenuName}.prefab";
 
         // ───────────────────── Menu chính: scene riêng + prefab ─────────────────────
 
@@ -68,6 +71,63 @@ namespace FA.EditorTools
                 "\n\nPrefab lưu ở " + PrefabsFolder +
                 "/ (HUD_InMatch, Menu_Screens).\n\nMở UI_Build → tinh chỉnh hình ảnh → Apply override về prefab " +
                 "→ kéo prefab vào main/match scene.\n\nChi tiết + cảnh báo wire: xem Console.", "OK");
+        }
+
+        // ───────────────────── Menu Lobby: Main Menu + FULL FLOW vào trận (tuần 2) ─────────────────────
+
+        [MenuItem("FA/UI/Build Lobby (Main Menu + full flow, new scene)")]
+        public static void BuildLobby()
+        {
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+                return;
+
+            UIChannels.Bundle ch = UIChannels.Resolve();
+
+            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            UIKit.EnsureCamera();
+            UIKit.EnsureEventSystem();
+
+            // Các tầng (sorting): HUD 100 (tắt sẵn) < Menu_Screens 200 < MainMenu 300 (mở đầu tiên).
+            GameObject hud = UIHudBuilder.Build(ch);
+            GameObject menu = UIScreensBuilder.Build(ch);
+            GameObject mainMenu = UILobbyBuilder.BuildMainMenu();
+            UILobbyBuilder.BuildSystems(ch, menu, hud);
+            hud.SetActive(false); // MatchManager bật khi vào Match (matchHud).
+
+            EnsurePrefabFolder();
+            var created = new List<string>();
+            SavePrefab(mainMenu, MainMenuPrefabPath, created); // HUD/Menu prefab đã có từ Build Production UI.
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene, LobbyScenePath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            // Cảnh báo scene map thiếu trong Build Settings (LoadSceneAsync sẽ fail).
+            var missing = UILobbyBuilder.MissingBuildScenes(ch.StageRegistry);
+            var sb = new StringBuilder();
+            sb.AppendLine("[UIProduction] HOÀN TẤT dựng LOBBY v6 (FIX title tàng hình: ép sprite import Single — Multiple auto-slice làm Image chỉ vẽ 1 mảnh con; + banner neo trên + lót tối).");
+            sb.AppendLine($"• Scene: {LobbyScenePath} — Play thử: START → chọn 2 nhân vật → chọn map → vào trận.");
+            sb.AppendLine("• Art slot (thả PNG vào Assets/_Project/Art/UI/ rồi rebuild):");
+            foreach (var s in UILobbyBuilder.ArtSlotStatus()) sb.AppendLine("    - " + s);
+            foreach (var p in created) sb.AppendLine("• Prefab: " + p);
+            if (ch.Missing.Count > 0)
+            {
+                sb.AppendLine("⚠ Kênh thiếu:");
+                foreach (var m in ch.Missing) sb.AppendLine("    - " + m);
+            }
+            if (missing.Count > 0)
+            {
+                sb.AppendLine("⚠ Scene map CHƯA có trong Build Settings (chọn map sẽ KHÔNG load — nhờ bạn/P11 thêm " +
+                              "File → Build Settings → Add Open Scenes):");
+                foreach (var m in missing) sb.AppendLine("    - " + m);
+            }
+            Debug.Log(sb.ToString());
+
+            EditorUtility.DisplayDialog("Build Lobby",
+                "Đã dựng Lobby:\n" + LobbyScenePath +
+                "\n\nPlay thử: START → chọn nhân vật (P1+P2) → chọn map → vào trận." +
+                (missing.Count > 0 ? "\n\n⚠ Có scene map chưa vào Build Settings — xem Console." : ""), "OK");
         }
 
         // ───────────────────── Menu phụ: dựng vào scene đang mở ─────────────────────

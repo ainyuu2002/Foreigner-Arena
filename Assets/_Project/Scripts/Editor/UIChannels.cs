@@ -37,6 +37,12 @@ namespace FA.EditorTools
             public MatchResultEventChannelSO MatchResult;         // OnMatchResultChannel
             public VoidEventChannelSO Rematch, BackToCharSelect;  // RematchPressedChannel / BackToCharSelectChannel
 
+            // GameFlow systems (Lobby wire MatchManager/WinCondition/MatchTimer — P12)
+            public VoidEventChannelSO MatchEnded;                  // OnMatchEndedChannel (WinCondition → MatchManager)
+            public VoidEventChannelSO TimeUp;                      // OnTimeUpChannel (MatchTimer → WinCondition)
+            public GameObjectEventChannelSO OutOfLives;            // OnPlayerOutOfLivesChannel (LivesSystem → WinCondition)
+            public MatchSettingsSO MatchSettings;                  // matchSeconds/startingLives
+
             // Registry + config
             public CharacterRegistrySO CharacterRegistry;
             public StageRegistrySO StageRegistry;
@@ -82,6 +88,11 @@ namespace FA.EditorTools
             b.Rematch = Find<VoidEventChannelSO>("RematchPressedChannel", b);
             b.BackToCharSelect = Find<VoidEventChannelSO>("BackToCharSelectChannel", b);
 
+            b.MatchEnded = Find<VoidEventChannelSO>("OnMatchEndedChannel", b);
+            b.TimeUp = Find<VoidEventChannelSO>("OnTimeUpChannel", b);
+            b.OutOfLives = Find<GameObjectEventChannelSO>("OnPlayerOutOfLivesChannel", b);
+            b.MatchSettings = FindAny<MatchSettingsSO>();
+
             b.CharacterRegistry = FindAny<CharacterRegistrySO>();
             b.StageRegistry = FindAny<StageRegistrySO>();
 
@@ -104,6 +115,7 @@ namespace FA.EditorTools
             sb.AppendLine($"  Combo: P1={N(b.ComboP1)}  P2={N(b.ComboP2)}");
             sb.AppendLine($"  CharSel: P1={N(b.CharSelP1)}  P2={N(b.CharSelP2)}  | StageSel={N(b.StageSel)}");
             sb.AppendLine($"  MatchResult={N(b.MatchResult)}  Rematch={N(b.Rematch)}  Back={N(b.BackToCharSelect)}");
+            sb.AppendLine($"  GameFlow: MatchEnded={N(b.MatchEnded)}  TimeUp={N(b.TimeUp)}  OutOfLives={N(b.OutOfLives)}  Settings={N(b.MatchSettings)}");
             sb.AppendLine($"  Registry: Character={N(b.CharacterRegistry)}  Stage={N(b.StageRegistry)}  | PercentCap={b.PercentCap}");
             Debug.Log(sb.ToString());
         }
@@ -130,23 +142,22 @@ namespace FA.EditorTools
         }
 
         /// <summary>
-        /// Tìm asset theo TÊN file chính xác — KHÔNG dùng filter <c>t:&lt;Type&gt;</c> (đôi khi trả rỗng nếu
-        /// AssetDatabase chưa index/refresh kịp). Tìm theo tên rồi kiểm type bằng LoadAssetAtPath&lt;T&gt;
-        /// (trả null nếu sai type → vẫn type-safe). Fallback cuối: cái đầu LOAD được đúng T trong kết quả tên.
+        /// Tìm asset theo TÊN file chính xác — QUÉT FILE System.IO thay vì <c>AssetDatabase.FindAssets</c>.
+        /// ROOT-CAUSE (Lobby v3): FindAssets trên máy này trả RỖNG cho .asset (search index không tin được;
+        /// cùng 1 lần build tìm THẤY sprite nhưng TRƯỢT toàn bộ kênh) → mọi ref trong scene = null lúc Play
+        /// ("OnEnable subscribe P1=False"). Directory.GetFiles + LoadAssetAtPath = tất định, không phụ thuộc
+        /// index. Editor-only nên chi phí quét chấp nhận được. FindAssets giữ làm fallback cuối.
         /// </summary>
         private static T FindExact<T>(string assetName) where T : Object
         {
-            // Search theo TÊN (không t:) → bền vững hơn. FindAssets khớp tên kiểu chứa-chuỗi.
-            string[] guids = AssetDatabase.FindAssets(assetName);
-            foreach (string guid in guids)
+            foreach (string file in System.IO.Directory.GetFiles(
+                         "Assets/_Project", assetName + ".asset", System.IO.SearchOption.AllDirectories))
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                if (System.IO.Path.GetFileNameWithoutExtension(path) != assetName) continue;
-                var a = AssetDatabase.LoadAssetAtPath<T>(path);
+                var a = AssetDatabase.LoadAssetAtPath<T>(file.Replace('\\', '/'));
                 if (a != null) return a;
             }
-            // Fallback: tên chứa assetName + load được đúng T.
-            foreach (string guid in guids)
+            // Fallback: FindAssets (nếu asset nằm ngoài _Project hoặc tên chỉ khớp một phần).
+            foreach (string guid in AssetDatabase.FindAssets(assetName))
             {
                 var a = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
                 if (a != null) return a;
@@ -156,13 +167,14 @@ namespace FA.EditorTools
 
         private static T FindAny<T>() where T : Object
         {
-            // Thử filter t: trước; nếu rỗng, quét toàn bộ asset .asset và load đúng T (bền vững).
-            foreach (string guid in AssetDatabase.FindAssets($"t:{typeof(T).Name}"))
+            // Quét System.IO trước (lý do xem FindExact) — mọi .asset dưới _Project, load đúng T là nhận.
+            foreach (string file in System.IO.Directory.GetFiles(
+                         "Assets/_Project", "*.asset", System.IO.SearchOption.AllDirectories))
             {
-                var a = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
+                var a = AssetDatabase.LoadAssetAtPath<T>(file.Replace('\\', '/'));
                 if (a != null) return a;
             }
-            foreach (string guid in AssetDatabase.FindAssets("t:ScriptableObject"))
+            foreach (string guid in AssetDatabase.FindAssets($"t:{typeof(T).Name}"))
             {
                 var a = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
                 if (a != null) return a;
