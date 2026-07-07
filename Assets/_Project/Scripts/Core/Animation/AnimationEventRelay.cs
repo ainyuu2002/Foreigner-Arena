@@ -18,7 +18,8 @@ namespace FA.Core
     /// Danh sách tên method CỐ ĐỊNH (research §5): HitboxOn, HitboxOff, RecoveryEnd, CancelWindowOpen,
     /// CancelWindowClose, Footstep, SpawnProjectile, HurtboxOff, HurtboxOn,
     /// MoveImpulse, MoveDriftOn, MoveDriftOff (P14 — di chuyển trong đòn),
-    /// KnockbackPoint (P16 — frame hit-văng của đòn; chỉ frame có event này mới văng knockback). Thêm tên
+    /// KnockbackPoint (P16 — frame hit-văng của đòn; chỉ frame có event này mới văng knockback),
+    /// PassThroughOn, PassThroughOff (cửa sổ đòn XUYÊN THÂN đối thủ — tắt pushbox P1↔P2). Thêm tên
     /// mới = thêm 1 method ở đây + (tùy) 1 kênh. Animation Event gọi tên KHÔNG có ở đây → Unity log
     /// warning → giữ danh sách này là duy nhất.
     /// </summary>
@@ -67,6 +68,11 @@ namespace FA.Core
         /// văng knockback: attacker nghe → nếu KHÔNG đang nối thì raise OnKnockbackLaunch cho victim áp
         /// pending. Hit thường (không có event) chỉ tích %/hitstun. KHÔNG đếm/đoán "hit cuối" trong code.</summary>
         public event Action KnockbackPointEvent;
+        /// <summary>MỞ cửa sổ XUYÊN THÂN đối thủ (đòn lướt xuyên người): KnockbackController tắt pushbox
+        /// P1↔P2 (IgnoreCollision) tới khi PassThroughOff. Chỉ tắt va chạm THÂN — Hitbox/Hurtbox không đổi.</summary>
+        public event Action PassThroughOnEvent;
+        /// <summary>ĐÓNG cửa sổ xuyên thân — trả lại pushbox (trừ khi đang tumble, P7 vẫn giữ tắt).</summary>
+        public event Action PassThroughOffEvent;
 
         // ===================== Method được Animation Event gọi =====================
         // Mỗi method CHỈ raise (decoupling §3.3). KHÔNG đếm frame, KHÔNG logic gameplay.
@@ -158,5 +164,11 @@ namespace FA.Core
         /// <summary>(P16) Animation Event: FRAME hit-văng (đặt trên hit CUỐI của đòn). Attacker state
         /// nghe → xét nối; không nối thì raise OnKnockbackLaunch để victim văng pending.</summary>
         public void KnockbackPoint() => KnockbackPointEvent?.Invoke();
+
+        /// <summary>Animation Event: MỞ cửa sổ xuyên thân đối thủ (đặt bao khoảng lướt của đòn).</summary>
+        public void PassThroughOn() => PassThroughOnEvent?.Invoke();
+
+        /// <summary>Animation Event: ĐÓNG cửa sổ xuyên thân (trả pushbox).</summary>
+        public void PassThroughOff() => PassThroughOffEvent?.Invoke();
     }
 }

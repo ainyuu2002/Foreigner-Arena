@@ -22,7 +22,7 @@ MonoBehaviour:
   manaCostUnits: 0
   rageCost: 0
   requiresRageMode: 0
-  baseDamagePercent: 5
+  baseDamagePercent: 1
   launchAngle: 30
   baseKnockback: 5
   knockbackGrowth: 0.1

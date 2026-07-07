@@ -536,7 +536,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FA.Specials::FA.Specials.SpecialController
   relay: {fileID: -6127148562445082577}
-  moveSet: {fileID: 0}
+  moveSet: {fileID: 11400000, guid: 45a7bdfe58b3a7943a4c9ea1ad36b38c, type: 2}
   onKnockbackLaunch: {fileID: 11400000, guid: cb6aab99b2e1f35498f01071451d3a68, type: 2}
   hitboxController: {fileID: 0}
 --- !u!114 &5415616662416377954
