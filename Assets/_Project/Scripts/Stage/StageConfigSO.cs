@@ -76,5 +76,18 @@ namespace FA.Stage
 
         [Tooltip("Chu kỳ nhấp nháy icon cảnh báo (giây/lần bật-tắt). CẦN TEST.")]
         [Min(0.05f)] public float lavaWarningBlinkPeriod = 0.25f;
+
+        [Header("Biome Swamp — Slowness + giảm lực nhảy (SwampBiome)")]
+        [Tooltip("Hệ số nhân vận tốc NGANG mỗi FixedUpdate khi ĐỨNG ĐẤT trong đầm lầy (motor ghi lại vx mỗi " +
+                 "step nên hiệu quả ổn định = walkSpeed × hệ số). 1 = không chậm. GDD: 'slowness thường trực'. CẦN TEST.")]
+        [Range(0.3f, 1f)] public float swampSpeedFactor = 0.8f;
+
+        [Tooltip("Hệ số nhân vận tốc NHẢY (vy) ngay khi phát hiện cú nhảy trong đầm lầy. 0.85 ≈ giảm ~25-28% " +
+                 "chiều cao (GDD: 'lực nhảy suy giảm phẳng 25%'). CẦN TEST.")]
+        [Range(0.5f, 1f)] public float swampJumpScale = 0.85f;
+
+        [Tooltip("Ngưỡng vy tăng đột ngột trong 1 FixedUpdate để coi-là cú nhảy (impulse). Nhỏ hơn jumpSpeed " +
+                 "nhân vật (~12) nhưng lớn hơn dao động thường. CẦN TEST.")]
+        [Min(1f)] public float swampJumpImpulseThreshold = 6f;
     }
 }

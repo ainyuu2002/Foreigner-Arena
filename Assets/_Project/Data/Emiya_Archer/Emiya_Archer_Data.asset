@@ -15,7 +15,7 @@ MonoBehaviour:
   walkSpeed: 4
   mass: 1
   gravityScale: 3
-  jumpSpeed: 10
+  jumpSpeed: 13
   maxAirJumps: 1
   airControl: 0.8
   dashSpeed: 10
