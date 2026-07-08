@@ -33,12 +33,34 @@ namespace FA.UI
         [Tooltip("Các mục CHỈ cho chỉnh ngoài trận (ẩn khi inMatchMode) — hiện trống, để dành khi thêm mục mới.")]
         [SerializeField] private GameObject[] menuOnlySections;
 
+        [Header("Cài đặt phím")]
+        [Tooltip("Panel rebind phím (con của root này, tắt sẵn) — mở bằng nút CÀI ĐẶT PHÍM.")]
+        [SerializeField] private KeybindPanelView keybindPanel;
+
         public void Open() => gameObject.SetActive(true);
 
         public void Close()
         {
+            if (keybindPanel != null && keybindPanel.gameObject.activeSelf)
+                keybindPanel.Close(); // kẻo lần mở sau panel phím hiện sẵn đè lên settings.
             GameSettings.Save();
             gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// ESC từ PauseMenuView: đóng LỚP TRONG CÙNG đang mở (keybind trước, settings sau).
+        /// Trả TRUE nếu đã tiêu thụ phím (panel này đang mở); FALSE = không có gì để đóng.
+        /// </summary>
+        public bool HandleBack()
+        {
+            if (!gameObject.activeSelf) return false;
+            if (keybindPanel != null && keybindPanel.gameObject.activeSelf)
+            {
+                keybindPanel.Close();
+                return true;
+            }
+            Close();
+            return true;
         }
 
         private void OnEnable()

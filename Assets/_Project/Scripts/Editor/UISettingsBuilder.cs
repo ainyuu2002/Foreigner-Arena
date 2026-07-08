@@ -40,7 +40,7 @@ namespace FA.EditorTools
             UIKit.AddImage(dim, DimCol, raycastTarget: true);
 
             var panel = UIKit.NewPanel("Panel", root.transform, new Vector2(0.5f, 0.5f), Vector2.zero,
-                                       new Vector2(720f, 470f), UIKit.ColPanelLight);
+                                       new Vector2(720f, 560f), UIKit.ColPanelLight);
             UIKit.AddVertical(panel, 18f, 30, TextAnchor.UpperCenter);
 
             var title = UIKit.AddLabel(panel.transform, "SETTINGS", 40, FontStyle.Bold,
@@ -58,7 +58,12 @@ namespace FA.EditorTools
                 16, FontStyle.Italic, TextAnchor.MiddleCenter, UIKit.ColTxtDim);
             UIKit.SetLayoutHeight(note.gameObject, 34f);
 
+            var keysBtn = UIKit.MakeButton(panel.transform, "CÀI ĐẶT PHÍM", UIKit.ColPanel, 280f, 56f, 24);
             var closeBtn = UIKit.MakeButton(panel.transform, "ĐÓNG", UIKit.ColBtn, 240f, 60f, 26);
+
+            // Panel rebind phím: sibling SAU Panel (vẽ đè lên) trong cùng root — root tắt là ẩn cả cụm.
+            var keybind = BuildKeybindPanel(root.transform);
+            var keybindView = keybind.GetComponent<KeybindPanelView>();
 
             var view = root.AddComponent<SettingsPanelView>();
             var so = new SerializedObject(view);
@@ -69,10 +74,13 @@ namespace FA.EditorTools
             UIKit.SetObj(so, "bgmValueLabel", bgmVal);
             UIKit.SetObj(so, "sfxValueLabel", sfxVal);
             UIKit.SetBool(so, "inMatchMode", inMatch);
+            UIKit.SetObj(so, "keybindPanel", keybindView);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(view);
 
+            UnityEventTools.AddPersistentListener(keysBtn.onClick, new UnityAction(keybindView.Open));
             UnityEventTools.AddPersistentListener(closeBtn.onClick, new UnityAction(view.Close));
+            EditorUtility.SetDirty(keysBtn);
             EditorUtility.SetDirty(closeBtn);
 
             root.SetActive(false); // mở qua SettingsPanelView.Open (persistent listener gọi được khi inactive).
@@ -137,6 +145,127 @@ namespace FA.EditorTools
             return slider;
         }
 
+        // ───────────────────── Panel cài đặt phím (rebind — con của SettingsPanel) ─────────────────────
+
+        // 3 mảng song song cùng index — bake thẳng vào KeybindPanelView (đổi phím = sửa FA_Controls
+        // rồi rebuild; KHÔNG hardcode GUID binding — view tra index theo group "Keyboard" + tên part).
+        private static readonly string[] KeyRowActions =
+            { "Move", "Move", "Move", "Move", "Jump", "Dash", "L", "M", "H", "Super1", "Super2", "Rage" };
+        private static readonly string[] KeyRowParts =
+            { "up", "down", "left", "right", "", "", "", "", "", "", "", "" };
+        private static readonly string[] KeyRowLabels =
+            { "LÊN", "XUỐNG", "TRÁI", "PHẢI", "NHẢY", "LƯỚT",
+              "ĐÁNH NHẸ", "ĐÁNH VỪA", "ĐÁNH MẠNH", "TUYỆT CHIÊU 1", "TUYỆT CHIÊU 2", "NỘ" };
+        // Phím mặc định (khớp FA_Controls.inputactions) — chỉ để label có chữ ngay trong editor;
+        // runtime OnEnable tự Refresh theo overrides đã lưu.
+        private static readonly string[] KeyRowDefaults =
+            { "W", "S", "A", "D", "W", "H", "J", "K", "L", "U", "I", "O" };
+
+        /// <summary>
+        /// Panel CÀI ĐẶT PHÍM (inactive sẵn): 2 tab BÀN PHÍM (P1) / TAY CẦM (P2), 2 cột × 6 hàng
+        /// [tên hành động | ô phím], status + MẶC ĐỊNH/ĐÓNG. Cùng 12 hàng cho cả 2 tab (tay cầm:
+        /// LÊN/XUỐNG/TRÁI/PHẢI = D-Pad, cần analog giữ nguyên). Dim riêng để che settings phía dưới.
+        /// </summary>
+        private static GameObject BuildKeybindPanel(Transform parent)
+        {
+            var root = UIKit.NewUI("KeybindPanel", parent);
+            UIKit.StretchFull(root);
+
+            var dim = UIKit.NewUI("Dim", root.transform);
+            UIKit.StretchFull(dim);
+            UIKit.AddImage(dim, DimCol, raycastTarget: true);
+
+            var panel = UIKit.NewPanel("Panel", root.transform, new Vector2(0.5f, 0.5f), Vector2.zero,
+                                       new Vector2(960f, 700f), UIKit.ColPanelLight);
+            UIKit.AddVertical(panel, 14f, 26, TextAnchor.UpperCenter);
+
+            var title = UIKit.AddLabel(panel.transform, "CÀI ĐẶT PHÍM", 34, FontStyle.Bold,
+                                       TextAnchor.MiddleCenter);
+            UIKit.SetLayoutHeight(title.gameObject, 54f);
+
+            // Tab thiết bị: index 0 = bàn phím (P1), 1 = tay cầm (P2) — view tô màu tab đang chọn.
+            var tabs = UIKit.NewUI("Tabs", panel.transform);
+            UIKit.SetLayoutHeight(tabs, 50f).flexibleWidth = 1f;
+            UIKit.AddHorizontal(tabs, 18f, controlW: true, expandW: false, TextAnchor.MiddleCenter);
+            var tabKb = UIKit.MakeButton(tabs.transform, "BÀN PHÍM (P1)", UIKit.ColBtn, 280f, 46f, 22);
+            var tabGp = UIKit.MakeButton(tabs.transform, "TAY CẦM (P2)", UIKit.ColPanelLight, 280f, 46f, 22);
+
+            var note = UIKit.AddLabel(panel.transform,
+                "Cho phép trùng phím trong 1 tab (NHẢY = LÊN là chủ ý) — có nhắc khi trùng.",
+                16, FontStyle.Italic, TextAnchor.MiddleCenter, UIKit.ColTxtDim);
+            UIKit.SetLayoutHeight(note.gameObject, 30f);
+
+            var columns = UIKit.NewUI("Columns", panel.transform);
+            UIKit.SetLayoutHeight(columns, 330f).flexibleWidth = 1f;
+            UIKit.AddHorizontal(columns, 44f, controlW: true, expandW: true, TextAnchor.UpperCenter);
+
+            int n = KeyRowActions.Length;
+            var keyLabels = new Text[n];
+            var keyBacks = new Image[n];
+            var keyBtns = new Button[n];
+            for (int col = 0; col < 2; col++)
+            {
+                var column = UIKit.NewUI("Col" + col, columns.transform);
+                UIKit.AddVertical(column, 11f, 0, TextAnchor.UpperCenter);
+                int half = (n + 1) / 2;
+                for (int i = col * half; i < Mathf.Min(n, (col + 1) * half); i++)
+                {
+                    var row = UIKit.NewUI("Row_" + KeyRowActions[i] + KeyRowParts[i], column.transform);
+                    UIKit.SetLayoutHeight(row, 44f).flexibleWidth = 1f;
+                    UIKit.AddHorizontal(row, 12f, controlW: true, expandW: false, TextAnchor.MiddleLeft);
+
+                    UIKit.AddLabel(row.transform, KeyRowLabels[i], 21, FontStyle.Bold,
+                                   TextAnchor.MiddleLeft, UIKit.ColTxtDim, width: 230f);
+                    var btn = UIKit.MakeButton(row.transform, KeyRowDefaults[i], UIKit.ColBtn, 150f, 42f, 22);
+                    keyBtns[i] = btn;
+                    keyBacks[i] = (Image)btn.targetGraphic;
+                    keyLabels[i] = btn.GetComponentInChildren<Text>();
+                }
+            }
+
+            var status = UIKit.AddLabel(panel.transform,
+                "Bấm vào ô phím để đổi. Chỉ đổi phím P1 (bàn phím).",
+                18, FontStyle.Normal, TextAnchor.MiddleCenter, UIKit.ColTxtDim);
+            UIKit.SetLayoutHeight(status.gameObject, 34f);
+
+            var footer = UIKit.NewUI("Footer", panel.transform);
+            UIKit.SetLayoutHeight(footer, 60f).flexibleWidth = 1f;
+            UIKit.AddHorizontal(footer, 24f, controlW: true, expandW: false, TextAnchor.MiddleCenter);
+            var resetBtn = UIKit.MakeButton(footer.transform, "MẶC ĐỊNH", UIKit.ColBtnAccent, 220f, 56f, 24);
+            var closeBtn = UIKit.MakeButton(footer.transform, "ĐÓNG", UIKit.ColBtn, 220f, 56f, 24);
+
+            var view = root.AddComponent<KeybindPanelView>();
+            var so = new SerializedObject(view);
+            UIKit.SetStringArray(so, "rowActions", KeyRowActions);
+            UIKit.SetStringArray(so, "rowParts", KeyRowParts);
+            UIKit.SetStringArray(so, "rowLabels", KeyRowLabels);
+            UIKit.SetObjArray(so, "rowKeyLabels", keyLabels);
+            UIKit.SetObjArray(so, "rowKeyBacks", keyBacks);
+            UIKit.SetObjArray(so, "tabBacks", new Object[] { tabKb.targetGraphic, tabGp.targetGraphic });
+            UIKit.SetObj(so, "statusLabel", status);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(view);
+
+            UnityEventTools.AddIntPersistentListener(tabKb.onClick, new UnityAction<int>(view.SelectTab), 0);
+            UnityEventTools.AddIntPersistentListener(tabGp.onClick, new UnityAction<int>(view.SelectTab), 1);
+            EditorUtility.SetDirty(tabKb);
+            EditorUtility.SetDirty(tabGp);
+
+            for (int i = 0; i < n; i++)
+            {
+                UnityEventTools.AddIntPersistentListener(keyBtns[i].onClick,
+                    new UnityAction<int>(view.StartRebind), i);
+                EditorUtility.SetDirty(keyBtns[i]);
+            }
+            UnityEventTools.AddPersistentListener(resetBtn.onClick, new UnityAction(view.ResetDefaults));
+            UnityEventTools.AddPersistentListener(closeBtn.onClick, new UnityAction(view.Close));
+            EditorUtility.SetDirty(resetBtn);
+            EditorUtility.SetDirty(closeBtn);
+
+            root.SetActive(false); // mở qua nút CÀI ĐẶT PHÍM (KeybindPanelView.Open).
+            return root;
+        }
+
         // ───────────────────── Pause menu (canvas riêng, trên mọi tầng) ─────────────────────
 
         /// <summary>
@@ -146,8 +275,9 @@ namespace FA.EditorTools
         /// </summary>
         public static GameObject BuildPauseMenu(UIChannels.Bundle ch, GameObject hud)
         {
+            // Giữ OVERLAY (không ToCameraSpace): pause chỉ mở TRONG TRẬN — lúc đó scene map có camera
+            // riêng render đè camera Lobby, canvas camera-space sẽ vô hình (cùng bệnh với HUD).
             var canvas = UIKit.NewCanvas(PauseMenuName, 400);
-            UILobbyBuilder.ToCameraSpace(canvas);
 
             // Bảng pause.
             var panel = UIKit.NewUI("PausePanel", canvas.transform);
@@ -171,6 +301,9 @@ namespace FA.EditorTools
             // Settings bản in-match (sibling của PausePanel — đè lên bảng khi mở).
             var settings = BuildSettingsPanel(canvas.transform, inMatch: true);
             var settingsView = settings.GetComponent<SettingsPanelView>();
+
+            // Applier keybind: root canvas luôn active trong Lobby → áp phím đã lưu cho motor spawn giữa chừng.
+            canvas.AddComponent<KeybindApplier>();
 
             var view = canvas.AddComponent<PauseMenuView>();
             var so = new SerializedObject(view);

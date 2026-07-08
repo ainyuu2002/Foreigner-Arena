@@ -31,8 +31,14 @@ namespace FA.UI
         [Tooltip("Giá trị MAX để chuẩn hóa khi normalizeRawValue bật (vd 300 cho %). Bỏ qua nếu kênh đã 0..1.")]
         [SerializeField] private float maxRawValue = 300f;
 
+        [Header("Reset khi bật (HUD bật mỗi đầu trận)")]
+        [Tooltip("TRUE → OnEnable áp initialFill (đã chuẩn hóa 0..1) ngay — không giữ fill của trận trước.")]
+        [SerializeField] private bool resetOnEnable;
+        [SerializeField] private float initialFill;
+
         private void OnEnable()
         {
+            if (resetOnEnable && fillImage != null) fillImage.fillAmount = Mathf.Clamp01(initialFill);
             if (channel != null) channel.OnEventRaised += OnValueChanged;
         }
 

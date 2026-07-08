@@ -30,6 +30,7 @@ namespace FA.EditorTools
         public static string LobbyScenePath => $"{ScenesFolder}/{LobbySceneName}.unity";
         public static string HudPrefabPath => $"{PrefabsFolder}/{UIHudBuilder.HudName}.prefab";
         public static string MenuPrefabPath => $"{PrefabsFolder}/{UIScreensBuilder.MenuName}.prefab";
+        public static string EndScreenPrefabPath => $"{PrefabsFolder}/{UIScreensBuilder.EndName}.prefab";
         public static string MainMenuPrefabPath => $"{PrefabsFolder}/{UILobbyBuilder.MainMenuName}.prefab";
         public static string PauseMenuPrefabPath => $"{PrefabsFolder}/{UISettingsBuilder.PauseMenuName}.prefab";
 
@@ -49,7 +50,7 @@ namespace FA.EditorTools
             UIKit.EnsureEventSystem();
 
             GameObject hud = UIHudBuilder.Build(ch);
-            GameObject menu = UIScreensBuilder.Build(ch);
+            GameObject menu = UIScreensBuilder.Build(ch, out GameObject endScreen);
 
             // Tạo prefab bằng SaveAsPrefabAsset (KHÔNG ...AndConnect) — giống GameFlowHarnessFighter (proven):
             // AndConnect làm RỚT giá trị wiring (channel) lúc trích prefab → ra null. SaveAsPrefabAsset serialize
@@ -58,6 +59,7 @@ namespace FA.EditorTools
             var created = new List<string>();
             SavePrefab(hud, HudPrefabPath, created);
             SavePrefab(menu, MenuPrefabPath, created);
+            SavePrefab(endScreen, EndScreenPrefabPath, created);
 
             // Lưu scene để bạn mở xem/tinh chỉnh (object trong scene là bản wired độc lập, không liên kết prefab).
             EditorSceneManager.MarkSceneDirty(scene);
@@ -102,16 +104,18 @@ namespace FA.EditorTools
             UIKit.EnsureCamera();
             UIKit.EnsureEventSystem();
 
-            // Các tầng (sorting): HUD 100 (tắt sẵn) < Menu_Screens 200 < MenuBG 250 < FX world 255-256
-            // < MainMenu 300. TẤT CẢ canvas chuyển Screen Space CAMERA — Overlay luôn đè renderer world
-            // → sét/tia lửa sẽ vô hình nếu giữ Overlay.
+            // Các tầng: NHÓM MENU camera-space (Menu_Screens 200 < MenuBG 250 < FX world 255-256
+            // < MainMenu 300 — FX sét/tia lửa là renderer world phải kẹp GIỮA các tầng UI, và MenuBG
+            // phải che được CharSelect lúc boot). NHÓM TRONG TRẬN giữ OVERLAY (HUD 100 < Menu_EndScreen
+            // 210 < PauseMenu 400): scene map load Additive mang CAMERA RIÊNG render đè camera Lobby →
+            // canvas camera-space vô hình khi map còn load (vụ "vào trận không thấy HUD"); Overlay vẽ
+            // trên mọi camera nên miễn nhiễm — và 3 canvas này chỉ hiện trong trận/End nên không cần kẹp FX.
             GameObject hud = UIHudBuilder.Build(ch);
-            GameObject menu = UIScreensBuilder.Build(ch);
+            GameObject menu = UIScreensBuilder.Build(ch, out GameObject endScreen);
             GameObject mainMenu = UILobbyBuilder.BuildMainMenu(); // tự tạo MenuBG + MenuFX_* (camera-space).
             GameObject pauseMenu = UISettingsBuilder.BuildPauseMenu(ch, hud); // ESC trong trận (canvas 400).
-            UILobbyBuilder.ToCameraSpace(hud);
             UILobbyBuilder.ToCameraSpace(menu);
-            UILobbyBuilder.BuildSystems(ch, menu, hud);
+            UILobbyBuilder.BuildSystems(ch, menu, hud, endScreen);
             hud.SetActive(false); // MatchManager bật khi vào Match (matchHud).
 
             EnsurePrefabFolder();
@@ -127,7 +131,7 @@ namespace FA.EditorTools
             // Cảnh báo scene map thiếu trong Build Settings (LoadSceneAsync sẽ fail).
             var missing = UILobbyBuilder.MissingBuildScenes(ch.StageRegistry);
             var sb = new StringBuilder();
-            sb.AppendLine("[UIProduction] HOÀN TẤT dựng LOBBY v9.1 (FIX 2 tầng ref null: scan đường dẫn TUYỆT ĐỐI + Resolve SAU NewScene — NewScene unload asset load trước; SETTINGS + PAUSE MENU + LUẬT TRẬN + CharSelect/StageSelect bố cục mock).");
+            sb.AppendLine("[UIProduction] HOÀN TẤT dựng LOBBY v9.6 (v9.4 OVERLAY fix camera map; v9.5 reset mana/nộ đầu trận; v9.6 GLOW ĐẦY THANH: mana đủ ô / nộ full → vầng sáng thở + ô sáng trắng theo nhịp).");
             sb.AppendLine($"• Scene: {LobbyScenePath} — Play thử: START → chọn 2 nhân vật → chọn map (chỉnh luật) → vào trận → ESC.");
             sb.AppendLine("• Art slot (thả PNG vào Assets/_Project/Art/UI/ rồi rebuild):");
             foreach (var s in UILobbyBuilder.ArtSlotStatus()) sb.AppendLine("    - " + s);
@@ -172,7 +176,7 @@ namespace FA.EditorTools
             UIChannels.Bundle ch = UIChannels.Resolve();
             UIKit.EnsureCamera();
             UIKit.EnsureEventSystem();
-            UIScreensBuilder.Build(ch);
+            UIScreensBuilder.Build(ch, out _);
             EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
             AssetDatabase.SaveAssets();
             LogSummary(ch, new List<string>(), false);

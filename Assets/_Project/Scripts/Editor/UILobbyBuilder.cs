@@ -30,7 +30,8 @@ namespace FA.EditorTools
         /// <summary>4 art slot của Main Menu — thả PNG đúng tên vào Assets là rebuild tự nhận.</summary>
         public static readonly string[] ArtSlots =
             { "MainMenu_BG", "MainMenu_Title", "MainMenu_BtnStart", "MainMenu_BtnSettings", "MainMenu_BtnQuit",
-              "CharSelect_BG", "StageSelect_BG", "StageSelect_Random" };
+              "CharSelect_BG", "CharSelect_Btn", "CharSelect_Banner",
+              "StageSelect_BG", "StageSelect_Random" };
 
         /// <summary>Trạng thái art slot (cho log build): "tên → CÓ/chưa".</summary>
         public static System.Collections.Generic.List<string> ArtSlotStatus()
@@ -341,14 +342,17 @@ namespace FA.EditorTools
         // ───────────────────── GameFlow systems (wire flow vào trận) ─────────────────────
 
         /// <summary>
-        /// Dựng __GameFlowSystems + wire — panel lấy theo TÊN con của Menu_Screens (CharSelectPanel/
-        /// StageSelectPanel/EndScreenPanel — UIScreensBuilder đặt); HUD = canvas HUD_InMatch (tắt sẵn).
+        /// Dựng __GameFlowSystems + wire — panel lấy theo TÊN con (CharSelectPanel/StageSelectPanel trong
+        /// Menu_Screens; EndScreenPanel trong canvas Overlay riêng Menu_EndScreen — UIScreensBuilder đặt);
+        /// HUD = canvas HUD_InMatch (tắt sẵn).
         /// </summary>
-        public static void BuildSystems(UIChannels.Bundle ch, GameObject menuScreens, GameObject hud)
+        public static void BuildSystems(UIChannels.Bundle ch, GameObject menuScreens, GameObject hud,
+                                        GameObject endScreenRoot)
         {
             GameObject charSel = FindChild(menuScreens, "CharSelectPanel");
             GameObject stageSel = FindChild(menuScreens, "StageSelectPanel");
-            GameObject endPanel = FindChild(menuScreens, "EndScreenPanel");
+            GameObject endPanel = FindChild(endScreenRoot != null ? endScreenRoot : menuScreens,
+                                            "EndScreenPanel");
 
             var root = new GameObject(SystemsName);
             Undo.RegisterCreatedObjectUndo(root, "Create GameFlow Systems");
@@ -431,7 +435,7 @@ namespace FA.EditorTools
         // ───────────────────── Art slots (tầng 2 — thả PNG đúng tên là tự nhận) ─────────────────────
 
         /// <summary>Áp sprite khung nút nếu có art slot; giữ label + FX code (hover/click vẫn chạy).</summary>
-        private static void ApplyButtonArt(Button btn, string spriteName)
+        internal static void ApplyButtonArt(Button btn, string spriteName) // internal: UIScreensBuilder dùng chung
         {
             var sp = FindSprite(spriteName);
             if (sp == null) return;

@@ -45,11 +45,15 @@ namespace FA.UI
 
         private void Update()
         {
+            // Đang bắt phím rebind: ESC là phím HỦY của rebind (WithCancelingThrough) — không xử lý ở đây,
+            // kèm khoảng đệm sau khi rebind kết thúc (thứ tự callback Input System vs Update không đảm bảo
+            // trong cùng frame → không có đệm thì 1 lần ESC vừa hủy rebind vừa đóng panel).
+            if (KeyBindings.SuppressPauseKey) return;
             if (!PausePressedThisFrame()) return;
 
-            if (settingsPanel != null && settingsPanel.gameObject.activeSelf)
-                settingsPanel.Close();          // ESC lớp 1: đóng settings, vẫn pause.
-            else if (IsPaused)
+            if (settingsPanel != null && settingsPanel.HandleBack())
+                return;                         // ESC lớp 1: đóng keybind/settings (lớp trong cùng), vẫn pause.
+            if (IsPaused)
                 Resume();                       // ESC lớp 2: đóng pause.
             else if (InMatch)
                 Pause();                        // ESC trong trận: mở pause.

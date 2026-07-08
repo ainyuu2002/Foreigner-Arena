@@ -224,12 +224,26 @@ namespace FA.EditorTools
 
             if (notchSegments > 1) AddNotches(bar, notchSegments, slant);
 
+            // FX đầy thanh: nộ fill = 1 → vầng glow thở + fill sáng trắng theo nhịp.
+            var glowImg = MakeFullGlow(bar.transform, color, slant);
+            var glowFx = bar.AddComponent<BarFullGlowFX>();
+            var soG = new SerializedObject(glowFx);
+            UIKit.SetObj(soG, "floatChannel", channel);
+            UIKit.SetFloat(soG, "floatFullAt", 1f);
+            UIKit.SetObj(soG, "glowImage", glowImg);
+            UIKit.SetObjArray(soG, "tintImages", new Object[] { fillImg });
+            soG.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(glowFx);
+
             var view = fillGo.AddComponent<ResourceBarView>();
             var so = new SerializedObject(view);
             UIKit.SetObj(so, "channel", channel);
             UIKit.SetObj(so, "fillImage", fillImg);
             UIKit.SetBool(so, "normalizeRawValue", normalizeRaw);
             UIKit.SetFloat(so, "maxRawValue", Mathf.Max(1f, maxRaw));
+            // Reset đầu trận: HUD bật lại là fill về 0 — không giữ giá trị trận trước / trạng thái build.
+            UIKit.SetBool(so, "resetOnEnable", true);
+            UIKit.SetFloat(so, "initialFill", 0f);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(view);
         }
@@ -355,15 +369,51 @@ namespace FA.EditorTools
                 fills.Add(fillImg);
             }
 
+            // FX đầy ô: đủ n ô mana → vầng glow hồng thở sau cả dãy + các ô sáng trắng theo nhịp.
+            var glowImg = MakeFullGlow(root.transform, SuperCol, SkewFor(isP1));
+            var glowFx = root.AddComponent<BarFullGlowFX>();
+            var soG = new SerializedObject(glowFx);
+            UIKit.SetObj(soG, "intChannel", ch.ManaSeg(isP1));
+            UIKit.SetInt(soG, "intFullAt", n);
+            UIKit.SetObj(soG, "glowImage", glowImg);
+            UIKit.SetObjArray(soG, "tintImages", fills.ToArray());
+            soG.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(glowFx);
+
             var view = root.AddComponent<ManaSegmentView>();
             var so = new SerializedObject(view);
             UIKit.SetObj(so, "segmentsChannel", ch.ManaSeg(isP1));
             UIKit.SetObjArray(so, "cells", fills.ToArray());
+            // Reset đầu trận: 0 ô — vụ "một bên đầy một bên không": ô hồng lúc build là placeholder,
+            // bên nào không có hệ mana raise sẽ đứng nguyên "đầy giả" vĩnh viễn.
+            UIKit.SetBool(so, "resetOnEnable", true);
+            UIKit.SetInt(so, "initialSegments", 0);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(view);
         }
 
         // ───────────────────── helpers ─────────────────────
+
+        /// <summary>
+        /// Vầng glow "đầy thanh" cho <see cref="BarFullGlowFX"/>: Image cùng dáng nghiêng, TO hơn thanh
+        /// vài px, alpha 0 sẵn (FX tự thở khi đầy). SetAsFirstSibling → vẽ DƯỚI ô/fill; ignoreLayout →
+        /// HLG của dãy ô mana không cuốn nó vào flow (bài học viền Highlight card random).
+        /// </summary>
+        private static Image MakeFullGlow(Transform parent, Color barColor, float slant)
+        {
+            var go = UIKit.NewUI("FullGlow", parent);
+            go.transform.SetAsFirstSibling();
+            go.AddComponent<LayoutElement>().ignoreLayout = true;
+            UIKit.StretchFull(go);
+            var rt = go.GetComponent<RectTransform>();
+            rt.offsetMin = new Vector2(-9f, -6f);
+            rt.offsetMax = new Vector2(9f, 6f);
+            Color glowCol = Color.Lerp(barColor, Color.white, 0.45f); // sáng hơn màu thanh — nhìn như phát quang.
+            glowCol.a = 0f;
+            var img = UIKit.AddImage(go, glowCol);
+            AddSkew(go, slant);
+            return img;
+        }
 
         private static GameObject Container(string name, Transform parent, Vector2 anchor, Vector2 pos, Vector2 size)
         {

@@ -26,16 +26,23 @@ namespace FA.EditorTools
     internal static class UIScreensBuilder
     {
         public const string MenuName = "Menu_Screens";
+        public const string EndName = "Menu_EndScreen";
 
         private static readonly Color PanelBig = new Color(0.06f, 0.07f, 0.10f, 0.94f);
 
-        public static GameObject Build(UIChannels.Bundle ch)
+        public static GameObject Build(UIChannels.Bundle ch, out GameObject endRoot)
         {
             var menu = UIKit.NewCanvas(MenuName, 200);
 
             var charSel = BuildCharSelect(menu.transform, ch);
             var stageSel = BuildStageSelect(menu.transform, ch);
-            var end = BuildEndScreen(menu.transform, ch);
+
+            // EndScreen: CANVAS RIÊNG Screen-Space-OVERLAY (không chung Menu_Screens camera-space).
+            // GoToEnd KHÔNG unload map — scene map có CAMERA RIÊNG render đè camera Lobby → panel
+            // camera-space vô hình trong lúc map còn load (đúng bệnh HUD "vào trận không thấy").
+            // Overlay luôn vẽ trên mọi camera nên miễn nhiễm. Sorting 210: trên HUD 100, dưới Pause 400.
+            endRoot = UIKit.NewCanvas(EndName, 210);
+            var end = BuildEndScreen(endRoot.transform, ch);
 
             // Mặc định hiện CharSelect; ẩn 2 panel còn lại (chỉ 1 active mỗi phase — MatchManager điều khiển runtime).
             charSel.SetActive(true);
@@ -64,6 +71,12 @@ namespace FA.EditorTools
                 var bgImg = panel.AddComponent<Image>();
                 bgImg.sprite = bgSprite; bgImg.type = Image.Type.Simple; bgImg.color = Color.white;
                 bgImg.raycastTarget = true;
+
+                // Scrim tối nhẹ đè lên art (con ĐẦU TIÊN — nằm dưới mọi UI): art sét/dung nham rất rực,
+                // không có scrim thì label lưới + chip trạng thái chìm vào nền.
+                var scrim = UIKit.NewUI("Scrim", panel.transform);
+                UIKit.StretchFull(scrim);
+                UIKit.AddImage(scrim, new Color(0f, 0f, 0f, 0.30f));
             }
             else UIKit.AddImage(panel, PanelBig, raycastTarget: true);
 
@@ -81,12 +94,32 @@ namespace FA.EditorTools
             Text statusP1 = MakeStatusChip(panel.transform, "P1", UIKit.ColP1Accent, left: true);
             Text statusP2 = MakeStatusChip(panel.transform, "P2", UIKit.ColP2Accent, left: false);
 
-            // ── Lưới nhân vật giữa ──
+            // ── Lưới nhân vật giữa ── ART SLOT "CharSelect_Banner": khung cánh én sau title (ảnh đã crop
+            // sát viền nên tâm ảnh = tâm khung); không có art → chữ trần vị trí cũ.
+            float titleY = -94f; // tâm chữ khi KHÔNG có banner (= vị trí cũ: -44 pivot-đỉnh với rect cao 100).
+            var bannerSp = UILobbyBuilder.FindSprite("CharSelect_Banner");
+            if (bannerSp != null)
+            {
+                var banner = UIKit.NewUI("GridTitleBanner", panel.transform);
+                var brt = banner.GetComponent<RectTransform>();
+                brt.anchorMin = brt.anchorMax = brt.pivot = new Vector2(0.5f, 1f);
+                float bw = 720f;
+                float bh = bw * bannerSp.rect.height / bannerSp.rect.width;
+                brt.sizeDelta = new Vector2(bw, bh);
+                brt.anchoredPosition = new Vector2(0f, -6f);
+                var bimg = banner.AddComponent<Image>();
+                bimg.sprite = bannerSp; bimg.type = Image.Type.Simple; bimg.color = Color.white;
+                bimg.raycastTarget = false;
+                titleY = -6f - bh * 0.5f; // chữ nằm giữa tấm khung.
+            }
             var gridTitle = UIKit.AddLabel(panel.transform, "DANH SÁCH CÁC NHÂN VẬT", 30, FontStyle.Bold,
                                            TextAnchor.MiddleCenter);
             var trt = gridTitle.GetComponent<RectTransform>();
-            trt.anchorMin = trt.anchorMax = trt.pivot = new Vector2(0.5f, 1f);
-            trt.anchoredPosition = new Vector2(0f, -44f);
+            trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 1f);
+            // Pivot GIỮA (không phải đỉnh): rect NewUI mặc định cao 100 → pivot đỉnh làm TÂM chữ tụt
+            // 50px dưới anchoredPosition — chữ rơi xuống mép dưới khung banner.
+            trt.pivot = new Vector2(0.5f, 0.5f);
+            trt.anchoredPosition = new Vector2(0f, titleY);
 
             int cols = Mathf.Min(6, n);
             int rows = Mathf.CeilToInt(n / (float)cols);
@@ -112,8 +145,9 @@ namespace FA.EditorTools
             CardRefs c1 = MakeCharCard(panel.transform, isP1: true);
             CardRefs c2 = MakeCharCard(panel.transform, isP1: false);
 
-            // ── Nút tiếp tục (dưới giữa) ──
+            // ── Nút tiếp tục (dưới giữa) ── ART SLOT "CharSelect_Btn": khung mạch điện xanh, label đè lên.
             var contBtn = UIKit.MakeButton(panel.transform, "TIẾP TỤC CHỌN MAP", UIKit.ColBtn, 520f, 70f, 26);
+            UILobbyBuilder.ApplyButtonArt(contBtn, "CharSelect_Btn");
             var crt = contBtn.GetComponent<RectTransform>();
             crt.anchorMin = crt.anchorMax = crt.pivot = new Vector2(0.5f, 0f);
             crt.anchoredPosition = new Vector2(0f, 36f);
@@ -278,6 +312,9 @@ namespace FA.EditorTools
 
             var confirm = UIKit.MakeButton(inner.transform, "XÁC NHẬN",
                                            Color.Lerp(accent, Color.black, 0.35f), 300f, 64f, 26);
+            // ART SLOT "CharSelect_Btn" (chung với nút TIẾP TỤC): sprite thay nền accent; viền card vẫn
+            // giữ màu per-player nên không mất nhận diện P1/P2.
+            UILobbyBuilder.ApplyButtonArt(confirm, "CharSelect_Btn");
 
             return new CardRefs
             {

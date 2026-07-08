@@ -262,6 +262,10 @@ namespace FA.EditorTools
             cam.orthographic = true; cam.orthographicSize = 8f;
             cam.transform.position = new Vector3(0f, 1f, -10f);
             cam.backgroundColor = new Color(0.10f, 0.11f, 0.14f, 1f);
+            // Depth -10: camera map (scene load Additive, depth mặc định 0) LUÔN render SAU → phần world
+            // trong trận tất định là hình từ camera map, không phụ thuộc thứ tự không xác định khi 2 camera
+            // cùng depth. UI trong trận nằm ở canvas Overlay nên không bị camera nào đè.
+            cam.depth = -10f;
             Undo.RegisterCreatedObjectUndo(camGo, "Create UI Camera");
         }
 
