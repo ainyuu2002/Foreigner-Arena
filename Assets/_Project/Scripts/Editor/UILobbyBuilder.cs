@@ -29,7 +29,8 @@ namespace FA.EditorTools
 
         /// <summary>4 art slot của Main Menu — thả PNG đúng tên vào Assets là rebuild tự nhận.</summary>
         public static readonly string[] ArtSlots =
-            { "MainMenu_BG", "MainMenu_Title", "MainMenu_BtnStart", "MainMenu_BtnQuit" };
+            { "MainMenu_BG", "MainMenu_Title", "MainMenu_BtnStart", "MainMenu_BtnSettings", "MainMenu_BtnQuit",
+              "CharSelect_BG", "StageSelect_BG", "StageSelect_Random" };
 
         /// <summary>Trạng thái art slot (cho log build): "tên → CÓ/chưa".</summary>
         public static System.Collections.Generic.List<string> ArtSlotStatus()
@@ -49,6 +50,7 @@ namespace FA.EditorTools
         private static readonly Color EmberCol  = new Color(0.80f, 0.12f, 0.05f, 1f);  // than đỏ sậm
         private static readonly Color BoltCol   = new Color(0.55f, 0.75f, 1f, 0f);     // sét xanh neon (alpha FX lo)
         private static readonly Color GlowStart = new Color(0.35f, 0.75f, 1f, 1f);     // glow nút START (điện)
+        private static readonly Color GlowSet   = new Color(0.75f, 0.78f, 0.90f, 1f);  // glow nút SETTINGS (thép xám)
         private static readonly Color GlowQuit  = new Color(1f, 0.45f, 0.15f, 1f);     // glow nút QUIT (lửa)
 
         /// <summary>
@@ -87,11 +89,13 @@ namespace FA.EditorTools
             // ── Tầng 2: FX WORLD (sét + tia lửa) — camera menu ortho size 8 → đáy y=-7, mép x≈±14 ──
             var lightningGo = new GameObject("MenuFX_LightningCore");
             Undo.RegisterCreatedObjectUndo(lightningGo, "Create MenuFX");
-            lightningGo.transform.position = new Vector3(0f, 1.6f, 0f); // tâm orb của BG art.
+            lightningGo.transform.position = new Vector3(0f, 1.4f, 0f); // tâm nexus sét của BG art (hành lang mới: giữa màn, hơi cao hơn tâm).
             var lightning = lightningGo.AddComponent<ProceduralLightning>();
 
-            var sparksL = MakeFireSparks("MenuFX_FireSparks_L", -11f);
-            var sparksR = MakeFireSparks("MenuFX_FireSparks_R", 11f);
+            // BG hành lang mới: 2 cột lửa ôm SÁT mép trái/phải (x≈±12.8, bề ngang ~3 world) thay vì
+            // 2 góc trong (±11, rộng 5) của BG cũ.
+            var sparksL = MakeFireSparks("MenuFX_FireSparks_L", -12.8f);
+            var sparksR = MakeFireSparks("MenuFX_FireSparks_R", 12.8f);
 
             // ── Tầng 3: canvas MENU (sorting 300) ──
             var canvas = UIKit.NewCanvas(MainMenuName, 300);
@@ -114,6 +118,9 @@ namespace FA.EditorTools
             var startBtn = UIKit.MakeButton(col.transform, "START", UIKit.ColBtn, 340f, 74f, 30);
             ApplyButtonArt(startBtn, "MainMenu_BtnStart");
             AddButtonFX(startBtn, GlowStart);
+            var settingsBtn = UIKit.MakeButton(col.transform, "SETTINGS", UIKit.ColPanelLight, 340f, 74f, 30);
+            ApplyButtonArt(settingsBtn, "MainMenu_BtnSettings");
+            AddButtonFX(settingsBtn, GlowSet);
             var quitBtn = UIKit.MakeButton(col.transform, "QUIT", UIKit.ColBtnAccent, 340f, 74f, 30);
             ApplyButtonArt(quitBtn, "MainMenu_BtnQuit");
             AddButtonFX(quitBtn, GlowQuit);
@@ -134,6 +141,10 @@ namespace FA.EditorTools
             UIKit.SetObj(soL, "syncFlash", bolt);
             soL.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(lightning);
+
+            // ── SettingsPanel (bản đầy đủ — NGOÀI Content để dim đè cả cột nút; DƯỚI TransitionOverlay) ──
+            var settingsPanel = UISettingsBuilder.BuildSettingsPanel(canvas.transform, inMatch: false);
+            var settingsView = settingsPanel.GetComponent<SettingsPanelView>();
 
             // ── TransitionOverlay: phủ chuyển cảnh (trên cùng, NGOÀI Content để sống sau khi ẩn menu) ──
             var overlayGo = UIKit.NewUI("TransitionOverlay", canvas.transform);
@@ -157,8 +168,10 @@ namespace FA.EditorTools
 
             // Wire nút → transition (persistent listener, serialize vào scene/prefab — cùng root nên an toàn).
             UnityEventTools.AddPersistentListener(startBtn.onClick, new UnityAction(fx.StartGame));
+            UnityEventTools.AddPersistentListener(settingsBtn.onClick, new UnityAction(settingsView.Open));
             UnityEventTools.AddPersistentListener(quitBtn.onClick, new UnityAction(fx.QuitGame));
             EditorUtility.SetDirty(startBtn);
+            EditorUtility.SetDirty(settingsBtn);
             EditorUtility.SetDirty(quitBtn);
             return canvas;
         }
@@ -185,7 +198,7 @@ namespace FA.EditorTools
             go.transform.position = new Vector3(x, -7.6f, 0f); // hơi dưới mép — tia "mọc" từ ngoài vào.
             var fs = go.AddComponent<FireSparks>();            // RequireComponent tự thêm ParticleSystem.
             var so = new SerializedObject(fs);
-            UIKit.SetFloat(so, "emitWidth", 5f);
+            UIKit.SetFloat(so, "emitWidth", 3f); // khớp bề ngang cột lửa BG hành lang.
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(fs);
             return go;
@@ -432,15 +445,14 @@ namespace FA.EditorTools
         /// Default (không phải Sprite) → tự chỉnh TextureImporter sang Sprite (2D and UI) rồi reimport —
         /// người dùng chỉ cần kéo-thả file, KHÔNG phải chỉnh import settings tay.
         /// </summary>
-        private static Sprite FindSprite(string assetName)
+        internal static Sprite FindSprite(string assetName)
         {
-            // Quét System.IO (không tin FindAssets — xem UIChannels.FindExact) các đuôi ảnh phổ biến.
+            // Quét System.IO đường dẫn TUYỆT ĐỐI (v9 — xem UIKit.FindProjectFiles) các đuôi ảnh phổ biến.
             foreach (string ext in new[] { ".png", ".jpg", ".jpeg", ".psd" })
             {
-                foreach (string file in System.IO.Directory.GetFiles(
-                             "Assets/_Project", assetName + ext, System.IO.SearchOption.AllDirectories))
+                foreach (string file in UIKit.FindProjectFiles(assetName + ext))
                 {
-                    var sp = LoadOrFixSprite(file.Replace('\\', '/'));
+                    var sp = LoadOrFixSprite(file);
                     if (sp != null) return sp;
                 }
             }

@@ -150,10 +150,10 @@ namespace FA.EditorTools
         /// </summary>
         private static T FindExact<T>(string assetName) where T : Object
         {
-            foreach (string file in System.IO.Directory.GetFiles(
-                         "Assets/_Project", assetName + ".asset", System.IO.SearchOption.AllDirectories))
+            // v9: quét qua UIKit.FindProjectFiles (đường dẫn TUYỆT ĐỐI) — bản tương đối cũ chết theo CWD.
+            foreach (string file in UIKit.FindProjectFiles(assetName + ".asset"))
             {
-                var a = AssetDatabase.LoadAssetAtPath<T>(file.Replace('\\', '/'));
+                var a = AssetDatabase.LoadAssetAtPath<T>(file);
                 if (a != null) return a;
             }
             // Fallback: FindAssets (nếu asset nằm ngoài _Project hoặc tên chỉ khớp một phần).
@@ -168,10 +168,9 @@ namespace FA.EditorTools
         private static T FindAny<T>() where T : Object
         {
             // Quét System.IO trước (lý do xem FindExact) — mọi .asset dưới _Project, load đúng T là nhận.
-            foreach (string file in System.IO.Directory.GetFiles(
-                         "Assets/_Project", "*.asset", System.IO.SearchOption.AllDirectories))
+            foreach (string file in UIKit.FindProjectFiles("*.asset"))
             {
-                var a = AssetDatabase.LoadAssetAtPath<T>(file.Replace('\\', '/'));
+                var a = AssetDatabase.LoadAssetAtPath<T>(file);
                 if (a != null) return a;
             }
             foreach (string guid in AssetDatabase.FindAssets($"t:{typeof(T).Name}"))

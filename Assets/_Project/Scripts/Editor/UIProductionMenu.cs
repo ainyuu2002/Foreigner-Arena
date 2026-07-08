@@ -31,6 +31,7 @@ namespace FA.EditorTools
         public static string HudPrefabPath => $"{PrefabsFolder}/{UIHudBuilder.HudName}.prefab";
         public static string MenuPrefabPath => $"{PrefabsFolder}/{UIScreensBuilder.MenuName}.prefab";
         public static string MainMenuPrefabPath => $"{PrefabsFolder}/{UILobbyBuilder.MainMenuName}.prefab";
+        public static string PauseMenuPrefabPath => $"{PrefabsFolder}/{UISettingsBuilder.PauseMenuName}.prefab";
 
         // ───────────────────── Menu chính: scene riêng + prefab ─────────────────────
 
@@ -40,10 +41,10 @@ namespace FA.EditorTools
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
                 return; // người dùng hủy lưu scene đang mở → dừng.
 
-            UIChannels.Bundle ch = UIChannels.Resolve();
-
-            // Scene mới (Single) — tách khỏi scene gameplay đang mở.
+            // Scene mới (Single) TRƯỚC — rồi mới Resolve (v9.1: NewScene unload asset load trước đó → fake null).
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+            UIChannels.Bundle ch = UIChannels.Resolve();
             UIKit.EnsureCamera();
             UIKit.EnsureEventSystem();
 
@@ -81,9 +82,23 @@ namespace FA.EditorTools
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
                 return;
 
+            // v9.1: NewScene TRƯỚC — Resolve SAU. NewScene(Single) unload asset đã load trước đó (thành
+            // "fake null": blocker pass nhưng ref gán vào scene serialize {fileID: 0}). Sprite không dính
+            // bug này vì FindSprite luôn chạy sau NewScene — manh mối phá án.
+            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
             UIChannels.Bundle ch = UIChannels.Resolve();
 
-            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            // CHỐT CHẶN (v9): thiếu kênh/registry sống còn → KHÔNG build. Trước đây tool vẫn build với ref
+            // null → scene "chết im lặng" (nút bấm được nhưng flow đứng — vụ "bấm TIẾP TỤC không ăn").
+            string blockers = LobbyBlockers(ch);
+            if (blockers != null)
+            {
+                Debug.LogError("[UIProduction] DỪNG build Lobby — " + blockers);
+                EditorUtility.DisplayDialog("Build Lobby — THIẾU ASSET", blockers, "OK");
+                return;
+            }
+
             UIKit.EnsureCamera();
             UIKit.EnsureEventSystem();
 
@@ -93,6 +108,7 @@ namespace FA.EditorTools
             GameObject hud = UIHudBuilder.Build(ch);
             GameObject menu = UIScreensBuilder.Build(ch);
             GameObject mainMenu = UILobbyBuilder.BuildMainMenu(); // tự tạo MenuBG + MenuFX_* (camera-space).
+            GameObject pauseMenu = UISettingsBuilder.BuildPauseMenu(ch, hud); // ESC trong trận (canvas 400).
             UILobbyBuilder.ToCameraSpace(hud);
             UILobbyBuilder.ToCameraSpace(menu);
             UILobbyBuilder.BuildSystems(ch, menu, hud);
@@ -101,6 +117,7 @@ namespace FA.EditorTools
             EnsurePrefabFolder();
             var created = new List<string>();
             SavePrefab(mainMenu, MainMenuPrefabPath, created); // HUD/Menu prefab đã có từ Build Production UI.
+            SavePrefab(pauseMenu, PauseMenuPrefabPath, created);
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, LobbyScenePath);
@@ -110,8 +127,8 @@ namespace FA.EditorTools
             // Cảnh báo scene map thiếu trong Build Settings (LoadSceneAsync sẽ fail).
             var missing = UILobbyBuilder.MissingBuildScenes(ch.StageRegistry);
             var sb = new StringBuilder();
-            sb.AppendLine("[UIProduction] HOÀN TẤT dựng LOBBY v7 (FX tầng 2: SÉT procedural quanh orb + TÀN LỬA bay 2 góc, đồng bộ chớp lóe; canvas → Screen Space Camera 3 tầng).");
-            sb.AppendLine($"• Scene: {LobbyScenePath} — Play thử: START → chọn 2 nhân vật → chọn map → vào trận.");
+            sb.AppendLine("[UIProduction] HOÀN TẤT dựng LOBBY v9.1 (FIX 2 tầng ref null: scan đường dẫn TUYỆT ĐỐI + Resolve SAU NewScene — NewScene unload asset load trước; SETTINGS + PAUSE MENU + LUẬT TRẬN + CharSelect/StageSelect bố cục mock).");
+            sb.AppendLine($"• Scene: {LobbyScenePath} — Play thử: START → chọn 2 nhân vật → chọn map (chỉnh luật) → vào trận → ESC.");
             sb.AppendLine("• Art slot (thả PNG vào Assets/_Project/Art/UI/ rồi rebuild):");
             foreach (var s in UILobbyBuilder.ArtSlotStatus()) sb.AppendLine("    - " + s);
             foreach (var p in created) sb.AppendLine("• Prefab: " + p);
@@ -184,6 +201,30 @@ namespace FA.EditorTools
         }
 
         // ───────────────────── helpers ─────────────────────
+
+        /// <summary>
+        /// Kênh/asset SỐNG CÒN của flow lobby — thiếu cái nào là flow đứng không lời báo (chọn xong không
+        /// chuyển màn, không spawn...). Trả message liệt kê để dừng build; null = đủ.
+        /// </summary>
+        private static string LobbyBlockers(UIChannels.Bundle ch)
+        {
+            var miss = new List<string>();
+            if (ch.CharSelP1 == null) miss.Add("CharSelectedChannel_P1");
+            if (ch.CharSelP2 == null) miss.Add("CharSelectedChannel_P2");
+            if (ch.StageSel == null) miss.Add("StageSelectedChannel");
+            if (ch.Rematch == null) miss.Add("RematchPressedChannel");
+            if (ch.BackToCharSelect == null) miss.Add("BackToCharSelectChannel");
+            if (ch.MatchEnded == null) miss.Add("OnMatchEndedChannel");
+            if (ch.MatchSettings == null) miss.Add("MatchSettings (MatchSettingsSO)");
+            if (ch.CharacterRegistry == null) miss.Add("CharacterRegistry (CharacterRegistrySO)");
+            if (ch.StageRegistry == null) miss.Add("StageRegistry (StageRegistrySO)");
+            if (miss.Count == 0) return null;
+
+            return $"Không tìm thấy {miss.Count} asset bắt buộc:\n  • " + string.Join("\n  • ", miss) +
+                   "\n\nAsset lẽ ra nằm ở Assets/_Project/Data/GameFlow/." +
+                   "\nCWD hiện tại của Unity: " + System.IO.Directory.GetCurrentDirectory() +
+                   "\n\nXem Console log [UIChannels] để biết kênh nào NULL rồi báo P5.";
+        }
 
         private static void EnsurePrefabFolder()
         {

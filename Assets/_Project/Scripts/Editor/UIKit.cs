@@ -285,6 +285,31 @@ namespace FA.EditorTools
             return go;
         }
 
+        // ───────────────────── Quét file project (KHÔNG phụ thuộc CWD) ─────────────────────
+
+        /// <summary>
+        /// Quét file dưới Assets/_Project bằng đường dẫn TUYỆT ĐỐI (từ <see cref="Application.dataPath"/>)
+        /// rồi trả đường dẫn TƯƠNG ĐỐI "Assets/..." cho <c>AssetDatabase.LoadAssetAtPath</c>.
+        /// ROOT-CAUSE (Lobby v9, vụ "bấm TIẾP TỤC không ăn"): bản cũ đưa thẳng "Assets/_Project" (tương đối)
+        /// vào <c>Directory.GetFiles</c> — CWD của Unity trên Windows bị file dialog (Open/Save/Import) đổi
+        /// mất → scan trượt TOÀN BỘ .asset (sprite vẫn thấy nhờ fallback FindAssets — index thấy texture
+        /// nhưng trượt ScriptableObject) → mọi ref asset trong scene = {fileID: 0}, lúc được lúc không theo
+        /// việc user có mở dialog trước khi build hay chưa. dataPath tuyệt đối nên miễn nhiễm CWD.
+        /// </summary>
+        public static string[] FindProjectFiles(string searchPattern)
+        {
+            string dataPath = Application.dataPath.Replace('/', '\\');      // ...\<Project>\Assets
+            string projectRoot = System.IO.Path.GetDirectoryName(dataPath); // ...\<Project>
+            string absRoot = System.IO.Path.Combine(dataPath, "_Project");
+            if (projectRoot == null || !System.IO.Directory.Exists(absRoot)) return new string[0];
+
+            string[] files = System.IO.Directory.GetFiles(absRoot, searchPattern,
+                                                          System.IO.SearchOption.AllDirectories);
+            for (int i = 0; i < files.Length; i++)
+                files[i] = files[i].Substring(projectRoot.Length + 1).Replace('\\', '/');
+            return files;
+        }
+
         // ───────────────────── SerializedObject setters ─────────────────────
 
         public static void SetObj(SerializedObject so, string prop, Object val)
@@ -319,6 +344,16 @@ namespace FA.EditorTools
             p.arraySize = values.Length;
             for (int i = 0; i < values.Length; i++)
                 p.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
+        }
+
+        /// <summary>Gán mảng string cho 1 SerializedProperty (vd names[] bake từ registry).</summary>
+        public static void SetStringArray(SerializedObject so, string prop, string[] values)
+        {
+            var p = so.FindProperty(prop);
+            if (p == null) return;
+            p.arraySize = values.Length;
+            for (int i = 0; i < values.Length; i++)
+                p.GetArrayElementAtIndex(i).stringValue = values[i];
         }
 
         // ───────────────────── Font ─────────────────────
