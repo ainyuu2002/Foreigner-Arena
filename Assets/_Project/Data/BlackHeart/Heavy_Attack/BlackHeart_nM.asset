@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4b9168800b97d4eb5191c6042d08ba, type: 3}
+  m_Name: BlackHeart_nM
+  m_EditorClassIdentifier: FA.Core::FA.Core.MoveData
+  moveId: nM1
+  category: 0
+  animatorStateId: 9
+  clip: {fileID: 7400000, guid: 8efccdc1699a486b90c916fdee080f23, type: 2}
+  motion: 0
+  button: 3
+  chargeFrames: 0
+  manaCostUnits: 0
+  rageCost: 0
+  requiresRageMode: 0
+  baseDamagePercent: 5
+  launchAngle: 30
+  baseKnockback: 5
+  knockbackGrowth: 0.1
+  isSpike: 0
+  causesLaunch: 0
+  role: 0
+  onBlockAdvantage: 0
+  onHitAdvantage: 0
+  hitsLow: 0
+  hitsHigh: 1
+  hitstunFrames: 16
+  hitstopFrames: 10
+  motionImpulses:
+  - {x: 5, y: 0}
+  driftSpeed: 0
+  followUps:
+  - button: 3
+    motion: 0
+    condition: 0
+    nextMove: {fileID: 11400000, guid: af0d2f83ce48465fa0e9de1ef8092119, type: 2}
