@@ -124,11 +124,23 @@ namespace FA.EditorTools
             WireDropThrough(p1);
             WireDropThrough(p2);
 
+            // Điểm hồi sinh dự phòng cho LivesSystem/RespawnSystem (P12 có sẵn trên fighter):
+            // thiếu cái này thì khi test không qua luồng P12, chết là rơi tự do giữa không trung.
+            WireRespawnPoint(p1, spawns.RespawnPoint);
+            WireRespawnPoint(p2, spawns.RespawnPoint);
+
             // Bật debug self-respawn cho mọi DeathZone (test không cần P12).
             ToggleDebugRespawn(true, spawns.RespawnPoint);
 
             EditorSceneManager.MarkSceneDirty(p1.scene);
             Debug.Log("[Phase11] Đã thả 2 fighter (P1 Keyboard / P2 Gamepad) + bật debug self-respawn. Bấm Play để test.");
+        }
+
+        private static void WireRespawnPoint(GameObject fighter, Transform respawn)
+        {
+            if (respawn == null) return;
+            var rs = fighter.GetComponentInChildren<RespawnSystem>();
+            if (rs != null) StageSceneKit.SetObj(rs, "fallbackRespawnPoint", respawn);
         }
 
         private static void WireDropThrough(GameObject fighter)

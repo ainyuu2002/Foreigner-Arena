@@ -76,6 +76,14 @@ namespace FA.EditorTools
 
         public static void SaveScene(Scene s, string sceneName)
         {
+            // GỐC RỄ BUG "mở lại scene là rơi xuyên đất": Unity sinh geometry của TilemapCollider2D +
+            // CompositeCollider2D TRỄ 1 frame — save cùng frame với SetTile → scene lưu collider RỖNG
+            // (m_CompositePaths: []). Phải ÉP sinh NGAY trước khi save để geometry được serialize.
+            foreach (var tc in Object.FindObjectsByType<TilemapCollider2D>(FindObjectsSortMode.None))
+                tc.ProcessTilemapChanges();
+            foreach (var cc in Object.FindObjectsByType<CompositeCollider2D>(FindObjectsSortMode.None))
+                cc.GenerateGeometry();
+
             if (!Directory.Exists(ScenesFolder)) Directory.CreateDirectory(ScenesFolder);
             string path = $"{ScenesFolder}/{sceneName}.unity";
             EditorSceneManager.MarkSceneDirty(s);
