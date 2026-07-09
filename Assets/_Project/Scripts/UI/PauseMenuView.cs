@@ -8,8 +8,10 @@ namespace FA.UI
     /// (P12 Settings) PAUSE MENU trong trận — ESC (bàn phím) / Start (tay cầm) mở bảng pause:
     ///   • TIẾP TỤC — đóng bảng, trả <c>Time.timeScale = 1</c>.
     ///   • SETTINGS — mở <see cref="SettingsPanelView"/> bản rút gọn (in-match mode).
-    ///   • VỀ MENU — thoát trận: raise kênh BackToCharSelect (MatchManager NGHE SẴN kênh này — routine
-    ///     unload map + reset lựa chọn chạy được từ mọi phase, KHÔNG cần sửa code gameplay §1.3)
+    ///   • ĐẤU LẠI — raise kênh RematchPressed (MatchManager nghe sẵn: GoToMatch reload map, spawn lại
+    ///     player sạch — cùng nhân vật/map). Tắt-HUD-trước để GoToMatch bật lại → views resetOnEnable về 0.
+    ///   • THOÁT — về màn chọn nhân vật: raise kênh BackToCharSelect (MatchManager NGHE SẴN kênh này —
+    ///     routine unload map + reset lựa chọn chạy được từ mọi phase, KHÔNG cần sửa code gameplay §1.3)
     ///     + tự tắt HUD (GoToCharSelect không tắt matchHud — chỉ GoToEnd tắt).
     ///
     /// Pause = <c>Time.timeScale = 0</c>: MatchTimer trừ <c>Time.deltaTime</c> (scaled) nên tự đứng;
@@ -33,6 +35,9 @@ namespace FA.UI
         [Header("Kênh (raise)")]
         [Tooltip("BackToCharSelectChannel — MatchManager nghe sẵn: unload map + về màn chọn nhân vật.")]
         [SerializeField] private VoidEventChannelSO backToCharSelectChannel;
+
+        [Tooltip("RematchPressedChannel — MatchManager nghe sẵn: reload map, đấu lại cùng nhân vật/map.")]
+        [SerializeField] private VoidEventChannelSO rematchChannel;
 
         private bool IsPaused => panel != null && panel.activeSelf;
         private bool InMatch => hudRoot != null && hudRoot.activeInHierarchy;
@@ -88,7 +93,17 @@ namespace FA.UI
             if (settingsPanel != null) settingsPanel.Open();
         }
 
-        /// <summary>Nút VỀ MENU (persistent listener) — thoát trận về màn chọn nhân vật.</summary>
+        /// <summary>Nút ĐẤU LẠI (persistent listener) — trận MỚI cùng nhân vật/map, ngay từ pause.</summary>
+        public void Rematch()
+        {
+            Resume();                                        // trả timeScale + đóng bảng TRƯỚC khi reload.
+            // Tắt HUD trước khi raise: GoToMatch SetActive(true) lại ngay → OnEnable của các view
+            // (resetOnEnable) đưa mana/nộ/% về 0 — không lộ giá trị trận cũ trong lúc chờ spawn.
+            if (hudRoot != null) hudRoot.SetActive(false);
+            if (rematchChannel != null) rematchChannel.RaiseEvent();
+        }
+
+        /// <summary>Nút THOÁT (persistent listener) — thoát trận về màn chọn nhân vật.</summary>
         public void QuitToMenu()
         {
             Resume();                                        // trả timeScale + đóng bảng TRƯỚC khi chuyển phase.

@@ -11,7 +11,7 @@ namespace FA.EditorTools
     /// PHẦN HUD TRONG TRẬN (P8 + P12) — layout PHONG CÁCH STREET FIGHTER 6 (xem <see cref="UIProductionMenu"/>).
     /// Map tài nguyên game (KHÔNG có HP) vào khung SF6:
     ///   • Trên cùng "Vitality" = **% knockback** — thanh LUÔN ĐẦY, đổi MÀU trắng→đỏ theo % (PercentColorView).
-    ///   • Thanh "Drive" = **Nộ** (fill 0..1, NGẮN hơn thanh %, chia 2 ô) + Portrait + badge "C" + Tên + Lives.
+    ///   • Thanh "Drive" = **Nộ** (fill 0..1, 80% bề ngang thanh %, chia 3 ô) + Portrait + badge "C" + Tên + Lives.
     ///   • Combo counter (số HITS) — ngay DƯỚI cụm trên, sát mép góc; chỉ hiện khi combo ≥ 2.
     ///   • Gauge dưới "Super Art" = **Mana** (chia ô thật, ManaSegmentView) — MỎNG; P1 dưới-trái / P2 dưới-phải.
     ///   • Timer ở trên-giữa.
@@ -26,8 +26,8 @@ namespace FA.EditorTools
         private static readonly Color VitLow   = Color.white;                       // % = 0  (trắng)
         private static readonly Color VitHigh  = new Color(0.92f, 0.16f, 0.18f, 1f);// % = max (đỏ)
         private static readonly Color DriveCol = new Color(0.70f, 0.90f, 0.22f, 1f);// Nộ (vàng-lục Drive)
-        private static readonly Color SuperCol = new Color(0.95f, 0.25f, 0.62f, 1f);// Mana (hồng Super Art)
-        private static readonly Color SuperTrack = new Color(0.22f, 0.10f, 0.18f, 0.95f);
+        private static readonly Color SuperCol = new Color(1f, 0.58f, 0.10f, 1f);   // Mana (CAM — user đổi từ đỏ hồng, tuần 3)
+        private static readonly Color SuperTrack = new Color(0.24f, 0.14f, 0.05f, 0.95f);
         private static readonly Color ComboCol = new Color(0.97f, 0.32f, 0.55f, 1f);// số combo (hồng)
         private static readonly Color BarBack  = new Color(0f, 0f, 0f, 0.55f);
         private static readonly Color Notch    = new Color(0f, 0f, 0f, 0.6f);
@@ -76,16 +76,17 @@ namespace FA.EditorTools
 
         private static void BuildTimer(Transform parent, FloatEventChannelSO timerCh)
         {
+            // Trận 180-600s (mốc team tuần 3) → hiện M:SS thay vì giây trần; panel nới cho "10:00".
             var panel = UIKit.NewPanel("TimerPanel", parent, new Vector2(0.5f, 1f), new Vector2(0f, -14f),
-                                       new Vector2(150f, 96f), new Color(0f, 0f, 0f, 0.55f));
-            var label = UIKit.AddLabel(panel.transform, "99", 64, FontStyle.Bold, TextAnchor.MiddleCenter);
+                                       new Vector2(210f, 96f), new Color(0f, 0f, 0f, 0.55f));
+            var label = UIKit.AddLabel(panel.transform, "3:00", 56, FontStyle.Bold, TextAnchor.MiddleCenter);
             UIKit.StretchFull(label.gameObject);
 
             var view = panel.AddComponent<TimerView>();
             var so = new SerializedObject(view);
             UIKit.SetObj(so, "channel", timerCh);
             UIKit.SetObj(so, "label", label);
-            UIKit.SetBool(so, "showAsMinutes", false);
+            UIKit.SetBool(so, "showAsMinutes", true);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(view);
         }
@@ -157,8 +158,8 @@ namespace FA.EditorTools
             // Vitality = % — thanh LUÔN đầy, đổi màu trắng→đỏ theo %.
             BuildColorBar(col.transform, "Vitality_%", ch.Percent(isP1), ch.PercentCap, 32f, isP1);
 
-            // Drive = Nộ — thanh fill NGẮN hơn (55% bề ngang), DÀY hơn, chia 2 ô bằng vạch NGHIÊNG (SF6).
-            BuildBar(col.transform, "Drive_Rage", ch.Rage(isP1), DriveCol, false, 1f, 24f, 2, 0.55f, isP1);
+            // Drive = Nộ — thanh fill NGẮN hơn (80% bề ngang thanh %), chia 3 ô bằng vạch NGHIÊNG (SF6).
+            BuildBar(col.transform, "Drive_Rage", ch.Rage(isP1), DriveCol, false, 1f, 24f, 3, 0.80f, isP1);
 
             // Lives.
             BuildLivesRow(col.transform, isP1, ch, maxLives);
@@ -275,13 +276,17 @@ namespace FA.EditorTools
             UIKit.AddHorizontal(row, 6f, controlW: false, expandW: false,
                                 isP1 ? TextAnchor.MiddleLeft : TextAnchor.MiddleRight);
 
+            // Ô mạng = parallelogram NGHIÊNG cùng dáng các thanh trên (v9.7 — user muốn đồng bộ kiểu SF6),
+            // bar-dẹt 44×16 thay cho ô vuông 22×22.
             var icons = new List<Image>(maxLives);
             for (int i = 0; i < maxLives; i++)
             {
                 var ico = UIKit.NewUI($"Life_{i}", row.transform);
                 var img = UIKit.AddImage(ico, LifeCol);
+                Sharpen(img);
+                AddSkew(ico, SkewFor(isP1));
                 var le = ico.AddComponent<LayoutElement>();
-                le.preferredWidth = 22f; le.preferredHeight = 22f; le.minWidth = 22f; le.minHeight = 22f;
+                le.preferredWidth = 44f; le.preferredHeight = 16f; le.minWidth = 44f; le.minHeight = 16f;
                 icons.Add(img);
             }
 

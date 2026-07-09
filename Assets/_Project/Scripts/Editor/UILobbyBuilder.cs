@@ -49,7 +49,6 @@ namespace FA.EditorTools
 
         private static readonly Color HeatCol   = new Color(0.95f, 0.30f, 0.08f, 1f);  // lửa cam-đỏ
         private static readonly Color EmberCol  = new Color(0.80f, 0.12f, 0.05f, 1f);  // than đỏ sậm
-        private static readonly Color BoltCol   = new Color(0.55f, 0.75f, 1f, 0f);     // sét xanh neon (alpha FX lo)
         private static readonly Color GlowStart = new Color(0.35f, 0.75f, 1f, 1f);     // glow nút START (điện)
         private static readonly Color GlowSet   = new Color(0.75f, 0.78f, 0.90f, 1f);  // glow nút SETTINGS (thép xám)
         private static readonly Color GlowQuit  = new Color(1f, 0.45f, 0.15f, 1f);     // glow nút QUIT (lửa)
@@ -60,7 +59,7 @@ namespace FA.EditorTools
         ///   • Canvas "MenuBG" (sorting 250): ảnh nền (chặn raycast + che CharSelect ở 200).
         ///   • FX WORLD (sorting 255-256): ProceduralLightning tại orb + 2 FireSparks chân cột lửa —
         ///     chen GIỮA nền và nút.
-        ///   • Canvas "MainMenu" (sorting 300): title/nút/chớp lóe/TransitionOverlay.
+        ///   • Canvas "MainMenu" (sorting 300): title/nút/TransitionOverlay (v9.7: bỏ lớp chớp lóe).
         /// StartGame ẩn content + alsoHide (BG canvas + FX — chúng nằm ngoài canvas menu).
         /// Lưu ý prefab MainMenu chỉ chứa canvas menu — scene Lobby mới là bản đầy đủ 3 tầng.
         /// </summary>
@@ -91,7 +90,7 @@ namespace FA.EditorTools
             var lightningGo = new GameObject("MenuFX_LightningCore");
             Undo.RegisterCreatedObjectUndo(lightningGo, "Create MenuFX");
             lightningGo.transform.position = new Vector3(0f, 1.4f, 0f); // tâm nexus sét của BG art (hành lang mới: giữa màn, hơi cao hơn tâm).
-            var lightning = lightningGo.AddComponent<ProceduralLightning>();
+            lightningGo.AddComponent<ProceduralLightning>(); // syncFlash để trống (v9.7: bỏ chớp màn hình).
 
             // BG hành lang mới: 2 cột lửa ôm SÁT mép trái/phải (x≈±12.8, bề ngang ~3 world) thay vì
             // 2 góc trong (±11, rộng 5) của BG cũ.
@@ -126,22 +125,8 @@ namespace FA.EditorTools
             ApplyButtonArt(quitBtn, "MainMenu_BtnQuit");
             AddButtonFX(quitBtn, GlowQuit);
 
-            // ── FlashLayer: sét lóe nền (trên content, dưới overlay) ──
-            var flashGo = UIKit.NewUI("LightningFlash", content.transform);
-            UIKit.StretchFull(flashGo);
-            var flashImg = flashGo.AddComponent<Image>();
-            flashImg.color = BoltCol; flashImg.raycastTarget = false;
-            var bolt = content.AddComponent<LightningFlashFX>();
-            var soB = new SerializedObject(bolt);
-            UIKit.SetObj(soB, "flashImage", flashImg);
-            soB.ApplyModifiedPropertiesWithoutUndo();
-            EditorUtility.SetDirty(bolt);
-
-            // Đồng bộ: burst sét procedural → kích chớp lóe màn hình cùng nhịp (điểm "điện ảnh" nhất).
-            var soL = new SerializedObject(lightning);
-            UIKit.SetObj(soL, "syncFlash", bolt);
-            soL.ApplyModifiedPropertiesWithoutUndo();
-            EditorUtility.SetDirty(lightning);
+            // (v9.7) BỎ FlashLayer chớp lóe full-screen + syncFlash — user chê giật; tia sét world
+            // (ProceduralLightning) + tia lửa GIỮ NGUYÊN, chỉ khung cảnh không bừng nháy nữa.
 
             // ── SettingsPanel (bản đầy đủ — NGOÀI Content để dim đè cả cột nút; DƯỚI TransitionOverlay) ──
             var settingsPanel = UISettingsBuilder.BuildSettingsPanel(canvas.transform, inMatch: false);

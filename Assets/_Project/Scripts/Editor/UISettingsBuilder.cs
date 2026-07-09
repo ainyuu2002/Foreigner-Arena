@@ -12,7 +12,8 @@ namespace FA.EditorTools
     ///   • <see cref="BuildSettingsPanel"/> — panel SETTINGS 1 NGUỒN (âm lượng Master/BGM/SFX) dựng cùng
     ///     1 hàm cho cả Main Menu (đầy đủ) lẫn Pause Menu (in-match rút gọn) → sửa layout 1 chỗ ăn cả 2.
     ///   • <see cref="BuildPauseMenu"/> — canvas PauseMenu (sorting 400, trên mọi tầng): ESC/Start mở bảng
-    ///     TIẾP TỤC / SETTINGS / VỀ MENU. VỀ MENU raise kênh BackToCharSelect có sẵn — KHÔNG sửa gameplay.
+    ///     TIẾP TỤC / SETTINGS / ĐẤU LẠI / THOÁT. ĐẤU LẠI raise kênh RematchPressed, THOÁT raise kênh
+    ///     BackToCharSelect — cả 2 kênh MatchManager nghe sẵn, KHÔNG sửa gameplay.
     ///   • <see cref="AddMatchRules"/> — hàng LUẬT TRẬN (thời gian/mạng → MatchSettingsSO) gắn vào
     ///     StageSelectPanel: luật là CỦA TRẬN nên chỉnh ngay trước khi vào trận, không nằm Settings toàn cục.
     /// EDITOR-ONLY; pattern chung: SerializedObject → Apply → SetDirty (kẻo ref null khi SaveScene).
@@ -288,7 +289,7 @@ namespace FA.EditorTools
             UIKit.AddImage(dim, DimCol, raycastTarget: true);
 
             var box = UIKit.NewPanel("Box", panel.transform, new Vector2(0.5f, 0.5f), Vector2.zero,
-                                     new Vector2(480f, 430f), UIKit.ColPanelLight);
+                                     new Vector2(480f, 510f), UIKit.ColPanelLight);
             UIKit.AddVertical(box, 20f, 28, TextAnchor.MiddleCenter);
 
             var title = UIKit.AddLabel(box.transform, "PAUSED", 44, FontStyle.Bold, TextAnchor.MiddleCenter);
@@ -296,7 +297,9 @@ namespace FA.EditorTools
 
             var resumeBtn = UIKit.MakeButton(box.transform, "TIẾP TỤC", UIKit.ColBtn, 320f, 66f, 26);
             var settingsBtn = UIKit.MakeButton(box.transform, "SETTINGS", UIKit.ColPanel, 320f, 66f, 26);
-            var quitBtn = UIKit.MakeButton(box.transform, "VỀ MENU", UIKit.ColBtnAccent, 320f, 66f, 26);
+            // (v9.7) VỀ MENU tách đôi: ĐẤU LẠI (rematch tại chỗ) / THOÁT (về màn chọn nhân vật).
+            var rematchBtn = UIKit.MakeButton(box.transform, "ĐẤU LẠI", UIKit.ColBtn, 320f, 66f, 26);
+            var quitBtn = UIKit.MakeButton(box.transform, "THOÁT", UIKit.ColBtnAccent, 320f, 66f, 26);
 
             // Settings bản in-match (sibling của PausePanel — đè lên bảng khi mở).
             var settings = BuildSettingsPanel(canvas.transform, inMatch: true);
@@ -311,14 +314,17 @@ namespace FA.EditorTools
             UIKit.SetObj(so, "settingsPanel", settingsView);
             UIKit.SetObj(so, "hudRoot", hud);
             UIKit.SetObj(so, "backToCharSelectChannel", ch.BackToCharSelect);
+            UIKit.SetObj(so, "rematchChannel", ch.Rematch);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(view);
 
             UnityEventTools.AddPersistentListener(resumeBtn.onClick, new UnityAction(view.Resume));
             UnityEventTools.AddPersistentListener(settingsBtn.onClick, new UnityAction(view.OpenSettings));
+            UnityEventTools.AddPersistentListener(rematchBtn.onClick, new UnityAction(view.Rematch));
             UnityEventTools.AddPersistentListener(quitBtn.onClick, new UnityAction(view.QuitToMenu));
             EditorUtility.SetDirty(resumeBtn);
             EditorUtility.SetDirty(settingsBtn);
+            EditorUtility.SetDirty(rematchBtn);
             EditorUtility.SetDirty(quitBtn);
 
             panel.SetActive(false); // View mở khi ESC trong trận.

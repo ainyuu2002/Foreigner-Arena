@@ -94,32 +94,8 @@ namespace FA.EditorTools
             Text statusP1 = MakeStatusChip(panel.transform, "P1", UIKit.ColP1Accent, left: true);
             Text statusP2 = MakeStatusChip(panel.transform, "P2", UIKit.ColP2Accent, left: false);
 
-            // ── Lưới nhân vật giữa ── ART SLOT "CharSelect_Banner": khung cánh én sau title (ảnh đã crop
-            // sát viền nên tâm ảnh = tâm khung); không có art → chữ trần vị trí cũ.
-            float titleY = -94f; // tâm chữ khi KHÔNG có banner (= vị trí cũ: -44 pivot-đỉnh với rect cao 100).
-            var bannerSp = UILobbyBuilder.FindSprite("CharSelect_Banner");
-            if (bannerSp != null)
-            {
-                var banner = UIKit.NewUI("GridTitleBanner", panel.transform);
-                var brt = banner.GetComponent<RectTransform>();
-                brt.anchorMin = brt.anchorMax = brt.pivot = new Vector2(0.5f, 1f);
-                float bw = 720f;
-                float bh = bw * bannerSp.rect.height / bannerSp.rect.width;
-                brt.sizeDelta = new Vector2(bw, bh);
-                brt.anchoredPosition = new Vector2(0f, -6f);
-                var bimg = banner.AddComponent<Image>();
-                bimg.sprite = bannerSp; bimg.type = Image.Type.Simple; bimg.color = Color.white;
-                bimg.raycastTarget = false;
-                titleY = -6f - bh * 0.5f; // chữ nằm giữa tấm khung.
-            }
-            var gridTitle = UIKit.AddLabel(panel.transform, "DANH SÁCH CÁC NHÂN VẬT", 30, FontStyle.Bold,
-                                           TextAnchor.MiddleCenter);
-            var trt = gridTitle.GetComponent<RectTransform>();
-            trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 1f);
-            // Pivot GIỮA (không phải đỉnh): rect NewUI mặc định cao 100 → pivot đỉnh làm TÂM chữ tụt
-            // 50px dưới anchoredPosition — chữ rơi xuống mép dưới khung banner.
-            trt.pivot = new Vector2(0.5f, 0.5f);
-            trt.anchoredPosition = new Vector2(0f, titleY);
+            // ── Lưới nhân vật giữa ── banner tiêu đề dùng chung (art "CharSelect_Banner").
+            AddTitleBanner(panel.transform, "DANH SÁCH CÁC NHÂN VẬT", fallbackY: -94f);
 
             int cols = Mathf.Min(6, n);
             int rows = Mathf.CeilToInt(n / (float)cols);
@@ -333,7 +309,8 @@ namespace FA.EditorTools
         /// (card map lớn + 2 card mờ 2 bên + mũi tên &lt; &gt; + chấm trang + chip tên map), card BẢN ĐỒ
         /// NGẪU NHIÊN bên phải, hàng luật trận + nút BẮT ĐẦU TRẬN ĐẤU dưới giữa.
         /// <see cref="StageSelectScreenView"/> quản lý; kênh StageSelected CHỈ raise khi BẮT ĐẦU.
-        /// Art slot: "StageSelect_BG" (nền), "StageSelect_Random" (khối ? của card random);
+        /// Art slot: "StageSelect_BG" (nền), "StageSelect_Random" (khối ? của card random); banner title +
+        /// nút BẮT ĐẦU tái dùng "CharSelect_Banner"/"CharSelect_Btn" (đồng bộ 2 màn — v9.8);
         /// ảnh map lấy từ StageRegistry.icon (gán trong Inspector của registry).
         /// </summary>
         private static GameObject BuildStageSelect(Transform parent, UIChannels.Bundle ch)
@@ -347,6 +324,13 @@ namespace FA.EditorTools
                 var bgImg = panel.AddComponent<Image>();
                 bgImg.sprite = bgSprite; bgImg.type = Image.Type.Simple; bgImg.color = Color.white;
                 bgImg.raycastTarget = true;
+
+                // Scrim tối đè lên art (con ĐẦU TIÊN — dưới mọi UI): art sảnh obsidian có đấu trường +
+                // vết nứt dung nham sáng NGAY VÙNG GIỮA, đúng chỗ carousel card map đè lên — scrim đậm
+                // hơn CharSelect (0.40 vs 0.30) để ảnh chụp map trên card không chìm vào nền.
+                var scrim = UIKit.NewUI("Scrim", panel.transform);
+                UIKit.StretchFull(scrim);
+                UIKit.AddImage(scrim, new Color(0f, 0f, 0f, 0.40f));
             }
             else UIKit.AddImage(panel, PanelBig, raycastTarget: true);
 
@@ -359,12 +343,9 @@ namespace FA.EditorTools
                 previews[i] = IconOf(ch.StageRegistry, i);
             }
 
-            // ── Banner tiêu đề ──
-            var banner = UIKit.NewPanel("TitleBanner", panel.transform, new Vector2(0.5f, 1f),
-                                        new Vector2(0f, -24f), new Vector2(780f, 84f), UIKit.ColPanel);
-            var titleLbl = UIKit.AddLabel(banner.transform, "LỰA CHỌN CHIẾN TRƯỜNG", 44, FontStyle.Bold,
-                                          TextAnchor.MiddleCenter);
-            UIKit.StretchFull(titleLbl.gameObject);
+            // ── Banner tiêu đề ── dùng chung khung "CharSelect_Banner" với màn chọn nhân vật (v9.8 —
+            // đồng bộ art 2 màn theo yêu cầu user).
+            AddTitleBanner(panel.transform, "LỰA CHỌN CHIẾN TRƯỜNG", fallbackY: -66f);
 
             // ── Carousel (lệch trái — chừa chỗ card random bên phải) ──
             var car = UIKit.NewUI("Carousel", panel.transform);
@@ -433,8 +414,27 @@ namespace FA.EditorTools
             highlight.SetActive(false);
 
             var randImg = UIKit.AddImage(randGo, UIKit.ColPanelLight, raycastTarget: true);
+
+            // Khung card (v9.9, user yêu cầu): viền ĐỒNG CHÁY 2 lớp — Image ngoài loe ±6 làm viền, Image
+            // trong lùi 3px phủ nền tối → thành ring dày ~9px, tông khớp khung kim loại trong art orb.
+            // Cả 2 ignoreLayout (VLG của card đang xếp dọc); vẽ SAU highlight (viền cam random vẫn loe
+            // ±8 ra NGOÀI khung), TRƯỚC art/label (không che nội dung — con sau đè con trước).
+            var frame = UIKit.NewUI("Frame", randGo.transform);
+            UIKit.StretchFull(frame);
+            var frt = frame.GetComponent<RectTransform>();
+            frt.offsetMin = new Vector2(-6f, -6f); frt.offsetMax = new Vector2(6f, 6f);
+            frame.AddComponent<LayoutElement>().ignoreLayout = true;
+            var frameImg = UIKit.AddImage(frame, new Color(0.58f, 0.38f, 0.16f, 1f));
+
+            var frameInner = UIKit.NewUI("FrameInner", randGo.transform);
+            UIKit.StretchFull(frameInner);
+            var firt = frameInner.GetComponent<RectTransform>();
+            firt.offsetMin = new Vector2(3f, 3f); firt.offsetMax = new Vector2(-3f, -3f);
+            frameInner.AddComponent<LayoutElement>().ignoreLayout = true;
+            UIKit.AddImage(frameInner, new Color(0.07f, 0.08f, 0.11f, 1f));
+
             var randBtn = randGo.AddComponent<Button>();
-            randBtn.targetGraphic = randImg;
+            randBtn.targetGraphic = frameImg; // hover/press tint VIỀN đồng (nền tối bên trong giữ nguyên).
 
             UIKit.AddVertical(randGo, 10f, 18, TextAnchor.UpperCenter);
             var artHolder = UIKit.NewUI("Art", randGo.transform);
@@ -469,6 +469,8 @@ namespace FA.EditorTools
             UISettingsBuilder.AddMatchRules(rulesHolder.transform, ch);
 
             var startBtn = UIKit.MakeButton(panel.transform, "BẮT ĐẦU TRẬN ĐẤU", UIKit.ColBtn, 520f, 70f, 28);
+            // Cùng khung mạch điện với nút TIẾP TỤC CHỌN MAP / XÁC NHẬN bên CharSelect (cùng cỡ 520×70).
+            UILobbyBuilder.ApplyButtonArt(startBtn, "CharSelect_Btn");
             var srt = startBtn.GetComponent<RectTransform>();
             srt.anchorMin = srt.anchorMax = srt.pivot = new Vector2(0.5f, 0f);
             srt.anchoredPosition = new Vector2(0f, 36f);
@@ -500,6 +502,37 @@ namespace FA.EditorTools
             EditorUtility.SetDirty(randBtn);
             EditorUtility.SetDirty(startBtn);
             return panel;
+        }
+
+        /// <summary>
+        /// Banner tiêu đề DÙNG CHUNG CharSelect/StageSelect: khung art "CharSelect_Banner" (720 rộng, neo
+        /// đỉnh-giữa, cao theo tỉ lệ sprite — ảnh đã crop sát viền nên tâm ảnh = tâm khung) + chữ 30pt canh
+        /// TÂM khung. Chữ pivot GIỮA (không phải đỉnh): rect NewUI mặc định cao 100 → pivot đỉnh làm tâm chữ
+        /// tụt 50px, chữ rơi xuống mép dưới khung. Không có art → chữ trần tại <paramref name="fallbackY"/>.
+        /// </summary>
+        private static void AddTitleBanner(Transform parent, string text, float fallbackY)
+        {
+            float titleY = fallbackY;
+            var bannerSp = UILobbyBuilder.FindSprite("CharSelect_Banner");
+            if (bannerSp != null)
+            {
+                var banner = UIKit.NewUI("TitleBanner", parent);
+                var brt = banner.GetComponent<RectTransform>();
+                brt.anchorMin = brt.anchorMax = brt.pivot = new Vector2(0.5f, 1f);
+                const float bw = 720f;
+                float bh = bw * bannerSp.rect.height / bannerSp.rect.width;
+                brt.sizeDelta = new Vector2(bw, bh);
+                brt.anchoredPosition = new Vector2(0f, -6f);
+                var bimg = banner.AddComponent<Image>();
+                bimg.sprite = bannerSp; bimg.type = Image.Type.Simple; bimg.color = Color.white;
+                bimg.raycastTarget = false;
+                titleY = -6f - bh * 0.5f; // chữ nằm giữa tấm khung.
+            }
+            var title = UIKit.AddLabel(parent, text, 30, FontStyle.Bold, TextAnchor.MiddleCenter);
+            var trt = title.GetComponent<RectTransform>();
+            trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 1f);
+            trt.pivot = new Vector2(0.5f, 0.5f);
+            trt.anchoredPosition = new Vector2(0f, titleY);
         }
 
         /// <summary>Card ảnh map cho carousel: khung tối + Image preserveAspect + chữ cái fallback.</summary>

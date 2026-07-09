@@ -8,7 +8,7 @@ namespace FA.UI
     /// (P12 Settings) HÀNG LUẬT TRẬN trên màn chọn map — chỉnh 2 luật per-trận của
     /// <see cref="MatchSettingsSO"/> ngay trước khi vào trận (đúng chỗ hơn Settings toàn cục —
     /// thời gian/mạng là luật CỦA TRẬN, không phải cấu hình máy):
-    ///   • Thời gian: xoay vòng <see cref="timeOptions"/> (mặc định 60/99/180 giây).
+    ///   • Thời gian: xoay vòng <see cref="timeOptions"/> (180/360/600 giây — mốc team chốt tuần 3).
     ///   • Mạng: 1..5 (khớp [Range] của SO).
     ///
     /// GHI THẲNG asset MatchSettingsSO — MatchTimer/LivesSystem đọc asset này lúc vào trận nên nhận
@@ -27,8 +27,8 @@ namespace FA.UI
         [SerializeField] private Text livesValueLabel;
 
         [Header("Lựa chọn thời gian (giây)")]
-        [Tooltip("Các mốc xoay vòng cho nút < >. Mặc định 60/99/180.")]
-        [SerializeField] private float[] timeOptions = { 60f, 99f, 180f };
+        [Tooltip("Các mốc xoay vòng cho nút < >. Team chốt: 180 / 360 / 600.")]
+        [SerializeField] private float[] timeOptions = { 180f, 360f, 600f };
 
         private void OnEnable() => Refresh();
 

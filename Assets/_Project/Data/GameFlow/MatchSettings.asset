@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MatchSettings
   m_EditorClassIdentifier: FA.GameFlow::FA.GameFlow.MatchSettingsSO
   startingLives: 3
-  matchSeconds: 99
+  matchSeconds: 180
   resetPercentOnRespawn: 1
   iFrameEndsOnLanding: 1
   iFrameMaxSeconds: 3

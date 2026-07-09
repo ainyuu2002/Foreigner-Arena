@@ -7,8 +7,9 @@ namespace FA.UI
     /// <summary>
     /// (P12 Menu FX) CHUYỂN CẢNH Main Menu — overlay full-screen (Image + CanvasGroup) trên CÙNG canvas
     /// với menu (prefab-safe: mọi ref nội bộ 1 root):
-    ///   • <see cref="StartGame"/> (nút START): chớp sét trắng-xanh 2 nhịp → phủ trắng → ẨN content menu
-    ///     (lộ CharSelect dưới) → fade overlay ra. Cảm giác "dịch chuyển qua năng lượng".
+    ///   • <see cref="StartGame"/> (nút START): DIP-TO-BLACK — phủ TỐI dần → ẨN content menu (lộ
+    ///     CharSelect dưới) → fade overlay ra. Mượt, không chớp, không lóa sáng (yêu cầu P5 tuần 3 —
+    ///     bản phủ trắng bị chê "màn hình trở nên sáng").
     ///   • <see cref="QuitGame"/> (nút QUIT): phủ ĐEN dần + rung nhẹ content ("cháy tắt") → thoát game
     ///     (Editor: dừng Play).
     /// Wire qua persistent listener onClick (builder). Chặn double-click bằng cờ _playing. Thuần trình bày —
@@ -36,7 +37,7 @@ namespace FA.UI
         [SerializeField] private RectTransform shakeTarget;
 
         [Header("Màu")]
-        [SerializeField] private Color startFlashColor = new Color(0.75f, 0.85f, 1f, 1f); // trắng-xanh sét
+        [SerializeField] private Color startFlashColor = Color.black; // dip-to-black — hợp nền tối, không lóa.
         [SerializeField] private Color quitColor = Color.black;
 
         private bool _playing;
@@ -66,21 +67,15 @@ namespace FA.UI
             overlayGroup.blocksRaycasts = true;
             overlay.color = startFlashColor;
 
-            // 2 nhịp chớp sét (mạnh → dư âm).
-            SetAlpha(0.55f); yield return Wait(0.05f);
-            SetAlpha(0f);    yield return Wait(0.07f);
-            SetAlpha(0.85f); yield return Wait(0.05f);
-            SetAlpha(0f);    yield return Wait(0.06f);
-
-            // Phủ trắng kín → ẩn menu (và BG/FX ngoài canvas) sau lớp phủ.
-            yield return Fade(0f, 1f, 0.18f);
+            // Phủ TỐI dần kín màn → ẩn menu (và BG/FX ngoài canvas) sau lớp phủ. Không chớp nhịp.
+            yield return Fade(0f, 1f, 0.40f);
             if (content != null) content.SetActive(false);
             if (alsoHide != null)
                 foreach (var go in alsoHide)
                     if (go != null) go.SetActive(false);
 
-            // Fade ra — lộ CharSelect.
-            yield return Fade(1f, 0f, 0.35f);
+            // Fade ra — lộ CharSelect (chậm hơn nhịp phủ một chút cho êm mắt).
+            yield return Fade(1f, 0f, 0.50f);
             overlayGroup.blocksRaycasts = false;
             _playing = false;
         }
@@ -120,8 +115,6 @@ namespace FA.UI
             }
             SetAlpha(to);
         }
-
-        private static WaitForSecondsRealtime Wait(float s) => new WaitForSecondsRealtime(s);
 
         private void SetAlpha(float a)
         {
