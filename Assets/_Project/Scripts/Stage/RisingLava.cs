@@ -33,16 +33,18 @@ namespace FA.Stage
         [SerializeField] private float maxRiseY = 100f;
 
         private Rigidbody2D _rb;
-        private enum Phase { Idle, Warning, Rising }
-        private Phase _phase = Phase.Idle;
-        private float _warningTimer;
+        private enum Phase { Resting, Warning, Rising, Holding, Receding }
+        private Phase _phase = Phase.Resting;
+        private float _timer;
         private float _blinkTimer;
         private bool _iconOn;
+        private float _baseY; // mực nghỉ ban đầu — rút xuống là về đây.
 
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
             _rb.bodyType = RigidbodyType2D.Kinematic; // môi trường: Kinematic + MovePosition.
+            _baseY = _rb != null ? transform.position.y : 0f;
             if (config == null)
                 Debug.LogError("[RisingLava] Thiếu StageConfigSO.", this);
             if (warningIcon != null) warningIcon.enabled = false;
@@ -50,7 +52,15 @@ namespace FA.Stage
 
         private void Start()
         {
-            if (autoStart) BeginWarning();
+            // CHU KỲ NGẪU NHIÊN (feedback test): nghỉ (random) → cảnh báo → DÂNG → giữ → RÚT → nghỉ → lặp.
+            if (autoStart) ScheduleRest();
+        }
+
+        private void ScheduleRest()
+        {
+            _phase = Phase.Resting;
+            float jitter = config != null ? Random.Range(-config.lavaRestJitter, config.lavaRestJitter) : 0f;
+            _timer = Mathf.Max(2f, (config != null ? config.lavaRestSeconds : 12f) + jitter);
         }
 
         /// <summary>Bắt đầu chu kỳ: cảnh báo nhấp nháy → dâng. Gọi từ test/event nếu autoStart tắt.</summary>
@@ -58,7 +68,7 @@ namespace FA.Stage
         {
             if (config == null) return;
             _phase = Phase.Warning;
-            _warningTimer = config.lavaWarningLead;
+            _timer = config.lavaWarningLead;
             _blinkTimer = 0f;
         }
 
@@ -71,31 +81,64 @@ namespace FA.Stage
 
         private void Update()
         {
-            if (_phase != Phase.Warning || config == null) return;
+            if (config == null) return;
 
-            _warningTimer -= Time.deltaTime;
-            _blinkTimer -= Time.deltaTime;
-            if (_blinkTimer <= 0f && warningIcon != null)
+            switch (_phase)
             {
-                _iconOn = !_iconOn;
-                warningIcon.enabled = _iconOn;
-                _blinkTimer = Mathf.Max(0.05f, config.lavaWarningBlinkPeriod);
-            }
+                case Phase.Resting:
+                    _timer -= Time.deltaTime;
+                    if (_timer <= 0f) BeginWarning();
+                    break;
 
-            if (_warningTimer <= 0f)
-            {
-                if (warningIcon != null) warningIcon.enabled = false;
-                _phase = Phase.Rising;
+                case Phase.Warning:
+                    _timer -= Time.deltaTime;
+                    _blinkTimer -= Time.deltaTime;
+                    if (_blinkTimer <= 0f && warningIcon != null)
+                    {
+                        _iconOn = !_iconOn;
+                        warningIcon.enabled = _iconOn;
+                        _blinkTimer = Mathf.Max(0.05f, config.lavaWarningBlinkPeriod);
+                    }
+                    if (_timer <= 0f)
+                    {
+                        if (warningIcon != null) warningIcon.enabled = false;
+                        _phase = Phase.Rising;
+                        Debug.Log("[RisingLava] Dung nham DÂNG!", this);
+                    }
+                    break;
+
+                case Phase.Holding:
+                    _timer -= Time.deltaTime;
+                    if (_timer <= 0f) _phase = Phase.Receding;
+                    break;
             }
         }
 
         private void FixedUpdate()
         {
-            if (_phase != Phase.Rising || config == null) return;
-            if (_rb.position.y >= maxRiseY) return;
+            if (config == null) return;
 
-            Vector2 next = _rb.position + new Vector2(0f, config.lavaRiseSpeed * Time.fixedDeltaTime);
-            _rb.MovePosition(next); // Unity lo va trigger chuẩn, không nhảy-qua player.
+            if (_phase == Phase.Rising)
+            {
+                if (_rb.position.y >= maxRiseY)
+                {
+                    _phase = Phase.Holding;
+                    _timer = config.lavaHoldSeconds;
+                    return;
+                }
+                Vector2 next = _rb.position + new Vector2(0f, config.lavaRiseSpeed * Time.fixedDeltaTime);
+                _rb.MovePosition(next); // Unity lo va trigger chuẩn, không nhảy-qua player.
+            }
+            else if (_phase == Phase.Receding)
+            {
+                if (_rb.position.y <= _baseY)
+                {
+                    ScheduleRest(); // về mực nghỉ → chờ đợt dâng ngẫu nhiên kế tiếp.
+                    return;
+                }
+                Vector2 next = _rb.position - new Vector2(0f, config.lavaRecedeSpeed * Time.fixedDeltaTime);
+                _rb.MovePosition(next);
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using FA.Core;
 using FA.Stage;
 
@@ -20,35 +21,76 @@ namespace FA.EditorTools
 
             // ---- Nền parallax (xa → gần) ----
             StageSceneKit.MakeBackdrop("BG_Sky", StageArtIce.Sky, new Vector3(0f, 4f, 0f), -100, 0.92f, null, 1.5f);
+            // Cực quang lớp riêng TRÔI LỮNG LỜ (AmbientDrift) — nền 'sống' như Smash.
+            // Hạ thấp vào KHUNG CAMERA MẶC ĐỊNH (feedback: cảnh đẹp phải thấy được ngay khi đứng dưới sàn).
+            var aurora = StageSceneKit.MakeBackdrop("BG_Aurora", StageArtIce.Aurora, new Vector3(0f, 5.1f, 0f), -95, 0.9f, null, 1.5f);
+            StageSceneKit.AddDrift(aurora, new Vector2(1.4f, 0.18f), 22f);
             StageSceneKit.MakeBackdrop("BG_Mountains", StageArtIce.Mountains, new Vector3(0f, 1.6f, 0f), -90, 0.72f, null, 1.35f);
+            // NÚI BĂNG KHỔNG LỒ sau sàn đấu (redesign kiểu Summit) — khối chính của cảnh.
+            StageSceneKit.MakeBackdrop("BG_Iceberg", StageArtIce.Iceberg, new Vector3(0f, 3.6f, 0f), -85, 0.68f, null, 0.92f);
             StageSceneKit.MakeBackdrop("BG_Pines", StageArtIce.Pines, new Vector3(0f, 1.2f, 0f), -80, 0.5f, null, 1.3f);
 
-            // ---- Sàn băng (Tilemap + Composite + IceSurface trượt) ----
+            // ---- Sàn: ĐẤT ĐÓNG BĂNG (ma sát thường) xen kẽ MẢNG THUẦN BĂNG trơn (IceSurface) ----
+            // Feedback test: "1 số ô thuần băng đi bị trơn, bên dưới là đất" + tile khít không viền.
             var iceMat = AssetDatabase.LoadAssetAtPath<PhysicsMaterial2D>(StageSceneKit.IceMaterialPath);
-            var tileTop = StageSceneKit.MakeTileAsset(StageArtIce.TileTop, StageArtIce.Dir + "/Tile_IceTop.asset");
-            var tileIn = StageSceneKit.MakeTileAsset(StageArtIce.TileInner, StageArtIce.Dir + "/Tile_IceInner.asset");
-            var tm = StageSceneKit.MakeGroundTilemap(null, iceMat, -6);
-            StageSceneKit.FillGround(tm, tileTop, tileIn, -14, 13, -1, 4);
+            var topA = StageSceneKit.MakeTileAsset(StageArtIce.TileTop, StageArtIce.Dir + "/Tile_IceTop.asset");
+            var topB = StageSceneKit.MakeTileAsset(StageArtIce.TileTopB, StageArtIce.Dir + "/Tile_IceTopB.asset");
+            var gloss = StageSceneKit.MakeTileAsset(StageArtIce.TileGloss, StageArtIce.Dir + "/Tile_IceGloss.asset");
+            var inA = StageSceneKit.MakeTileAsset(StageArtIce.TileInner, StageArtIce.Dir + "/Tile_IceInner.asset");
+            var inB = StageSceneKit.MakeTileAsset(StageArtIce.TileInnerB, StageArtIce.Dir + "/Tile_IceInnerB.asset");
+            Tile[] tops = { topA, topB };
+            Tile[] inners = { inA, inB };
 
-            // Nhũ băng trang trí dưới đáy sàn.
+            var tmEarth = StageSceneKit.MakeGroundTilemap(null, null, -6);      // đất thường — bám chân
+            tmEarth.gameObject.name = "Tilemap (GroundEarth)";
+            var tmIce = StageSceneKit.MakeGroundTilemap(null, iceMat, -5);      // mảng băng — TRƠN
+            tmIce.gameObject.name = "Tilemap (GroundIce)";
+
+            bool IsIcePatch(int x) => (x >= -9 && x <= -6) || (x >= 1 && x <= 3) || (x >= 9 && x <= 12);
+            for (int x = -14; x <= 13; x++)
+            {
+                if (IsIcePatch(x))
+                    tmIce.SetTile(new Vector3Int(x, -1, 0), gloss);             // mặt thuần băng trơn
+                else
+                    tmEarth.SetTile(new Vector3Int(x, -1, 0), StageSceneKit.PickVariant(tops, x, -1));
+                for (int d = 2; d <= 4; d++)                                     // dưới mọi ô đều là đất
+                    tmEarth.SetTile(new Vector3Int(x, -d, 0), StageSceneKit.PickVariant(inners, x, -d));
+            }
+
+            // (Đã bỏ gò chặn mép theo feedback — mép sàn để thoáng, leo cao bằng TẦNG PLATFORM BAY.)
+
+            // MẶT SÀN HỮU CƠ (redesign Summit): khối băng lượn tròn phủ lên mặt tile phẳng —
+            // chỉ visual, collision vẫn là tilemap; chừa hở hàng tile trên cùng (tuyết + mảng băng trơn).
+            StageSceneKit.MakeSpriteGO("Deco_FloorFace", StageSceneKit.LoadSprite(StageArtIce.FloorFace),
+                new Vector3(0f, -3.3f, 0f), -4, null);
+
+            // Cụm GAI BĂNG — không chỉ trang trí: chạm vào bị tăng Resistance % liên tục
+            // (tái dùng LavaFloorZone qua IPercentReceiver; tốc độ = lavaFloorPercentPerSec trong StageConfig_Ice).
+            var iceCfgEarly = AssetDatabase.LoadAssetAtPath<StageConfigSO>(StageSceneKit.DataFolder + "/StageConfig_Ice.asset");
+            MakeSpikeHazard(new Vector3(-12.2f, 1f, 0f), new Vector3(1.1f, 1.1f, 1f), iceCfgEarly);
+            MakeSpikeHazard(new Vector3(2.8f, 0.85f, 0f), new Vector3(-0.8f, 0.8f, 1f), iceCfgEarly);
+            MakeSpikeHazard(new Vector3(12.3f, 1f, 0f), new Vector3(-1.05f, 1.05f, 1f), iceCfgEarly);
+
+            // Nhũ băng trang trí dưới đáy sàn (rủ dưới khối FloorFace).
             var icicle = StageSceneKit.LoadSprite(StageArtIce.Icicle);
             for (float x = -12.5f; x <= 12.5f; x += 2.6f)
                 StageSceneKit.MakeSpriteGO("Deco_Icicle", icicle,
-                    new Vector3(x + Random.Range(-0.5f, 0.5f), -4.45f, 0f), -6, null,
+                    new Vector3(x + Random.Range(-0.5f, 0.5f), -5.9f, 0f), -3, null,
                     new Vector3(1f, Random.Range(0.7f, 1.3f), 1f));
 
-            // ---- 2 platform bay 1 chiều (đối xứng) ----
-            StageSceneKit.MakeOneWayPlatform("Platform_L", StageArtIce.Platform, new Vector2(-5.5f, 1.8f), null, -5);
-            StageSceneKit.MakeOneWayPlatform("Platform_R", StageArtIce.Platform, new Vector2(5.5f, 1.8f), null, -5);
+            // ---- Platform bay 1 chiều: 2 bên đối xứng + ĐẢO NHỎ TRÊN CAO (feedback test) ----
+            StageSceneKit.MakeOneWayPlatform("Platform_L", StageArtIce.Platform, new Vector2(-5.5f, 1.8f), null, -5, 1f, 0.5f);
+            StageSceneKit.MakeOneWayPlatform("Platform_R", StageArtIce.Platform, new Vector2(5.5f, 1.8f), null, -5, 1f, 0.5f);
+            StageSceneKit.MakeOneWayPlatform("Platform_Top", StageArtIce.Platform, new Vector2(0f, 4.2f), null, -5, 1f, 0.5f);
+            // TẦNG CAO (feedback): leo lên đây camera nâng theo → thấy trọn cực quang trôi + trăng.
+            StageSceneKit.MakeOneWayPlatform("Platform_High_L", StageArtIce.Platform, new Vector2(-4.5f, 6.5f), null, -5, 1f, 0.5f);
+            StageSceneKit.MakeOneWayPlatform("Platform_High_R", StageArtIce.Platform, new Vector2(4.5f, 6.5f), null, -5, 1f, 0.5f);
 
-            // ---- Spawn points + Death zones ----
+            // ---- Spawn points + Death zones (KHÔNG tường chặn 2 bên — mép hở ring-out như Smash) ----
             var respawn = StageSceneKit.MakeSpawnPoints(null, new Vector2(-6f, 1.2f), new Vector2(6f, 1.2f), new Vector2(0f, 3.5f));
             StageSceneKit.MakeDeathZones(null, 24f, 20f, -14f, respawn);
 
-            // ---- Tường băng VỠ ĐƯỢC 2 bên (BreakableWall, wallRecovers=true theo StageConfig_Ice) ----
             var iceCfg = AssetDatabase.LoadAssetAtPath<StageConfigSO>(StageSceneKit.DataFolder + "/StageConfig_Ice.asset");
-            MakeBreakableWall("BreakableWall_L", new Vector2(-13.5f, 2.5f), -1f, iceCfg, respawn);
-            MakeBreakableWall("BreakableWall_R", new Vector2(13.5f, 2.5f), 1f, iceCfg, respawn);
 
             // ---- Bão tuyết + hạt tuyết ----
             var hazardGo = new GameObject("SnowstormHazard");
@@ -85,29 +127,21 @@ namespace FA.EditorTools
             Debug.Log("[Phase11] Đã dựng xong Map_Ice.");
         }
 
-        /// <summary>Tường băng vỡ được: sprite + collider Wall + child DeathZone (mở khi vỡ).</summary>
-        private static void MakeBreakableWall(string name, Vector2 pos, float outwardSign,
-                                              StageConfigSO cfg, Transform respawn)
+        /// <summary>Cụm gai băng: sprite + vùng hazard tăng % khi player đứng/chạm vào (đứng đất trong vùng).</summary>
+        private static void MakeSpikeHazard(Vector3 pos, Vector3 scale, StageConfigSO cfg)
         {
-            var go = new GameObject(name);
-            go.transform.position = pos;
-            go.layer = GameLayers.Wall;
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = StageSceneKit.LoadSprite(StageArtIce.Wall);
-            sr.sortingOrder = -4;
+            var sr = StageSceneKit.MakeSpriteGO("Hazard_Spikes", StageSceneKit.LoadSprite(StageArtIce.Spikes),
+                pos, -2, null, scale);
+            var go = sr.gameObject;
             var col = go.AddComponent<BoxCollider2D>();
-            col.size = new Vector2(1f, 5f);
-
-            // Death zone sau tường — BreakableWall tự tắt lúc Awake, bật khi vỡ.
-            var channel = AssetDatabase.LoadAssetAtPath<ScriptableObject>(StageSceneKit.PlayerDiedChannelPath);
-            var dz = StageSceneKit.MakeDeathZone("DeathZoneObject", pos + new Vector2(outwardSign * 1.5f, 0f),
-                new Vector2(1.4f, 5.6f), go.transform, channel, respawn);
-
-            var wall = go.AddComponent<BreakableWall>();
-            StageSceneKit.SetObj(wall, "config", cfg);
-            StageSceneKit.SetMask(wall, "impactLayers", GameLayers.Player1Mask | GameLayers.Player2Mask);
-            StageSceneKit.SetObj(wall, "wallCollider", col);
-            StageSceneKit.SetObj(wall, "deathZoneObject", dz.gameObject);
+            col.isTrigger = true;
+            col.size = new Vector2(2.6f, 1.7f);   // ôm cụm gai (sprite 3×2 unit, pivot giữa)
+            col.offset = new Vector2(0f, -0.1f);
+            var zone = go.AddComponent<LavaFloorZone>();
+            StageSceneKit.SetObj(zone, "config", cfg);
+            StageSceneKit.SetObj(zone, "hotArea", col);
+            StageSceneKit.SetMask(zone, "playerLayers", GameLayers.Player1Mask | GameLayers.Player2Mask);
+            StageSceneKit.SetMask(zone, "groundLayers", GameLayers.GroundMask | GameLayers.OneWayPlatformMask);
         }
     }
 }

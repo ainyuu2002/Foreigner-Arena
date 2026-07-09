@@ -14,10 +14,16 @@ namespace FA.EditorTools
         public const string Vines = Dir + "/Swamp_Vines.png";
         public const string Water = Dir + "/Swamp_Water.png";
         public const string TileTop = Dir + "/Swamp_TileTop.png";
+        public const string TileTopB = Dir + "/Swamp_TileTopB.png";
+        public const string TileTopMud = Dir + "/Swamp_TileTopMud.png";
         public const string TileInner = Dir + "/Swamp_TileInner.png";
+        public const string TileInnerB = Dir + "/Swamp_TileInnerB.png";
         public const string Platform = Dir + "/Swamp_Platform.png";
         public const string Mushroom = Dir + "/Swamp_Mushroom.png";
         public const string Cattail = Dir + "/Swamp_Cattail.png";
+        public const string FloorFace = Dir + "/Swamp_FloorFace.png";
+        public const string BigTree = Dir + "/Swamp_BigTree.png";
+        public const string Roots = Dir + "/Swamp_Roots.png";
 
         public static void Generate()
         {
@@ -29,6 +35,114 @@ namespace FA.EditorTools
             GenTiles();
             GenPlatform();
             GenDecor();
+            GenFloorFace();
+            GenBigTree();
+            GenRoots();
+        }
+
+        /// <summary>Mặt bờ đất hữu cơ (kiểu Distant Planet): vai tròn, tầng đất-rêu, rễ cây rủ xuống nước.</summary>
+        private static void GenFloorFace()
+        {
+            StagePxCanvas.Reseed(404);
+            var c = new StagePxCanvas(448, 160, new Color32(0, 0, 0, 0)); // 14×5 unit @32ppu
+            var moss = StagePxCanvas.Hex("3a6a34");
+            var soil = StagePxCanvas.Hex("41301f");
+            var soilD = StagePxCanvas.Hex("2c1f13");
+            var deep = StagePxCanvas.Hex("1c130c");
+            for (int x = 0; x < 448; x++)
+            {
+                float edge = 1f;
+                if (x > 383) edge = Mathf.Sqrt((447 - x) / 64f);   // vai tròn 1 đầu (đầu kia chạm biên map)
+                int top = 146 + StagePxCanvas.RandInt(-2, 2);
+                int h = Mathf.RoundToInt(top * edge);
+                int yBot = top - h + StagePxCanvas.RandInt(0, 6);
+                for (int y = yBot; y < top && y < 160; y++)
+                {
+                    float d = (float)(y - yBot) / Mathf.Max(1, top - yBot);
+                    c.Set(x, y, d > 0.86f ? moss : d > 0.5f ? soil : d > 0.22f ? soilD : deep);
+                }
+            }
+            // Đốm rêu loang + đá cuội trong đất.
+            var mossHi = new Color32(87, 168, 68, 120);
+            for (int i = 0; i < 24; i++)
+                c.Disc(StagePxCanvas.RandInt(10, 430), StagePxCanvas.RandInt(100, 145),
+                       StagePxCanvas.RandInt(2, 6), mossHi);
+            for (int i = 0; i < 10; i++)
+                c.Disc(StagePxCanvas.RandInt(16, 420), StagePxCanvas.RandInt(40, 110),
+                       StagePxCanvas.RandInt(3, 6), StagePxCanvas.Hex("4a4038"));
+            // Rễ cây ngoằn ngoèo rủ khỏi đáy bờ.
+            var root = StagePxCanvas.Hex("2a1d10");
+            for (int i = 0; i < 14; i++)
+            {
+                int x = StagePxCanvas.RandInt(20, 420);
+                int len = StagePxCanvas.RandInt(16, 44);
+                int sway = StagePxCanvas.RandInt(-1, 2);
+                for (int k = 0; k < len; k++)
+                {
+                    c.Blend(x + (k / 7) * sway, 26 - k > 0 ? 26 - k : 0 + (26 - k), root);
+                    c.Blend(x + (k / 7) * sway, Mathf.Max(0, 26 - k), root);
+                }
+            }
+            c.Save(FloorFace, 32f);
+        }
+
+        /// <summary>Cây cổ thụ KHỔNG LỒ nền sau (điểm nhấn kiểu Pikmin/Distant Planet).</summary>
+        private static void GenBigTree()
+        {
+            StagePxCanvas.Reseed(303);
+            var c = new StagePxCanvas(320, 320, new Color32(0, 0, 0, 0)); // 20×20 unit @16ppu
+            var trunk = StagePxCanvas.Hex("14241a");
+            var trunkHi = StagePxCanvas.Hex("1e3626");
+            var canopy = StagePxCanvas.Hex("1e4028");
+            var canopyHi = StagePxCanvas.Hex("2a5434");
+            var canopyLite = StagePxCanvas.Hex("38683c");
+            // Thân cây to bè gốc, thuôn dần lên.
+            for (int y = 0; y < 210; y++)
+            {
+                float t = y / 210f;
+                int half = Mathf.RoundToInt(Mathf.Lerp(46f, 14f, Mathf.Pow(t, 0.6f)));
+                int cx = 160 + Mathf.RoundToInt(Mathf.Sin(t * 3.1f) * 8f); // thân hơi cong
+                for (int x = cx - half; x <= cx + half; x++)
+                    c.Set(x, y, x < cx - half / 3 ? trunkHi : trunk);
+            }
+            // Rễ bạnh gốc.
+            for (int i = -3; i <= 3; i++)
+            {
+                if (i == 0) continue;
+                int bx = 160 + i * 34;
+                c.Triangle(bx, 0, 40, 34, trunk);
+            }
+            // Tán khổng lồ nhiều tầng cầu.
+            for (int k = 0; k < 16; k++)
+                c.Disc(160 + StagePxCanvas.RandInt(-90, 91), 240 + StagePxCanvas.RandInt(-28, 42),
+                       StagePxCanvas.RandInt(26, 46), canopy);
+            for (int k = 0; k < 10; k++)
+                c.Disc(150 + StagePxCanvas.RandInt(-70, 71), 258 + StagePxCanvas.RandInt(-18, 34),
+                       StagePxCanvas.RandInt(16, 28), canopyHi);
+            for (int k = 0; k < 6; k++)
+                c.Disc(140 + StagePxCanvas.RandInt(-50, 51), 274 + StagePxCanvas.RandInt(-10, 22),
+                       StagePxCanvas.RandInt(8, 16), canopyLite);
+            // Đom đóm đậu quanh tán.
+            c.Speckle(30, new Color32(184, 232, 120, 190), 210, 320);
+            c.Save(BigTree, 16f);
+        }
+
+        /// <summary>Chùm rễ rủ dưới bệ chìm giữa (treo lơ lửng trên mặt nước).</summary>
+        private static void GenRoots()
+        {
+            StagePxCanvas.Reseed(202);
+            var c = new StagePxCanvas(128, 64, new Color32(0, 0, 0, 0)); // 4×2 unit @32ppu
+            var root = StagePxCanvas.Hex("2a1d10");
+            var rootHi = StagePxCanvas.Hex("3d2c18");
+            for (int i = 0; i < 12; i++)
+            {
+                int x = StagePxCanvas.RandInt(6, 122);
+                int len = StagePxCanvas.RandInt(20, 60);
+                int sway = StagePxCanvas.RandInt(-1, 2);
+                for (int k = 0; k < len; k++)
+                    c.Blend(x + (k / 8) * sway, 63 - k, k % 5 == 0 ? rootHi : root);
+            }
+            c.Save(Roots, 32f);
         }
 
         private static void GenSky()
@@ -133,30 +247,63 @@ namespace FA.EditorTools
 
         private static void GenTiles()
         {
-            var t = new StagePxCanvas(64, 64, StagePxCanvas.Hex("3a2a1e"));
-            MudDetail(t);
-            // Thảm cỏ trên mặt.
-            t.FillRect(0, 58, 64, 6, StagePxCanvas.Hex("4a8a3a"));
-            t.FillRect(0, 61, 64, 3, StagePxCanvas.Hex("57a844"));
-            for (int x = 2; x < 64; x += StagePxCanvas.RandInt(4, 9)) // cọng cỏ nhô + rủ xuống
-            {
-                t.VLine(x, 58, 58 - StagePxCanvas.RandInt(2, 6), StagePxCanvas.Hex("4a8a3a"));
-            }
-            t.HLine(57, 0, 63, StagePxCanvas.Hex("24180f"));
-            TileBorder(t, StagePxCanvas.Hex("1c130c"));
-            t.Save(TileTop, 64f);
+            // FEEDBACK TEST: đất đầm sáng tạo hơn — 3 variant mặt (cỏ / cỏ+nấm con / BÙN ƯỚT lầy rõ rệt),
+            // 2 variant lòng đất, KHÔNG viền khối (tile ghép khít).
+            GenGrassTop(TileTop, 41, false);
+            GenGrassTop(TileTopB, 87, true);
 
-            var i2 = new StagePxCanvas(64, 64, StagePxCanvas.Hex("2c1f15"));
-            MudDetail(i2);
-            TileBorder(i2, StagePxCanvas.Hex("18100a"));
-            i2.Save(TileInner, 64f);
+            // Ô BÙN ƯỚT: mặt bùn nhão bóng nước, sủi tăm — điểm nhấn "đầm lầy thật".
+            StagePxCanvas.Reseed(63);
+            var m = new StagePxCanvas(64, 64, StagePxCanvas.Hex("3a2a1e"));
+            MudDetail(m);
+            m.FillRect(0, 56, 64, 8, StagePxCanvas.Hex("2b2016"));               // lớp bùn nhão sẫm
+            var wet = new Color32(90, 116, 84, 200);                              // váng nước xanh rêu
+            for (int i = 0; i < 5; i++)
+                m.Disc(StagePxCanvas.RandInt(6, 58), 60, StagePxCanvas.RandInt(3, 7), wet);
+            var glint = new Color32(190, 220, 190, 160);                          // ánh nước bóng
+            for (int i = 0; i < 8; i++)
+                m.HLine(StagePxCanvas.RandInt(57, 63), StagePxCanvas.RandInt(2, 40),
+                        StagePxCanvas.RandInt(6, 20) + 40, glint);
+            for (int i = 0; i < 4; i++)                                            // bong bóng sủi tăm
+                m.Ring(StagePxCanvas.RandInt(8, 56), 60, 2, 1, new Color32(210, 230, 200, 150));
+            m.Save(TileTopMud, 64f);
+
+            GenMudInner(TileInner, 19);
+            GenMudInner(TileInnerB, 111);
         }
 
-        private static void TileBorder(StagePxCanvas c, Color32 border)
+        private static void GenGrassTop(string path, int seed, bool mushrooms)
         {
-            c.FillRect(0, 0, 2, 64, border);
-            c.FillRect(62, 0, 2, 64, border);
-            c.FillRect(0, 0, 64, 2, border);
+            StagePxCanvas.Reseed(seed);
+            var t = new StagePxCanvas(64, 64, StagePxCanvas.Hex("3a2a1e"));
+            MudDetail(t);
+            t.FillRect(0, 58, 64, 6, StagePxCanvas.Hex("4a8a3a"));
+            t.FillRect(0, 61, 64, 3, StagePxCanvas.Hex("57a844"));
+            for (int x = 2; x < 64; x += StagePxCanvas.RandInt(4, 9))
+                t.VLine(x, 58, 58 - StagePxCanvas.RandInt(2, 6), StagePxCanvas.Hex("4a8a3a"));
+            if (mushrooms) // nấm con lấm tấm trên cỏ
+                for (int i = 0; i < 3; i++)
+                {
+                    int x = StagePxCanvas.RandInt(6, 58);
+                    t.FillRect(x, 62, 2, 2, StagePxCanvas.Hex("d8e8c0"));
+                    t.Disc(x + 1, 63, 2, StagePxCanvas.Hex("7ad8a0"));
+                }
+            t.Save(path, 64f);
+        }
+
+        private static void GenMudInner(string path, int seed)
+        {
+            StagePxCanvas.Reseed(seed);
+            var c = new StagePxCanvas(64, 64, StagePxCanvas.Hex("2c1f15"));
+            MudDetail(c);
+            // Đá cuội ướt lấp lánh cho đỡ trơ.
+            for (int i = 0; i < 3; i++)
+            {
+                int x = StagePxCanvas.RandInt(6, 54), y = StagePxCanvas.RandInt(8, 52);
+                c.Disc(x, y, StagePxCanvas.RandInt(3, 5), StagePxCanvas.Hex("4a4038"));
+                c.Blend(x - 1, y + 1, new Color32(150, 170, 150, 150));
+            }
+            c.Save(path, 64f);
         }
 
         private static void MudDetail(StagePxCanvas c)

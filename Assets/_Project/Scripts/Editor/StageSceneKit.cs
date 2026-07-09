@@ -124,8 +124,8 @@ namespace FA.EditorTools
         }
 
         /// <summary>Backdrop parallax: sprite + ParallaxLayer (followFactor set qua SerializedObject).</summary>
-        public static void MakeBackdrop(string name, string spritePath, Vector3 pos, int order,
-                                        float factor, Transform parent, float scale = 1f)
+        public static GameObject MakeBackdrop(string name, string spritePath, Vector3 pos, int order,
+                                              float factor, Transform parent, float scale = 1f)
         {
             var sr = MakeSpriteGO(name, LoadSprite(spritePath), pos, order, parent, new Vector3(scale, scale, 1f));
             var px = sr.gameObject.AddComponent<ParallaxLayer>();
@@ -133,6 +133,18 @@ namespace FA.EditorTools
             var p = so.FindProperty("followFactor");
             if (p != null) { p.vector2Value = new Vector2(factor, factor); so.ApplyModifiedPropertiesWithoutUndo(); }
             EditorUtility.SetDirty(px);
+            return sr.gameObject;
+        }
+
+        /// <summary>Gắn dao động nền (AmbientDrift) cho lớp trang trí — cực quang trôi, dây leo đưa...</summary>
+        public static void AddDrift(GameObject go, Vector2 amplitude, float period)
+        {
+            var d = go.AddComponent<AmbientDrift>();
+            var so = new SerializedObject(d);
+            so.FindProperty("amplitude").vector2Value = amplitude;
+            so.FindProperty("period").floatValue = period;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(d);
         }
 
         // ---------- Tilemap ground ----------
@@ -182,18 +194,39 @@ namespace FA.EditorTools
             }
         }
 
+        /// <summary>Chọn variant tile theo tọa độ (pseudo-random ỔN ĐỊNH — build lại vẫn ra y hệt).</summary>
+        public static Tile PickVariant(Tile[] variants, int x, int y)
+        {
+            if (variants == null || variants.Length == 0) return null;
+            int h = Mathf.Abs((x * 73856093) ^ (y * 19349663) ^ 83492791);
+            return variants[h % variants.Length];
+        }
+
+        /// <summary>Đổ khối đất VỚI VARIANT (chống lặp sprite — feedback test): mỗi ô chọn 1 trong N tile.</summary>
+        public static void FillGroundVaried(Tilemap tm, Tile[] tops, Tile[] inners, int xMin, int xMax, int topY, int depth)
+        {
+            for (int x = xMin; x <= xMax; x++)
+            {
+                tm.SetTile(new Vector3Int(x, topY, 0), PickVariant(tops, x, topY));
+                for (int d = 1; d < depth; d++)
+                    tm.SetTile(new Vector3Int(x, topY - d, 0), PickVariant(inners, x, topY - d));
+            }
+        }
+
         // ---------- One-way platform ----------
 
         public static GameObject MakeOneWayPlatform(string name, string spritePath, Vector2 pos,
-                                                    Transform parent, int order, float scaleX = 1f)
+                                                    Transform parent, int order, float scaleX = 1f,
+                                                    float surfaceTop = 0.33f)
         {
             var sr = MakeSpriteGO(name, LoadSprite(spritePath), pos, order, parent, new Vector3(scaleX, 1f, 1f));
             var go = sr.gameObject;
             go.layer = GameLayers.OneWayPlatform;
             var col = go.AddComponent<BoxCollider2D>();
-            // Collider dày hẳn (0.55) chống tunneling khi rơi nhanh; mặt trên khớp lớp tuyết/cỏ của sprite.
+            // Collider dày 0.55 chống tunneling; MẶT TRÊN = surfaceTop khớp đúng bề mặt VẼ của sprite
+            // từng biome (fix nhân vật đứng lơ lửng hở chân).
             col.size = new Vector2(4f, 0.55f);
-            col.offset = new Vector2(0f, 0.32f);
+            col.offset = new Vector2(0f, surfaceTop - 0.275f);
             col.usedByEffector = true;
             var eff = go.AddComponent<PlatformEffector2D>();
             eff.useOneWay = true;
@@ -311,8 +344,18 @@ namespace FA.EditorTools
 
         // ---------- Light2D (qua reflection — không cần asmdef ref URP) ----------
 
-        private static readonly System.Type Light2DType = System.Type.GetType(
-            "UnityEngine.Rendering.Universal.Light2D, Unity.RenderPipelines.Universal.Runtime");
+        // Fix tận gốc: quét MỌI assembly đã load để tìm Light2D (ref theo tên/GUID đều từng fail trên máy này).
+        private static readonly System.Type Light2DType = FindLight2DType();
+
+        private static System.Type FindLight2DType()
+        {
+            foreach (var asm in System.AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var t = asm.GetType("UnityEngine.Rendering.Universal.Light2D");
+                if (t != null) return t;
+            }
+            return null;
+        }
 
         public static Component MakeGlobalLight(Transform parent, Color color, float intensity)
             => MakeLight("GlobalLight2D", parent, Vector2.zero, 4 /*Global*/, color, intensity, 0f);

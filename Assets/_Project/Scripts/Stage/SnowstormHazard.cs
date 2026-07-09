@@ -38,10 +38,11 @@ namespace FA.Stage
         [SerializeField] private bool stormActive;
 
         private float _phaseTimer;       // đếm tới lần đổi trạng thái kế (bão↔tạnh).
-        private float _nudgeTimer;        // đếm tới cú đẩy random kế.
+        private int _windDir = 1;         // hướng gió trận bão hiện tại: -1 trái / +1 phải (random mỗi trận).
         private readonly List<Rigidbody2D> _scratch = new List<Rigidbody2D>(4);
 
         public bool StormActive => stormActive;
+        public int WindDirection => _windDir;
 
         private void Awake()
         {
@@ -58,29 +59,47 @@ namespace FA.Stage
             _phaseTimer -= Time.deltaTime;
             if (_phaseTimer <= 0f)
                 ToggleStorm();
+        }
 
-            if (!stormActive) return;
-
-            _nudgeTimer -= Time.deltaTime;
-            if (_nudgeTimer <= 0f)
+        /// <summary>
+        /// GIÓ CÓ HƯỚNG (feedback test): cộng windSpeed vào vx mỗi FixedUpdate. Motor ghi lại vx mỗi tick
+        /// (Idle=0, Walk=±walkSpeed) nên hiệu quả ổn định: đứng yên TRÔI theo gió, đi ngược gió CHẬM đi,
+        /// đi theo gió NHANH lên. Trần WindMaxCarry chặn cộng dồn vô hạn khi bay knockback (gió chỉ 'cuốn'
+        /// tới trần rồi thôi).
+        /// </summary>
+        private void FixedUpdate()
+        {
+            if (config == null || !stormActive) return;
+            foreach (var rb in ResolveBodies())
             {
-                ApplyNudge();
-                _nudgeTimer = Mathf.Max(0.05f, config.snowstormNudgeInterval);
+                if (rb == null) continue;
+                Vector2 v = rb.linearVelocity;
+                if (_windDir * v.x < config.snowstormWindMaxCarry)
+                    v.x += _windDir * config.snowstormWindSpeed;
+                rb.linearVelocity = v;
             }
         }
 
         private void ToggleStorm()
         {
             stormActive = !stormActive;
+            if (stormActive)
+            {
+                _windDir = Random.value < 0.5f ? -1 : 1; // hướng gió random mỗi trận bão.
+                Debug.Log($"[SnowstormHazard] Bão tuyết BẮT ĐẦU — gió thổi sang {(_windDir > 0 ? "PHẢI" : "TRÁI")}.", this);
+            }
             if (snowParticles != null)
             {
-                if (stormActive) snowParticles.Play();
+                if (stormActive)
+                {
+                    // Hạt tuyết bay theo hướng gió cho khớp cảm giác.
+                    var vel = snowParticles.velocityOverLifetime;
+                    vel.x = new ParticleSystem.MinMaxCurve(_windDir * 9f, _windDir * 15f);
+                    snowParticles.Play();
+                }
                 else snowParticles.Stop();
             }
-            if (stormActive)
-                Debug.Log("[SnowstormHazard] Bão tuyết BẮT ĐẦU.", this);
             ScheduleNextPhase(stormActive);
-            _nudgeTimer = 0f;
         }
 
         private void ScheduleNextPhase(bool currentlyActive)
@@ -88,21 +107,6 @@ namespace FA.Stage
             float baseDur = currentlyActive ? config.snowstormDuration : config.snowstormInterval;
             float jitter = Random.Range(-config.snowstormRandomJitter, config.snowstormRandomJitter);
             _phaseTimer = Mathf.Max(0.5f, baseDur + jitter);
-        }
-
-        private void ApplyNudge()
-        {
-            foreach (var rb in ResolveBodies())
-            {
-                if (rb == null) continue;
-                // (a) làm chậm vận tốc ngang (Unity vật lý: ghi lại velocity).
-                Vector2 v = rb.linearVelocity;
-                v.x *= config.snowstormSlowFactor;
-                rb.linearVelocity = v;
-                // (b) xung lực ngang ngẫu nhiên trái/phải.
-                float dir = Random.value < 0.5f ? -1f : 1f;
-                rb.AddForce(new Vector2(dir * config.snowstormPushForce, 0f), ForceMode2D.Impulse);
-            }
         }
 
         private IEnumerable<Rigidbody2D> ResolveBodies()

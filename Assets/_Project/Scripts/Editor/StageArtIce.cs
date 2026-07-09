@@ -13,10 +13,17 @@ namespace FA.EditorTools
         public const string Mountains = Dir + "/Ice_Mountains.png";
         public const string Pines = Dir + "/Ice_Pines.png";
         public const string TileTop = Dir + "/Ice_TileTop.png";
+        public const string TileTopB = Dir + "/Ice_TileTopB.png";
+        public const string TileGloss = Dir + "/Ice_TileGloss.png";
         public const string TileInner = Dir + "/Ice_TileInner.png";
+        public const string TileInnerB = Dir + "/Ice_TileInnerB.png";
         public const string Platform = Dir + "/Ice_Platform.png";
         public const string Wall = Dir + "/Ice_Wall.png";
         public const string Icicle = Dir + "/Ice_Icicle.png";
+        public const string Iceberg = Dir + "/Ice_Iceberg.png";
+        public const string Aurora = Dir + "/Ice_Aurora.png";
+        public const string FloorFace = Dir + "/Ice_FloorFace.png";
+        public const string Spikes = Dir + "/Ice_Spikes.png";
 
         public static void Generate()
         {
@@ -28,6 +35,40 @@ namespace FA.EditorTools
             GenPlatform();
             GenWall();
             GenIcicle();
+            GenIceberg();
+            GenFloorFace();
+            GenSpikes();
+            GenAurora();
+        }
+
+        /// <summary>Cực quang TÁCH LỚP RIÊNG (để gắn AmbientDrift trôi lững lờ) — 5 dải đa sắc + màn dọc.</summary>
+        private static void GenAurora()
+        {
+            StagePxCanvas.Reseed(111);
+            var c = new StagePxCanvas(512, 160, new Color32(0, 0, 0, 0));
+            var pink = StagePxCanvas.Hex("ff6ad5"); pink.a = 62;
+            var vio = StagePxCanvas.Hex("b070ff"); vio.a = 52;
+            var grn = StagePxCanvas.Hex("57e878"); grn.a = 66;
+            var teal = StagePxCanvas.Hex("3fd8b0"); teal.a = 70;
+            var cyan = StagePxCanvas.Hex("58c8e8"); cyan.a = 50;
+            c.SineBand(122f, 10f, 240f, 0.05f, 14, pink);
+            c.SineBand(108f, 12f, 200f, 0.35f, 18, teal);
+            c.SineBand(90f, 11f, 170f, 0.65f, 15, grn);
+            c.SineBand(74f, 9f, 230f, 0.20f, 12, vio);
+            c.SineBand(58f, 8f, 260f, 0.80f, 10, cyan);
+            for (int i = 0; i < 30; i++)
+            {
+                int x = StagePxCanvas.RandInt(0, 512);
+                int top = 118 - StagePxCanvas.RandInt(0, 24);
+                int len = StagePxCanvas.RandInt(26, 64);
+                var col = (i % 3 == 0) ? pink : (i % 3 == 1) ? grn : teal;
+                for (int k = 0; k < len; k++)
+                {
+                    var cc = col; cc.a = (byte)(col.a * (1f - (float)k / len) * 0.8f);
+                    c.Blend(x, top - k, cc);
+                }
+            }
+            c.Save(Aurora, 16f);
         }
 
         private static void GenSky()
@@ -38,20 +79,39 @@ namespace FA.EditorTools
             c.Speckle(90, StagePxCanvas.Hex("9fb4de"), 60, 288);
             c.Speckle(50, StagePxCanvas.Hex("dbe6ff"), 90, 288);
             c.Speckle(18, Color.white, 140, 288, 2);
-            // Cực quang: 3 dải sine mềm.
-            var aur1 = StagePxCanvas.Hex("3fd8b0"); aur1.a = 70;
-            var aur2 = StagePxCanvas.Hex("57d868"); aur2.a = 55;
-            var aur3 = StagePxCanvas.Hex("58c8e8"); aur3.a = 45;
-            c.SineBand(226f, 12f, 210f, 0.10f, 16, aur1);
-            c.SineBand(206f, 10f, 168f, 0.55f, 12, aur2);
-            c.SineBand(244f, 8f, 250f, 0.30f, 9, aur3);
+            // CỰC QUANG RỰC RỠ đa sắc (tham chiếu Summit — Smash Bros): hồng + tím + xanh lá + lam,
+            // dải rộng chồng lớp + màn sáng dọc cho có chiều sâu.
+            var pink = StagePxCanvas.Hex("ff6ad5"); pink.a = 62;
+            var vio = StagePxCanvas.Hex("b070ff"); vio.a = 52;
+            var grn = StagePxCanvas.Hex("57e878"); grn.a = 66;
+            var teal = StagePxCanvas.Hex("3fd8b0"); teal.a = 70;
+            var cyan = StagePxCanvas.Hex("58c8e8"); cyan.a = 50;
+            c.SineBand(250f, 10f, 240f, 0.05f, 14, pink);
+            c.SineBand(236f, 12f, 200f, 0.35f, 18, teal);
+            c.SineBand(218f, 11f, 170f, 0.65f, 15, grn);
+            c.SineBand(202f, 9f, 230f, 0.20f, 12, vio);
+            c.SineBand(186f, 8f, 260f, 0.80f, 10, cyan);
+            // Màn cực quang dọc (curtain) rơi từ dải xuống — alpha nhạt dần.
+            for (int i = 0; i < 26; i++)
+            {
+                int x = StagePxCanvas.RandInt(0, 512);
+                int top = 246 - StagePxCanvas.RandInt(0, 24);
+                int len = StagePxCanvas.RandInt(24, 62);
+                var col = (i % 3 == 0) ? pink : (i % 3 == 1) ? grn : teal;
+                for (int k = 0; k < len; k++)
+                {
+                    var cc = col; cc.a = (byte)(col.a * (1f - (float)k / len) * 0.8f);
+                    c.Blend(x, top - k, cc);
+                }
+            }
             // Trăng + quầng sáng.
+            // Trăng HẠ THẤP vào tầm camera mặc định (đứng dưới sàn vẫn thấy).
             var halo = StagePxCanvas.Hex("e8e8c8"); halo.a = 26;
-            c.Disc(430, 234, 34, halo);
-            c.Disc(430, 234, 27, new Color32(232, 232, 200, 60));
-            c.Disc(430, 234, 21, StagePxCanvas.Hex("efedd2"));
-            c.Disc(422, 240, 4, StagePxCanvas.Hex("d8d6b4")); // crater
-            c.Disc(437, 228, 3, StagePxCanvas.Hex("d8d6b4"));
+            c.Disc(430, 172, 34, halo);
+            c.Disc(430, 172, 27, new Color32(232, 232, 200, 60));
+            c.Disc(430, 172, 21, StagePxCanvas.Hex("efedd2"));
+            c.Disc(422, 178, 4, StagePxCanvas.Hex("d8d6b4")); // crater
+            c.Disc(437, 166, 3, StagePxCanvas.Hex("d8d6b4"));
             c.Save(Sky, 16f);
         }
 
@@ -93,30 +153,71 @@ namespace FA.EditorTools
 
         private static void GenTiles()
         {
-            // Tile mặt trên: tuyết phủ dày + thân băng đậm + viền khối rõ (đọc thành block như mockup).
-            var t = new StagePxCanvas(64, 64, StagePxCanvas.Hex("3a7cb0"));
-            IceBody(t, 0, 48);
-            t.FillRect(0, 50, 64, 14, StagePxCanvas.Hex("eef6ff"));              // lớp tuyết dày
-            t.FillRect(0, 47, 64, 3, StagePxCanvas.Hex("bcdcf2"));               // mép tuyết
-            for (int i = 0; i < 7; i++)                                           // mô tuyết lùm phùm
-                t.Disc(StagePxCanvas.RandInt(4, 60), 62, StagePxCanvas.RandInt(2, 5), StagePxCanvas.Hex("ffffff"));
-            t.HLine(46, 0, 63, StagePxCanvas.Hex("1e4668"));
-            TileBorder(t, StagePxCanvas.Hex("245a86"));
-            t.Save(TileTop, 64f);
+            // FEEDBACK TEST: tile phải KHÍT (không viền khối), nền là ĐẤT ĐÓNG BĂNG, xen kẽ Ô THUẦN BĂNG trơn.
+            // 2 variant đất mặt (tuyết phủ trên đất nâu lạnh) — sprite không lặp đều.
+            GenEarthTop(TileTop, 11);
+            GenEarthTop(TileTopB, 77);
 
-            // Tile trong lòng đất: băng đậm hẳn + viền khối.
-            var i2 = new StagePxCanvas(64, 64, StagePxCanvas.Hex("2a5f8f"));
-            IceBody(i2, 0, 64);
-            TileBorder(i2, StagePxCanvas.Hex("1c4a72"));
-            i2.Save(TileInner, 64f);
+            // Ô THUẦN BĂNG bóng loáng (đặt thành mảng trượt riêng, gán IceSurface).
+            var g = new StagePxCanvas(64, 64, StagePxCanvas.Hex("9fd4ef"));
+            g.VerticalGradient(StagePxCanvas.Hex("6aaad2"), StagePxCanvas.Hex("bfe6fa"), 0.04f);
+            var sheen = new Color32(255, 255, 255, 170);
+            for (int i = 0; i < 6; i++)
+            {
+                int x = StagePxCanvas.RandInt(2, 52), y = StagePxCanvas.RandInt(6, 54);
+                for (int k = 0; k < StagePxCanvas.RandInt(8, 16); k++) g.Blend(x + k, y + k / 2, sheen);
+            }
+            var crack = new Color32(70, 120, 160, 140);
+            for (int i = 0; i < 3; i++)
+            {
+                int x = StagePxCanvas.RandInt(6, 50), y = StagePxCanvas.RandInt(8, 52);
+                for (int k = 0; k < StagePxCanvas.RandInt(8, 14); k++) g.Blend(x + k, y - (k % 3 == 0 ? 1 : 0), crack);
+            }
+            g.FillRect(0, 60, 64, 4, new Color32(224, 244, 255, 255)); // mặt băng sáng
+            g.Save(TileGloss, 64f);
+
+            // 2 variant lòng đất: đất nâu lạnh + đá + rễ đông cứng.
+            GenEarthInner(TileInner, 23);
+            GenEarthInner(TileInnerB, 91);
         }
 
-        /// <summary>Viền 2px trái/phải + đáy để mỗi tile đọc thành khối riêng (chất pixel block).</summary>
-        private static void TileBorder(StagePxCanvas c, Color32 border)
+        private static void GenEarthTop(string path, int seed)
         {
-            c.FillRect(0, 0, 2, 64, border);
-            c.FillRect(62, 0, 2, 64, border);
-            c.FillRect(0, 0, 64, 2, border);
+            StagePxCanvas.Reseed(seed);
+            var t = new StagePxCanvas(64, 64, StagePxCanvas.Hex("564742"));
+            EarthDetail(t, 0, 46);
+            t.FillRect(0, 50, 64, 14, StagePxCanvas.Hex("eef6ff"));               // tuyết phủ
+            t.FillRect(0, 47, 64, 3, StagePxCanvas.Hex("c9e2f4"));                // mép tuyết
+            for (int i = 0; i < 7; i++)                                            // mô tuyết nhấp nhô
+                t.Disc(StagePxCanvas.RandInt(2, 62), 62, StagePxCanvas.RandInt(2, 5), Color.white);
+            for (int i = 0; i < 4; i++)                                            // tuyết rủ xuống mép đất
+                t.VLine(StagePxCanvas.RandInt(3, 61), 47, 47 - StagePxCanvas.RandInt(2, 6), StagePxCanvas.Hex("dceffb"));
+            t.Save(path, 64f);
+        }
+
+        private static void GenEarthInner(string path, int seed)
+        {
+            StagePxCanvas.Reseed(seed);
+            var c = new StagePxCanvas(64, 64, StagePxCanvas.Hex("4a3d39"));
+            EarthDetail(c, 0, 64);
+            c.Save(path, 64f);
+        }
+
+        /// <summary>Chất đất đóng băng: đá xám, mảng băng lấp lánh, đốm tối — KHÔNG viền, ghép khít.</summary>
+        private static void EarthDetail(StagePxCanvas c, int y0, int h)
+        {
+            var stone = StagePxCanvas.Hex("6b5d57");
+            var dark = StagePxCanvas.Hex("38302d");
+            var frost = new Color32(154, 196, 226, 120);
+            for (int i = 0; i < 8; i++)
+                c.BlendRect(StagePxCanvas.RandInt(0, 56), y0 + StagePxCanvas.RandInt(0, Mathf.Max(4, h - 8)),
+                            StagePxCanvas.RandInt(4, 10), StagePxCanvas.RandInt(3, 6), stone);
+            for (int i = 0; i < 10; i++)
+                c.BlendRect(StagePxCanvas.RandInt(0, 60), y0 + StagePxCanvas.RandInt(0, Mathf.Max(4, h - 4)),
+                            StagePxCanvas.RandInt(2, 5), StagePxCanvas.RandInt(2, 4), dark);
+            for (int i = 0; i < 5; i++) // vệt băng lấp lánh trong đất
+                c.Disc(StagePxCanvas.RandInt(4, 60), y0 + StagePxCanvas.RandInt(4, Mathf.Max(6, h - 4)),
+                       StagePxCanvas.RandInt(1, 3), frost);
         }
 
         private static void IceBody(StagePxCanvas c, int y0, int h)
@@ -190,6 +291,109 @@ namespace FA.EditorTools
             c.TriangleDown(16, 63, 22, 60, StagePxCanvas.Hex("3d7fb0"));
             c.TriangleDown(13, 63, 8, 34, new Color32(126, 197, 232, 200));
             c.Save(Icicle, 64f);
+        }
+
+        /// <summary>Núi băng khổng lồ nền sau (kiểu Summit): khối tròn hữu cơ, đỉnh nhô, băng phân tầng.</summary>
+        private static void GenIceberg()
+        {
+            StagePxCanvas.Reseed(707);
+            var c = new StagePxCanvas(512, 300, new Color32(0, 0, 0, 0));
+            // Tông LẠNH + TỐI hơn mặt sàn để tách lớp xa-gần (núi = hậu cảnh).
+            var body = StagePxCanvas.Hex("a9c2dc");
+            var shade = StagePxCanvas.Hex("7f9fc4");
+            var deep = StagePxCanvas.Hex("54749e");
+            // Silhouette: 2 parabol chồng nhau tạo đỉnh chính lệch trái + vai phải thấp.
+            for (int x = 0; x < 512; x++)
+            {
+                float t1 = (x - 200f) / 240f;
+                float t2 = (x - 380f) / 200f;
+                float h1 = 290f * (1f - t1 * t1);
+                float h2 = 180f * (1f - t2 * t2);
+                int h = Mathf.RoundToInt(Mathf.Max(0f, Mathf.Max(h1, h2)) + StagePxCanvas.RandInt(-2, 3));
+                for (int y = 0; y < h && y < 300; y++)
+                {
+                    // Phân tầng màu theo độ cao + vệt dọc cho chất băng tảng.
+                    Color32 col = y > h - 26 ? body : (y > h - 90 ? shade : deep);
+                    c.Set(x, y, col);
+                }
+            }
+            // Vệt nứt/khe băng dọc sườn.
+            var crack = new Color32(90, 130, 170, 150);
+            for (int i = 0; i < 22; i++)
+            {
+                int x = StagePxCanvas.RandInt(30, 480);
+                int y0 = StagePxCanvas.RandInt(20, 200);
+                int len = StagePxCanvas.RandInt(20, 70);
+                for (int k = 0; k < len; k++)
+                    c.Blend(x + (k / 14), y0 + k, crack);
+            }
+            // Mảng tuyết sáng loang trên đỉnh.
+            c.Speckle(500, new Color32(255, 255, 255, 60), 140, 300);
+            c.Speckle(240, new Color32(255, 255, 255, 90), 210, 300);
+            c.Save(Iceberg, 16f);
+        }
+
+        /// <summary>Mặt trước sàn: khối băng hữu cơ (thay mặt tile phẳng) — mép lượn tròn, nứt, nhũ đá.</summary>
+        private static void GenFloorFace()
+        {
+            StagePxCanvas.Reseed(808);
+            var c = new StagePxCanvas(960, 176, new Color32(0, 0, 0, 0)); // 30×5.5 unit @32ppu
+            var body = StagePxCanvas.Hex("6ea6cf");
+            var lite = StagePxCanvas.Hex("8fc0e0");
+            var dark = StagePxCanvas.Hex("40719e");
+            var deep = StagePxCanvas.Hex("2b527c");
+            for (int x = 0; x < 960; x++)
+            {
+                // Vai tròn 2 đầu: chiều cao giảm dần theo parabol ở 90px mép.
+                float edge = 1f;
+                if (x < 90) edge = Mathf.Sqrt(x / 90f);
+                else if (x > 869) edge = Mathf.Sqrt((959 - x) / 90f);
+                int top = 160 + StagePxCanvas.RandInt(-2, 3);           // mép trên lượn nhẹ (nằm dưới lớp tuyết tile)
+                int h = Mathf.RoundToInt(top * edge);
+                int yBot = 160 - h;
+                for (int y = yBot; y < top && y < 176; y++)
+                {
+                    float d = (float)(y - yBot) / Mathf.Max(1, h);      // 0 đáy → 1 mặt
+                    Color32 col = d > 0.75f ? lite : d > 0.45f ? body : d > 0.2f ? dark : deep;
+                    c.Set(x, y, col);
+                }
+            }
+            // Vân băng ngang + nứt chéo.
+            var vein = new Color32(190, 224, 244, 70);
+            for (int i = 0; i < 16; i++)
+                c.HLine(StagePxCanvas.RandInt(30, 150), StagePxCanvas.RandInt(0, 700),
+                        StagePxCanvas.RandInt(120, 260) + 700, vein);
+            var crack = new Color32(30, 60, 95, 170);
+            for (int i = 0; i < 14; i++)
+            {
+                int x = StagePxCanvas.RandInt(40, 900), y = StagePxCanvas.RandInt(20, 150);
+                for (int k = 0; k < StagePxCanvas.RandInt(14, 34); k++)
+                    c.Blend(x + (k % 3 == 0 ? 1 : 0), y - k, crack);
+            }
+            // Nhũ băng rủ dưới đáy dọc theo vai tròn.
+            for (int i = 0; i < 26; i++)
+            {
+                int x = StagePxCanvas.RandInt(60, 900);
+                c.TriangleDown(x, 14 + StagePxCanvas.RandInt(0, 8), StagePxCanvas.RandInt(6, 14),
+                               StagePxCanvas.RandInt(10, 26), deep);
+            }
+            c.Save(FloorFace, 32f);
+        }
+
+        /// <summary>Cụm gai băng trang trí (như Summit) — 1 cụm nhiều chóp cao thấp.</summary>
+        private static void GenSpikes()
+        {
+            StagePxCanvas.Reseed(909);
+            var c = new StagePxCanvas(96, 64, new Color32(0, 0, 0, 0));
+            int[] xs = { 12, 26, 40, 55, 70, 84 };
+            foreach (int x in xs)
+            {
+                int h = StagePxCanvas.RandInt(22, 58);
+                int w = StagePxCanvas.RandInt(10, 16);
+                c.Triangle(x, 0, w, h, StagePxCanvas.Hex("bfe0f2"));
+                c.Triangle(x - 2, 0, w / 2, (int)(h * 0.8f), new Color32(255, 255, 255, 170)); // mặt sáng
+            }
+            c.Save(Spikes, 32f);
         }
     }
 }
