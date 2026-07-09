@@ -11,9 +11,10 @@ namespace FA.EditorTools
     /// PHẦN HUD TRONG TRẬN (P8 + P12) — layout PHONG CÁCH STREET FIGHTER 6 (xem <see cref="UIProductionMenu"/>).
     /// Map tài nguyên game (KHÔNG có HP) vào khung SF6:
     ///   • Trên cùng "Vitality" = **% knockback** — thanh LUÔN ĐẦY, đổi MÀU trắng→đỏ theo % (PercentColorView).
-    ///   • Thanh "Drive" = **Nộ** (fill 0..1, 80% bề ngang thanh %, chia 3 ô) + Portrait + badge "C" + Tên + Lives.
+    ///   • Dưới thanh % = **Mana 4 ô** MÀU PHE (P1 đỏ/P2 xanh), dày bằng thanh %, 80% bề ngang
+    ///     (v10.1 đổi chỗ với nộ) + Portrait + badge "C" + Tên + Lives (icon TIM, tint vàng).
     ///   • Combo counter (số HITS) — ngay DƯỚI cụm trên, sát mép góc; chỉ hiện khi combo ≥ 2.
-    ///   • Gauge dưới "Super Art" = **Mana** (chia ô thật, ManaSegmentView) — MỎNG; P1 dưới-trái / P2 dưới-phải.
+    ///   • Gauge dưới-góc = **Nộ** (bar CAM 2 ô, ResourceBarView); P1 dưới-trái / P2 dưới-phải.
     ///   • Timer ở trên-giữa.
     /// Gắn View FA.UI + wire kênh per-player (UIChannels). Art = placeholder màu/slot Image trống → bạn swap
     /// sprite sau trong Inspector, KHÔNG sửa code. EDITOR-ONLY. Trả root Canvas để menu lưu prefab.
@@ -25,12 +26,14 @@ namespace FA.EditorTools
         // ── Palette kiểu SF6 ──
         private static readonly Color VitLow   = Color.white;                       // % = 0  (trắng)
         private static readonly Color VitHigh  = new Color(0.92f, 0.16f, 0.18f, 1f);// % = max (đỏ)
-        private static readonly Color DriveCol = new Color(0.70f, 0.90f, 0.22f, 1f);// Nộ (vàng-lục Drive)
-        private static readonly Color SuperCol = new Color(1f, 0.58f, 0.10f, 1f);   // Mana (CAM — user đổi từ đỏ hồng, tuần 3)
-        private static readonly Color SuperTrack = new Color(0.24f, 0.14f, 0.05f, 0.95f);
+        private static readonly Color DriveCol = new Color(1f, 0.55f, 0.10f, 1f);   // Nộ (CAM — team chốt tuần 3)
+        private static readonly Color ManaP1Col = new Color(0.95f, 0.25f, 0.30f, 1f);   // Mana P1 (ĐỎ — màu phe)
+        private static readonly Color ManaP2Col = new Color(0.25f, 0.58f, 0.98f, 1f);   // Mana P2 (XANH — màu phe)
+        private static readonly Color ManaTrackP1 = new Color(0.24f, 0.08f, 0.09f, 0.95f);
+        private static readonly Color ManaTrackP2 = new Color(0.06f, 0.13f, 0.24f, 0.95f);
+        private static readonly Color DriveTrack = new Color(0.24f, 0.14f, 0.04f, 0.95f); // track nộ (cam sậm)
         private static readonly Color ComboCol = new Color(0.97f, 0.32f, 0.55f, 1f);// số combo (hồng)
         private static readonly Color BarBack  = new Color(0f, 0f, 0f, 0.55f);
-        private static readonly Color Notch    = new Color(0f, 0f, 0f, 0.6f);
         private static readonly Color Portrait = new Color(0.10f, 0.11f, 0.15f, 1f);
         private static readonly Color AccP1    = new Color(0.93f, 0.23f, 0.30f, 1f);// nhấn P1 (đỏ)
         private static readonly Color AccP2    = new Color(0.20f, 0.55f, 0.95f, 1f);// nhấn P2 (xanh)
@@ -63,12 +66,13 @@ namespace FA.EditorTools
             var hud = UIKit.NewCanvas(HudName, 100);
 
             BuildTimer(hud.transform, ch.Timer);
-            BuildTopCluster(hud.transform, true, ch, maxLives);
-            BuildTopCluster(hud.transform, false, ch, maxLives);
+            BuildTopCluster(hud.transform, true, ch, maxLives, maxSegments);
+            BuildTopCluster(hud.transform, false, ch, maxLives, maxSegments);
             BuildCombo(hud.transform, true, ch);
             BuildCombo(hud.transform, false, ch);
-            BuildManaCluster(hud.transform, true, ch, maxSegments);
-            BuildManaCluster(hud.transform, false, ch, maxSegments);
+            // v10.1 ĐỔI CHỖ mana ↔ nộ: mana 4 ô nằm trong cụm trên (MakeTopInfo), nộ xuống góc dưới.
+            BuildBottomRage(hud.transform, true, ch);
+            BuildBottomRage(hud.transform, false, ch);
             return hud;
         }
 
@@ -93,7 +97,8 @@ namespace FA.EditorTools
 
         // ───────────────────── Cụm TRÊN (Vitality + Drive + Portrait + Lives) ─────────────────────
 
-        private static void BuildTopCluster(Transform parent, bool isP1, UIChannels.Bundle ch, int maxLives)
+        private static void BuildTopCluster(Transform parent, bool isP1, UIChannels.Bundle ch, int maxLives,
+                                            int maxSegments)
         {
             string side = isP1 ? "P1" : "P2";
             Color acc = isP1 ? AccP1 : AccP2;
@@ -107,7 +112,7 @@ namespace FA.EditorTools
             hlg.childAlignment = isP1 ? TextAnchor.UpperLeft : TextAnchor.UpperRight;
 
             var portrait = MakePortrait($"Portrait_{side}", root.transform, acc);
-            var info = MakeTopInfo($"Info_{side}", root.transform, isP1, ch, maxLives);
+            var info = MakeTopInfo($"Info_{side}", root.transform, isP1, ch, maxLives, maxSegments);
 
             // Mirror: P2 để Info trước, Portrait sau (portrait nằm ngoài-phải).
             if (!isP1) { info.transform.SetSiblingIndex(0); portrait.transform.SetSiblingIndex(1); }
@@ -139,7 +144,7 @@ namespace FA.EditorTools
         }
 
         private static GameObject MakeTopInfo(string name, Transform parent, bool isP1, UIChannels.Bundle ch,
-                                              int maxLives)
+                                              int maxLives, int maxSegments)
         {
             var col = UIKit.NewUI(name, parent);
             var le = col.AddComponent<LayoutElement>();
@@ -158,8 +163,8 @@ namespace FA.EditorTools
             // Vitality = % — thanh LUÔN đầy, đổi màu trắng→đỏ theo %.
             BuildColorBar(col.transform, "Vitality_%", ch.Percent(isP1), ch.PercentCap, 32f, isP1);
 
-            // Drive = Nộ — thanh fill NGẮN hơn (80% bề ngang thanh %), chia 3 ô bằng vạch NGHIÊNG (SF6).
-            BuildBar(col.transform, "Drive_Rage", ch.Rage(isP1), DriveCol, false, 1f, 24f, 3, 0.80f, isP1);
+            // Mana 4 ô MÀU PHE — đổi chỗ với nộ (v10.1): dày bằng thanh % (32), 80% bề ngang.
+            BuildTopMana(col.transform, isP1, ch, maxSegments);
 
             // Lives.
             BuildLivesRow(col.transform, isP1, ch, maxLives);
@@ -194,77 +199,71 @@ namespace FA.EditorTools
             EditorUtility.SetDirty(view);
         }
 
-        // ───────────────────── Thanh fill (Drive/Nộ) ─────────────────────
+        // ───────────────────── Mana 4 ô — cụm TRÊN (đổi chỗ với nộ, v10.1) ─────────────────────
 
-        private static void BuildBar(Transform parent, string label, FloatEventChannelSO channel, Color color,
-                                     bool normalizeRaw, float maxRaw, float height, int notchSegments,
-                                     float widthFrac, bool isP1)
+        /// <summary>
+        /// Dãy ô mana trong CỤM TRÊN, ngay dưới thanh %: dày bằng thanh % (32), chiếm 80% bề ngang dồn về
+        /// phía người chơi, chia đều <paramref name="maxSegments"/> ô parallelogram MÀU PHE (P1 đỏ/P2 xanh)
+        /// + glow đầy dãy + <see cref="ManaSegmentView"/> (reset 0 đầu trận).
+        /// </summary>
+        private static void BuildTopMana(Transform parent, bool isP1, UIChannels.Bundle ch, int maxSegments)
         {
-            // wrapper full-width (VLG expand) — thanh thật nằm bên trong theo widthFrac, dồn về phía người chơi.
-            var wrapper = UIKit.NewUI(label, parent);
-            UIKit.SetLayoutHeight(wrapper, height);
-
-            var bar = UIKit.NewUI("Bar", wrapper.transform);
-            var rt = bar.GetComponent<RectTransform>();
-            if (widthFrac >= 1f) { rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one; }
-            else if (isP1)       { rt.anchorMin = new Vector2(0f, 0f);            rt.anchorMax = new Vector2(widthFrac, 1f); }
-            else                 { rt.anchorMin = new Vector2(1f - widthFrac, 0f); rt.anchorMax = new Vector2(1f, 1f); }
-            rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
             float slant = SkewFor(isP1);
-            Sharpen(UIKit.AddImage(bar, BarBack));
-            AddSkew(bar, slant);
+            // wrapper full-width (VLG expand) — dãy ô thật nằm bên trong 80%, dồn về phía người chơi.
+            var wrapper = UIKit.NewUI("SuperArt_Mana", parent);
+            UIKit.SetLayoutHeight(wrapper, 32f);
 
-            var fillGo = UIKit.NewUI("Fill", bar.transform);
-            UIKit.StretchFull(fillGo);
-            var fillImg = UIKit.AddImage(fillGo, color);
-            fillImg.type = Image.Type.Filled;          // Filled cần sprite → giữ UISprite (không Sharpen).
-            fillImg.fillMethod = Image.FillMethod.Horizontal;
-            fillImg.fillOrigin = (int)(isP1 ? Image.OriginHorizontal.Left : Image.OriginHorizontal.Right);
-            fillImg.fillAmount = 0f;
-            AddSkew(fillGo, slant);
+            var area = UIKit.NewUI("Cells", wrapper.transform);
+            var rt = area.GetComponent<RectTransform>();
+            if (isP1) { rt.anchorMin = Vector2.zero;             rt.anchorMax = new Vector2(0.80f, 1f); }
+            else      { rt.anchorMin = new Vector2(0.20f, 0f);   rt.anchorMax = Vector2.one; }
+            rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+            var hlg = area.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing = 6f; hlg.childControlWidth = true; hlg.childControlHeight = true;
+            hlg.childForceExpandWidth = true; hlg.childForceExpandHeight = true;
 
-            if (notchSegments > 1) AddNotches(bar, notchSegments, slant);
+            Color fillCol = isP1 ? ManaP1Col : ManaP2Col;
+            Color trackCol = isP1 ? ManaTrackP1 : ManaTrackP2;
 
-            // FX đầy thanh: nộ fill = 1 → vầng glow thở + fill sáng trắng theo nhịp.
-            var glowImg = MakeFullGlow(bar.transform, color, slant);
-            var glowFx = bar.AddComponent<BarFullGlowFX>();
+            int n = Mathf.Max(1, maxSegments);
+            var fills = new List<Image>(n);
+            for (int i = 0; i < n; i++)
+            {
+                var cell = UIKit.NewUI($"Cell_{i}", area.transform);
+                Sharpen(UIKit.AddImage(cell, trackCol));
+                AddSkew(cell, slant);
+                var fillGo = UIKit.NewUI("Fill", cell.transform);
+                UIKit.StretchFull(fillGo);
+                var fillImg = UIKit.AddImage(fillGo, fillCol);
+                Sharpen(fillImg);
+                AddSkew(fillGo, slant);
+                fills.Add(fillImg);
+            }
+
+            // FX đầy ô: đủ n ô mana → vầng glow màu phe thở sau cả dãy + các ô sáng trắng theo nhịp.
+            var glowImg = MakeFullGlow(area.transform, fillCol, slant);
+            var glowFx = area.AddComponent<BarFullGlowFX>();
             var soG = new SerializedObject(glowFx);
-            UIKit.SetObj(soG, "floatChannel", channel);
-            UIKit.SetFloat(soG, "floatFullAt", 1f);
+            UIKit.SetObj(soG, "intChannel", ch.ManaSeg(isP1));
+            UIKit.SetInt(soG, "intFullAt", n);
             UIKit.SetObj(soG, "glowImage", glowImg);
-            UIKit.SetObjArray(soG, "tintImages", new Object[] { fillImg });
+            UIKit.SetObjArray(soG, "tintImages", fills.ToArray());
             soG.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(glowFx);
 
-            var view = fillGo.AddComponent<ResourceBarView>();
+            // Mirror P2: ManaSegmentView đầy cells[0] trước — P2 phải đầy từ phía portrait (PHẢI) vào
+            // trong nên đảo thứ tự mảng (v10.4); thứ tự GameObject trên màn giữ nguyên.
+            if (!isP1) fills.Reverse();
+
+            var view = area.AddComponent<ManaSegmentView>();
             var so = new SerializedObject(view);
-            UIKit.SetObj(so, "channel", channel);
-            UIKit.SetObj(so, "fillImage", fillImg);
-            UIKit.SetBool(so, "normalizeRawValue", normalizeRaw);
-            UIKit.SetFloat(so, "maxRawValue", Mathf.Max(1f, maxRaw));
-            // Reset đầu trận: HUD bật lại là fill về 0 — không giữ giá trị trận trước / trạng thái build.
+            UIKit.SetObj(so, "segmentsChannel", ch.ManaSeg(isP1));
+            UIKit.SetObjArray(so, "cells", fills.ToArray());
+            // Reset đầu trận: 0 ô — không giữ trạng thái placeholder/trận trước (bài học "đầy giả").
             UIKit.SetBool(so, "resetOnEnable", true);
-            UIKit.SetFloat(so, "initialFill", 0f);
+            UIKit.SetInt(so, "initialSegments", 0);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(view);
-        }
-
-        /// <summary>
-        /// Vạch chia kiểu Drive Gauge SF6 — divider thẳng đứng, SHEAR cùng tỉ lệ <see cref="Skew"/> với thanh
-        /// (qua <see cref="UISkew"/>) → song song mép nghiêng, chia thanh thành các ô parallelogram. Không raycast.
-        /// </summary>
-        private static void AddNotches(GameObject holder, int segments, float slant)
-        {
-            for (int i = 1; i < segments; i++)
-            {
-                float f = (float)i / segments;
-                var n = UIKit.NewUI($"Notch_{i}", holder.transform);
-                var rt = n.GetComponent<RectTransform>();
-                rt.anchorMin = new Vector2(f, 0f); rt.anchorMax = new Vector2(f, 1f); rt.pivot = new Vector2(0.5f, 0.5f);
-                rt.anchoredPosition = Vector2.zero; rt.sizeDelta = new Vector2(4f, 0f);
-                var img = n.AddComponent<Image>(); img.color = Notch; img.raycastTarget = false;
-                AddSkew(n, slant); // nghiêng song song mép thanh.
-            }
         }
 
         // ───────────────────── Lives ─────────────────────
@@ -276,17 +275,17 @@ namespace FA.EditorTools
             UIKit.AddHorizontal(row, 6f, controlW: false, expandW: false,
                                 isP1 ? TextAnchor.MiddleLeft : TextAnchor.MiddleRight);
 
-            // Ô mạng = parallelogram NGHIÊNG cùng dáng các thanh trên (v9.7 — user muốn đồng bộ kiểu SF6),
-            // bar-dẹt 44×16 thay cho ô vuông 22×22.
+            // Ô mạng = TRÁI TIM (v10.0 — user đổi từ thanh nghiêng): sprite tim tự vẽ / art "HUD_Heart",
+            // tint vàng LifeCol, KHÔNG skew (tim nghiêng nhìn méo).
+            var heart = EnsureHeartSprite();
             var icons = new List<Image>(maxLives);
             for (int i = 0; i < maxLives; i++)
             {
                 var ico = UIKit.NewUI($"Life_{i}", row.transform);
                 var img = UIKit.AddImage(ico, LifeCol);
-                Sharpen(img);
-                AddSkew(ico, SkewFor(isP1));
+                if (heart != null) { img.sprite = heart; img.type = Image.Type.Simple; img.preserveAspect = true; }
                 var le = ico.AddComponent<LayoutElement>();
-                le.preferredWidth = 44f; le.preferredHeight = 16f; le.minWidth = 44f; le.minHeight = 16f;
+                le.preferredWidth = 26f; le.preferredHeight = 24f; le.minWidth = 26f; le.minHeight = 24f;
                 icons.Add(img);
             }
 
@@ -344,65 +343,124 @@ namespace FA.EditorTools
             EditorUtility.SetDirty(view);
         }
 
-        // ───────────────────── Super Art = Mana (MỎNG, dưới-góc) ─────────────────────
+        // ───────────────────── Nộ (dưới-góc — đổi chỗ với mana, v10.1) ─────────────────────
 
-        private static void BuildManaCluster(Transform parent, bool isP1, UIChannels.Bundle ch, int maxSegments)
+        /// <summary>
+        /// Thanh NỘ ở góc dưới (vị trí cũ của dãy mana) — DỰNG NHƯ Ô MANA (v10.3, user muốn "sáng kiểu
+        /// mana"): 2 Ô RỜI parallelogram sắc cạnh có khe hở, mỗi ô là 1 <see cref="ResourceBarView"/> nhận
+        /// KHOẢNG giá trị (ô đầu 0–0.5, ô sau 0.5–1 → đầy lần lượt từ phía người chơi) + glow mềm sau cả
+        /// dãy khi full. Trước đó là 1 bar liền → glow bọc quanh nhìn thành khối nhòe, không giống mana.
+        /// </summary>
+        private static void BuildBottomRage(Transform parent, bool isP1, UIChannels.Bundle ch)
         {
             string side = isP1 ? "P1" : "P2";
+            float slant = SkewFor(isP1);
             Vector2 anchor = new Vector2(isP1 ? 0f : 1f, 0f);
             Vector2 pos = new Vector2(isP1 ? 28f : -28f, 28f);
-
-            // Container = chính dãy ô (thanh mỏng 16px).
-            var root = Container($"SuperArt_Mana_{side}", parent, anchor, pos, new Vector2(340f, 16f));
+            var root = Container($"Drive_Rage_{side}", parent, anchor, pos, new Vector2(340f, 22f));
             var hlg = root.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 6f; hlg.childControlWidth = true; hlg.childControlHeight = true;
             hlg.childForceExpandWidth = true; hlg.childForceExpandHeight = true;
-            hlg.childAlignment = isP1 ? TextAnchor.MiddleLeft : TextAnchor.MiddleRight;
 
-            int n = Mathf.Max(1, maxSegments);
-            var fills = new List<Image>(n);
-            for (int i = 0; i < n; i++)
+            const int n = 2;
+            var fills = new Image[n];
+            for (int j = 0; j < n; j++) // j = thứ tự TRÁI→PHẢI trên màn (thứ tự con của HLG).
             {
-                var cell = UIKit.NewUI($"Cell_{i}", root.transform);
-                Sharpen(UIKit.AddImage(cell, SuperTrack));
-                AddSkew(cell, SkewFor(isP1));
+                var cell = UIKit.NewUI($"Cell_{j}", root.transform);
+                Sharpen(UIKit.AddImage(cell, DriveTrack));
+                AddSkew(cell, slant);
                 var fillGo = UIKit.NewUI("Fill", cell.transform);
                 UIKit.StretchFull(fillGo);
-                var fillImg = UIKit.AddImage(fillGo, SuperCol);
-                Sharpen(fillImg);
-                AddSkew(fillGo, SkewFor(isP1));
-                fills.Add(fillImg);
+                var fillImg = UIKit.AddImage(fillGo, DriveCol);
+                fillImg.type = Image.Type.Filled;
+                // Filled BẮT BUỘC có sprite — UISprite mặc định BO GÓC + viền mềm làm ô sáng thành "viên
+                // thuốc" nhòe (v10.4): thay bằng quad trắng sắc cạnh tự sinh → sáng kín khung như ô mana.
+                var solid = EnsureSolidSprite();
+                if (solid != null) fillImg.sprite = solid;
+                fillImg.fillMethod = Image.FillMethod.Horizontal;
+                fillImg.fillOrigin = (int)(isP1 ? Image.OriginHorizontal.Left : Image.OriginHorizontal.Right);
+                fillImg.fillAmount = 0f;
+                AddSkew(fillGo, slant);
+                fills[j] = fillImg;
+
+                // Ô nào đầy trước: P1 fill từ trái vào (ô trái = 0–0.5); P2 từ phải vào (ô phải = 0–0.5).
+                float lo = (isP1 ? j : n - 1 - j) * (1f / n);
+                var view = fillGo.AddComponent<ResourceBarView>();
+                var so = new SerializedObject(view);
+                UIKit.SetObj(so, "channel", ch.Rage(isP1));
+                UIKit.SetObj(so, "fillImage", fillImg);
+                UIKit.SetBool(so, "normalizeRawValue", false);
+                UIKit.SetFloat(so, "maxRawValue", 1f);
+                UIKit.SetFloat(so, "rangeStart", lo);
+                UIKit.SetFloat(so, "rangeEnd", lo + 1f / n);
+                // Reset đầu trận: HUD bật lại là fill về 0 — không giữ giá trị trận trước.
+                UIKit.SetBool(so, "resetOnEnable", true);
+                UIKit.SetFloat(so, "initialFill", 0f);
+                so.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(view);
             }
 
-            // FX đầy ô: đủ n ô mana → vầng glow hồng thở sau cả dãy + các ô sáng trắng theo nhịp.
-            var glowImg = MakeFullGlow(root.transform, SuperCol, SkewFor(isP1));
+            // FX đầy thanh: nộ = 1 → glow mềm cam thở sau CẢ DÃY + 2 ô sáng trắng theo nhịp (y hệt mana).
+            var glowImg = MakeFullGlow(root.transform, DriveCol, slant);
             var glowFx = root.AddComponent<BarFullGlowFX>();
             var soG = new SerializedObject(glowFx);
-            UIKit.SetObj(soG, "intChannel", ch.ManaSeg(isP1));
-            UIKit.SetInt(soG, "intFullAt", n);
+            UIKit.SetObj(soG, "floatChannel", ch.Rage(isP1));
+            UIKit.SetFloat(soG, "floatFullAt", 1f);
             UIKit.SetObj(soG, "glowImage", glowImg);
-            UIKit.SetObjArray(soG, "tintImages", fills.ToArray());
+            UIKit.SetObjArray(soG, "tintImages", fills);
             soG.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(glowFx);
-
-            var view = root.AddComponent<ManaSegmentView>();
-            var so = new SerializedObject(view);
-            UIKit.SetObj(so, "segmentsChannel", ch.ManaSeg(isP1));
-            UIKit.SetObjArray(so, "cells", fills.ToArray());
-            // Reset đầu trận: 0 ô — vụ "một bên đầy một bên không": ô hồng lúc build là placeholder,
-            // bên nào không có hệ mana raise sẽ đứng nguyên "đầy giả" vĩnh viễn.
-            UIKit.SetBool(so, "resetOnEnable", true);
-            UIKit.SetInt(so, "initialSegments", 0);
-            so.ApplyModifiedPropertiesWithoutUndo();
-            EditorUtility.SetDirty(view);
         }
 
         // ───────────────────── helpers ─────────────────────
 
         /// <summary>
-        /// Vầng glow "đầy thanh" cho <see cref="BarFullGlowFX"/>: Image cùng dáng nghiêng, TO hơn thanh
-        /// vài px, alpha 0 sẵn (FX tự thở khi đầy). SetAsFirstSibling → vẽ DƯỚI ô/fill; ignoreLayout →
-        /// HLG của dãy ô mana không cuốn nó vào flow (bài học viền Highlight card random).
+        /// Sprite TRÁI TIM cho ô mạng (v10.0): ưu tiên art slot "HUD_Heart" (thả PNG vào Art/UI là dùng
+        /// ảnh thật, không cần sửa code); chưa có → TỰ VẼ tim trắng 64×64 bằng đường cong ẩn
+        /// (x²+y²−1)³ − x²y³ ≤ 0, supersample 3×3 cho mép mượt, lưu PNG vào Art/UI rồi import như art
+        /// thường (chạy lại không vẽ lại — file đã tồn tại thì FindSprite trả ngay). Tim TRẮNG để tint
+        /// màu qua Image.color.
+        /// </summary>
+        private static Sprite EnsureHeartSprite()
+        {
+            var sp = UILobbyBuilder.FindSprite("HUD_Heart");
+            if (sp != null) return sp;
+
+            const int size = 64;
+            const int ss = 3; // supersample mỗi chiều.
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            for (int py = 0; py < size; py++)
+            for (int px = 0; px < size; px++)
+            {
+                float cover = 0f;
+                for (int sy = 0; sy < ss; sy++)
+                for (int sx = 0; sx < ss; sx++)
+                {
+                    // Map pixel → hệ tọa độ tim: x ∈ [−1.3, 1.3]; y lệch xuống (tâm 0.42) vì lobe
+                    // trên của tim cao ~1.3 còn mũi dưới chỉ −1.
+                    float x = ((px + (sx + 0.5f) / ss) / size - 0.5f) * 2.6f;
+                    float y = ((py + (sy + 0.5f) / ss) / size - 0.42f) * 2.6f;
+                    float a = x * x + y * y - 1f;
+                    if (a * a * a - x * x * y * y * y <= 0f) cover += 1f;
+                }
+                tex.SetPixel(px, py, new Color(1f, 1f, 1f, cover / (ss * ss)));
+            }
+            tex.Apply();
+            byte[] png = tex.EncodeToPNG();
+            Object.DestroyImmediate(tex);
+
+            System.IO.File.WriteAllBytes(
+                System.IO.Path.Combine(Application.dataPath, "_Project/Art/UI/HUD_Heart.png"), png);
+            AssetDatabase.ImportAsset("Assets/_Project/Art/UI/HUD_Heart.png");
+            return UILobbyBuilder.FindSprite("HUD_Heart"); // FindSprite ép import Single + alpha chuẩn.
+        }
+
+        /// <summary>
+        /// Vầng glow "đầy thanh" cho <see cref="BarFullGlowFX"/>: Image sprite GLOW MỀM (lõi đặc, tan dần
+        /// ra mép — <see cref="EnsureGlowSprite"/>) cùng dáng nghiêng, loe quanh thanh, alpha 0 sẵn (FX tự
+        /// thở khi đầy). v10.2: trước đây là quad ĐẶC → trên thanh nộ liền khối nhìn như "viên gạch 2 tông"
+        /// (dãy mana có khe hở ô nên che được khuyết điểm này). SetAsFirstSibling → vẽ DƯỚI ô/fill;
+        /// ignoreLayout → HLG của dãy ô mana không cuốn nó vào flow.
         /// </summary>
         private static Image MakeFullGlow(Transform parent, Color barColor, float slant)
         {
@@ -411,13 +469,70 @@ namespace FA.EditorTools
             go.AddComponent<LayoutElement>().ignoreLayout = true;
             UIKit.StretchFull(go);
             var rt = go.GetComponent<RectTransform>();
-            rt.offsetMin = new Vector2(-9f, -6f);
-            rt.offsetMax = new Vector2(9f, 6f);
+            rt.offsetMin = new Vector2(-16f, -12f); // loe rộng hơn quad đặc cũ (±9/±6) — mép đằng nào cũng tan.
+            rt.offsetMax = new Vector2(16f, 12f);
             Color glowCol = Color.Lerp(barColor, Color.white, 0.45f); // sáng hơn màu thanh — nhìn như phát quang.
             glowCol.a = 0f;
             var img = UIKit.AddImage(go, glowCol);
+            var soft = EnsureGlowSprite();
+            if (soft != null) { img.sprite = soft; img.type = Image.Type.Simple; }
             AddSkew(go, slant);
             return img;
+        }
+
+        /// <summary>
+        /// Sprite TRẮNG ĐẶC SẮC CẠNH 8×8 (v10.4) cho Image Type=Filled (Filled bắt buộc có sprite; UISprite
+        /// mặc định bo góc + viền mềm → ô sáng thành viên thuốc). Ưu tiên art slot "HUD_White" nếu có.
+        /// </summary>
+        private static Sprite EnsureSolidSprite()
+        {
+            var sp = UILobbyBuilder.FindSprite("HUD_White");
+            if (sp != null) return sp;
+
+            const int size = 8;
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            var px = new Color[size * size];
+            for (int i = 0; i < px.Length; i++) px[i] = Color.white;
+            tex.SetPixels(px);
+            tex.Apply();
+            byte[] png = tex.EncodeToPNG();
+            Object.DestroyImmediate(tex);
+
+            System.IO.File.WriteAllBytes(
+                System.IO.Path.Combine(Application.dataPath, "_Project/Art/UI/HUD_White.png"), png);
+            AssetDatabase.ImportAsset("Assets/_Project/Art/UI/HUD_White.png");
+            return UILobbyBuilder.FindSprite("HUD_White");
+        }
+
+        /// <summary>
+        /// Sprite GLOW MỀM dùng chung (v10.2): trắng 128×128, lõi đặc ~30% giữa rồi alpha tan dần ra mép
+        /// theo 2 trục (nhân falloff X × Y, mũ 1.6 cho đuôi mượt) — kéo giãn theo thanh vẫn ra vệt sáng.
+        /// Ưu tiên art slot "HUD_GlowSoft" nếu bạn thả ảnh riêng; tự vẽ 1 lần rồi tái dùng như HUD_Heart.
+        /// </summary>
+        private static Sprite EnsureGlowSprite()
+        {
+            var sp = UILobbyBuilder.FindSprite("HUD_GlowSoft");
+            if (sp != null) return sp;
+
+            const int size = 128;
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            for (int py = 0; py < size; py++)
+            for (int px = 0; px < size; px++)
+            {
+                float dx = Mathf.Abs(px / (size - 1f) - 0.5f) * 2f; // 0 tâm → 1 mép.
+                float dy = Mathf.Abs(py / (size - 1f) - 0.5f) * 2f;
+                float ax = Mathf.Clamp01((1f - dx) / 0.7f);         // 30% lõi đặc, 70% rìa tan.
+                float ay = Mathf.Clamp01((1f - dy) / 0.7f);
+                tex.SetPixel(px, py, new Color(1f, 1f, 1f, Mathf.Pow(ax * ay, 1.6f)));
+            }
+            tex.Apply();
+            byte[] png = tex.EncodeToPNG();
+            Object.DestroyImmediate(tex);
+
+            System.IO.File.WriteAllBytes(
+                System.IO.Path.Combine(Application.dataPath, "_Project/Art/UI/HUD_GlowSoft.png"), png);
+            AssetDatabase.ImportAsset("Assets/_Project/Art/UI/HUD_GlowSoft.png");
+            return UILobbyBuilder.FindSprite("HUD_GlowSoft"); // FindSprite ép import Single + alpha chuẩn.
         }
 
         private static GameObject Container(string name, Transform parent, Vector2 anchor, Vector2 pos, Vector2 size)
