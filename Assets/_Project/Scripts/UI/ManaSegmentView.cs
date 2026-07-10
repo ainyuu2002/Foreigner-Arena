@@ -29,8 +29,15 @@ namespace FA.UI
         [SerializeField] private Sprite fullSprite;
         [SerializeField] private Sprite emptySprite;
 
+        [Header("Reset khi bật (HUD bật mỗi đầu trận)")]
+        [Tooltip("TRUE → OnEnable áp initialSegments ngay. Không có thì HUD hiện TRẠNG THÁI BUILD/TRẬN TRƯỚC " +
+                 "(ô đầy giả) cho tới khi hệ mana raise lần đầu — nhân vật không có hệ mana sẽ 'đầy' vĩnh viễn.")]
+        [SerializeField] private bool resetOnEnable;
+        [SerializeField] private int initialSegments;
+
         private void OnEnable()
         {
+            if (resetOnEnable) OnSegmentsChanged(Mathf.Max(0, initialSegments));
             if (segmentsChannel != null) segmentsChannel.OnEventRaised += OnSegmentsChanged;
         }
 
