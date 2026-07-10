@@ -30,8 +30,17 @@ namespace FA.Combat
         [Tooltip("BoxCollider2D của hitbox (cùng object). Bỏ trống = lấy trên object này.")]
         [SerializeField] private BoxCollider2D box;
 
+        [Tooltip("(Tùy chọn) MoveData RIÊNG cho hitbox này — GHI ĐÈ move hiện hành (SetCurrentMove). Dùng " +
+                 "cho đòn NHIỀU HIT có hit kết tham số khác: hit giữa = Hitbox0 (move của đòn, carry nhẹ), " +
+                 "hit kết = Hitbox1 với override (ender văng theo %). Clip gọi HitboxOn(1) cho hit kết. " +
+                 "Để trống = dùng move hiện hành (hành vi cũ, mọi hitbox chung tham số).")]
+        [SerializeField] private MoveData moveOverride;
+
         // MoveData đòn hiện hành (HitboxController set) — nguồn tham số damage/knockback/hitstop.
         private MoveData _move;
+
+        // Move THỰC DÙNG khi va chạm: override (per-hitbox) thắng move hiện hành.
+        private MoveData ActiveMove => moveOverride != null ? moveOverride : _move;
 
         // (P10 ADD) Buff context của ATTACKER (Rage Mode) — null-safe ×1.0 nếu prefab không gắn. Resolve
         // LAZY ở hit-time từ attackerRoot (attacker có thể đổi qua SetAttacker P9 cho projectile). ADD nhỏ
@@ -74,12 +83,36 @@ namespace FA.Combat
         /// <summary>HitboxController bật/tắt collider theo HitboxOn/Off (Animation Event).</summary>
         public void SetEnabled(bool on) { if (box != null) box.enabled = on; }
 
-        /// <summary>HitboxController gọi mỗi HitboxOn → 1 active-window = 1 hit/victim (§3.6).</summary>
-        public void ResetIgnore() => _ignore.Clear();
+        // Debug multi-hit: log 1 lần/cửa sổ khi physics THẤY overlap (tách "event không bắn" khỏi
+        // "physics không thấy chồng nhau" khi chẩn đoán đòn nhiều hit).
+        private bool _dbgOverlapLogged;
 
-        private void OnTriggerEnter2D(Collider2D other)
+        /// <summary>HitboxController gọi mỗi HitboxOn → 1 active-window = 1 hit/victim (§3.6).</summary>
+        public void ResetIgnore()
         {
-            if (_move == null || hitChannel == null) return;
+            _ignore.Clear();
+            _dbgOverlapLogged = false;
+        }
+
+        private void OnTriggerEnter2D(Collider2D other) => HandleOverlap(other);
+
+        // (Fix multi-hit) Re-enable collider khi 2 bên VẪN đang chồng nhau không sinh Enter mới đáng tin
+        // → đòn nhiều hit với hitbox to (victim không thoát khỏi hộp giữa 2 cửa sổ) chỉ ăn hit đầu.
+        // Stay + ignore-set = polling chuẩn fighting game: mỗi HitboxOn ResetIgnore → Stay của physics
+        // step kế tiếp đăng ký hit mới; trong cùng cửa sổ ignore-set chặn double-hit như cũ.
+        private void OnTriggerStay2D(Collider2D other) => HandleOverlap(other);
+
+        private void HandleOverlap(Collider2D other)
+        {
+            if (!_dbgOverlapLogged)
+            {
+                _dbgOverlapLogged = true;
+                Debug.Log($"[HBX] {name}: overlap {other.transform.root.name} " +
+                          $"(move={( _move != null ? _move.moveId : "NULL")}, override={(moveOverride != null ? moveOverride.moveId : "-")})", this);
+            }
+
+            MoveData move = ActiveMove;
+            if (move == null || hitChannel == null) return;
 
             // 'other' luôn là Hurtbox (Matrix đã lọc). Tìm root người nhận.
             GameObject victimRoot = other.transform.root.gameObject;
@@ -103,19 +136,22 @@ namespace FA.Combat
             var hit = new HitData(
                 attacker: atkRoot,
                 victim: victimRoot,
-                damagePercent: _move.baseDamagePercent * dmgMult,
-                launchAngle: _move.launchAngle,
-                baseKnockback: _move.baseKnockback * kbMult,
-                knockbackGrowth: _move.knockbackGrowth * kbMult,
-                hitstopFrames: _move.hitstopFrames,
+                damagePercent: move.baseDamagePercent * dmgMult,
+                launchAngle: move.launchAngle,
+                baseKnockback: move.baseKnockback * kbMult,
+                knockbackGrowth: move.knockbackGrowth * kbMult,
+                hitstopFrames: move.hitstopFrames,
                 facingSign: facing,
-                isSpike: _move.isSpike,
-                causesLaunch: _move.causesLaunch,
-                hitsLow: _move.hitsLow,
-                hitsHigh: _move.hitsHigh,
-                hitstunFrames: _move.hitstunFrames,   // P6: hurtstun đòn này gây cho victim.
+                isSpike: move.isSpike,
+                causesLaunch: move.causesLaunch,
+                hitsLow: move.hitsLow,
+                hitsHigh: move.hitsHigh,
+                hitstunFrames: move.hitstunFrames,   // P6: hurtstun đòn này gây cho victim.
                 contactPoint: contact,
-                role: _move.role);                    // P10: BlockBreak (Ultimate) cho HitReactionController.
+                role: move.role,                     // P10: BlockBreak (Ultimate) cho HitReactionController.
+                hitEffect: move.hitEffect,           // VFX/SFX per-move (spark + hitsound riêng từng đòn).
+                blockEffect: move.blockEffect,
+                manaGainMult: move.manaGainMultiplier); // Balance: kinh tế mana per-move (ManaBar nhân).
 
             hitChannel.RaiseEvent(hit);
         }

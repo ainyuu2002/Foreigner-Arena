@@ -17,3 +17,19 @@ MonoBehaviour:
     button: 2
     move: {fileID: 11400000, guid: bec190144231ab442a9c20eaf00a655b, type: 2}
     charged: {fileID: 0}
+  - motion: 1
+    button: 3
+    move: {fileID: 11400000, guid: 3e68d406451eb974abc407331bfa6050, type: 2}
+    charged: {fileID: 0}
+  - motion: 1
+    button: 4
+    move: {fileID: 11400000, guid: 41d08b84f8327e2468bee8ca13048ba6, type: 2}
+    charged: {fileID: 0}
+  - motion: 0
+    button: 5
+    move: {fileID: 11400000, guid: 3b9a9badd58ab594cbe16dce0eca6e03, type: 2}
+    charged: {fileID: 0}
+  - motion: 0
+    button: 6
+    move: {fileID: 11400000, guid: 6bfe29c6e055ad3429fbdd5e16c51557, type: 2}
+    charged: {fileID: 0}

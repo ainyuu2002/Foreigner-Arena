@@ -106,6 +106,7 @@ namespace FA.Combat
         private void Update()
         {
             if (_ctx == null || _ctx.Parser == null) return;
+            if (CinematicGate.IsActive) return;   // đang chant/flash — không kích đòn giữa cinematic.
 
             // BLOCK reactive: KHÔNG vào block từ input ở đây (giữ lùi = đi lùi). HitReactionController
             // đẩy vào BlockState khi bị đòn trúng lúc đang giữ lùi (away). Frame này chỉ xét attack.

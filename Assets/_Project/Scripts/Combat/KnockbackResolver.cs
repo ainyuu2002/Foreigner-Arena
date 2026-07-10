@@ -60,6 +60,14 @@ namespace FA.Combat
         [Tooltip("Root để so 'mình có phải victim không'. Bỏ trống = transform.root.")]
         [SerializeField] private Transform root;
 
+        [Tooltip("(Fix kẹt-Hurt) Pending CHƯA lên lịch chỉ được chờ lệnh văng tối đa bấy nhiêu fixed-frame " +
+                 "kể từ hit gần nhất; quá hạn = combo coi như đứt (attacker chết/despawn/case lạ) → tự " +
+                 "CancelPending để HurtState về neutral thay vì kẹt Hurt vĩnh viễn. Phải LỚN hơn khoảng " +
+                 "hit-trúng-gần-nhất → KnockbackPoint XA NHẤT có thể: nối sang mắt kế mà hit mắt kế TRƯỢT " +
+                 "thì KP của mắt kế vẫn phải văng pending cũ (vd L2 hit1 t9 → nối L3 → KP t28 + hitstop " +
+                 "freeze ≈ 70-80f; 60 là quá ngắn — bug mất-knockback chuỗi L). CẦN TEST.")]
+        [Min(1)] [SerializeField] private int pendingGraceFrames = 100;
+
         private ICombatContext _ctx;
         private Rigidbody2D _body;
 
@@ -85,6 +93,10 @@ namespace FA.Combat
         // HitstopController KHÔNG zero mất cú launch (research §4 cạm bẫy 2). -1 = không có lịch.
         private int _applyDelay = -1;
         private Vector2 _applyVelocity;
+
+        // (Fix kẹt-Hurt) Tuổi của pending CHƯA lên lịch (fixed-frame từ hit gần nhất) — quá
+        // pendingGraceFrames thì tự hủy (xem FixedUpdate).
+        private int _pendingAge;
 
         private void Awake()
         {
@@ -115,6 +127,7 @@ namespace FA.Combat
             _hasPending = false;
             _applyDelay = -1;
             _pendingAttacker = null;
+            _pendingAge = 0;
         }
 
         /// <summary>(P16) Attacker raise tại Animation Event <c>KnockbackPoint</c> (frame hit cuối) khi
@@ -126,13 +139,32 @@ namespace FA.Combat
             if (!_hasPending) return;                                     // không có pending → bỏ qua.
             if (_applyDelay >= 0) return;                                 // đã lên lịch → idempotent, không chồng.
             if (!ReferenceEquals(attacker, _pendingAttacker)) return;     // không phải attacker của pending này.
-            ScheduleApply();
+            // KnockbackPoint nằm trên CLIP attacker — clip bị hitstop freeze CÙNG NHỊP victim, nên khi
+            // event này tới thì hitstop của hit cuối ĐÃ TRÔI XONG. Chờ thêm hitstop+1 nữa = văng trễ
+            // GẤP ĐÔI (game feel khựng — user bắt round 1 port L). Áp ngay fixed-step kế tiếp.
+            ScheduleApply(1);
         }
 
         private void OnHitConfirmed(HitData hit)
         {
             GameObject me = root != null ? root.gameObject : gameObject;
+
+            // (Fix kẹt-Hurt: TRADE/INTERRUPT) ATTACKER của pending hiện hành vừa TRÚNG đòn xác nhận →
+            // hắn vào Hurt, đòn đang ra bị ngắt, KnockbackPoint sẽ KHÔNG BAO GIỜ bắn → hủy pending để
+            // HurtState của mình không đợi vô hạn. (Trade 2 bên cùng trúng: mỗi bên hủy pending của
+            // nhau → cả hai về neutral khi hết hurtstun — trước đây deadlock cả hai kẹt Hurt.)
+            if (_hasPending && _applyDelay < 0 && _pendingAttacker != null
+                && ReferenceEquals(hit.Victim, _pendingAttacker))
+                CancelPending();
+
             if (!ReferenceEquals(hit.Victim, me)) return;
+
+            // (Fix kẹt-Hurt: PROJECTILE) Đạn/kiếm bay KHÔNG văng-theo-KnockbackPoint được — thời điểm
+            // trúng phụ thuộc quãng bay, tách khỏi clip attacker (clip có thể đã kết thúc trước khi đạn
+            // tới). Hit projectile không launch ngay (spike/causesLaunch) ⇒ KHÔNG lưu pending: chỉ tích
+            // %/hitstun (kênh khác lo), victim về neutral khi hết hurtstun. Muốn projectile văng → set
+            // causesLaunch=true trên MoveData (như kiếm ender Special 3).
+            if (hit.Role == MoveRole.Projectile && !hit.IsSpike && !hit.CausesLaunch) return;
 
             // Lưu pending từ hit MỚI NHẤT (override — đòn cuối quyết hướng/lực). Lưu attacker để so với
             // OnKnockbackLaunch (chỉ attacker này raise KnockbackPoint mới văng pending này).
@@ -143,25 +175,34 @@ namespace FA.Combat
             _pendingHitstop = Mathf.Max(0, hit.HitstopFrames);
             _pendingAttacker = hit.Attacker;
             _hasPending = true;  // có pending CHƯA lên lịch — chờ KnockbackPoint (đòn thường) raise launch.
+            _pendingAge = 0;     // hit mới = làm mới hạn chờ (grace).
 
             // (P16) MỘT animation có thể NHIỀU hit → KHÔNG văng ngay (hit đầu văng thì hit sau trượt).
             // Đòn THƯỜNG chờ Animation Event KnockbackPoint (frame hit cuối) → attacker raise
             // OnKnockbackLaunch (nếu KHÔNG nối) → mới ScheduleApply. NGOẠI LỆ: spike/launcher VĂNG NGAY
             // trên hit (mở juggle / đập xuống, không cần KnockbackPoint, không bao giờ hoãn).
             if (hit.IsSpike || hit.CausesLaunch)
-                ScheduleApply();
+                ScheduleApply(_pendingHitstop + 1);   // launch-ngay TRÊN hit → phải chờ qua hitstop.
         }
 
-        /// <summary>Tính knockback + lên lịch áp sau (hitstop+1) fixed-step để hitstop không nuốt cú văng.</summary>
-        private void ScheduleApply()
+        /// <summary>Tính knockback + lên lịch áp sau <paramref name="delay"/> fixed-step. Path launch-ngay
+        /// (spike/launcher, gọi TRONG hit) truyền hitstop+1 để HitstopController không nuốt cú văng;
+        /// path KnockbackPoint truyền 1 (hitstop đã trôi trong lúc clip attacker bị freeze).</summary>
+        private void ScheduleApply(int delay)
         {
             _applyVelocity = ComputeKnockback();
-            _applyDelay = _pendingHitstop + 1;   // chờ qua hết hitstop của hit cuối.
+            _applyDelay = Mathf.Max(1, delay);
             _hasPending = false;
         }
 
         private void FixedUpdate()
         {
+            // (Fix kẹt-Hurt: LƯỚI AN TOÀN) Pending chưa lên lịch quá hạn grace (attacker chết giữa combo,
+            // despawn, case không lường) → tự hủy. KHÔNG phải release-timer P7 quay lại: KHÔNG bao giờ
+            // TỰ VĂNG khi hết hạn — chỉ HỦY để victim thoát Hurt; văng vẫn chỉ do KnockbackPoint/launcher.
+            if (_hasPending && _applyDelay < 0 && ++_pendingAge > pendingGraceFrames)
+                CancelPending();
+
             // (P16) CHỈ còn 1 nhánh: lịch áp velocity → đếm ngược qua hết hitstop rồi set + vào tumble.
             // Đã bỏ nhánh đếm release-timer (P7) — văng tại KnockbackPoint (Animation Event) thay thế.
             if (_applyDelay < 0) return;

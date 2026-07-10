@@ -64,6 +64,12 @@ namespace FA.Core
         [Tooltip("Frame giữ để charge mạnh hơn (0 = không charge). KHUNG P9. CẦN TEST.")]
         [Min(0)] public int chargeFrames = 0;
 
+        [Tooltip("(Tùy chọn) Biến thể CHARGED của đòn NÀY khi còn GIỮ nút tại Animation Event " +
+                 "ChargeCheck trên clip (giữ ≥ chargeFrames — trần = kích thước InputBuffer ~10). " +
+                 "AttackState BeginMove(chargedVariant) → swap clip giữa chừng (như nối đòn P15). " +
+                 "Trống = đòn không có charge (mặc định — no-regression).")]
+        public MoveData chargedVariant;
+
         [Header("Cost")]
         [Tooltip("Số Ô mana tiêu thụ (P8/P9). 0 cho normal.")]
         [Min(0)] public int manaCostUnits = 0;
@@ -73,6 +79,11 @@ namespace FA.Core
 
         [Tooltip("Yêu cầu đang trong Rage Mode mới ra được (Ultimate P10).")]
         public bool requiresRageMode = false;
+
+        [Tooltip("HỆ SỐ hồi mana khi đòn NÀY trúng/bị đỡ (kinh tế mana per-move, kiểu SF/GG: đòn tiêu " +
+                 "meter không build meter). 1 = hồi đầy đủ (normal L/M); <1 giảm (nH 0.7, special 0.5); " +
+                 "0 = KHÔNG hồi (super/ultimate). CHỈ ảnh hưởng mana — dmg/knockback/nộ giữ nguyên. CẦN TEST.")]
+        [Range(0f, 1f)] public float manaGainMultiplier = 1f;
 
         [Header("Damage / Knockback (Smash %-model + SF base)")]
         [Tooltip("Phần trăm cộng vào thanh % mỗi hit (+5% base GDD). P7 dùng. CẦN TEST.")]
@@ -154,5 +165,13 @@ namespace FA.Core
                  "§1.1). Vd JJJ: nL1.followUps=[{L,None,Always,nL2}], nL2.followUps=[{L,None,OnHit,nL3}]. " +
                  "Áp cho MỌI move (normal/special/super).")]
         public List<FollowUp> followUps = new List<FollowUp>();
+
+        [Header("VFX/SFX khi trúng (per-move như MUGEN — mỗi HitDef 1 hitsound + spark riêng)")]
+        [Tooltip("Hiệu ứng khi đòn NÀY trúng thật (spark + tiếng hit tại điểm chạm). TRỐNG = dùng " +
+                 "hiệu ứng mặc định của nhân vật (HitEffectPlayer). HitData mang theo qua kênh.")]
+        public EffectData hitEffect;
+
+        [Tooltip("Hiệu ứng khi đòn NÀY bị đỡ. TRỐNG = mặc định của nhân vật.")]
+        public EffectData blockEffect;
     }
 }

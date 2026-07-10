@@ -22,7 +22,8 @@ MonoBehaviour:
   manaCostUnits: 0
   rageCost: 0
   requiresRageMode: 0
-  baseDamagePercent: 0.5
+  manaGainMultiplier: 1
+  baseDamagePercent: 0.4
   launchAngle: 20
   baseKnockback: 3
   knockbackGrowth: 0.1
@@ -31,16 +32,16 @@ MonoBehaviour:
   role: 0
   onBlockAdvantage: 0
   onHitAdvantage: 0
-  hitsLow: 0
+  hitsLow: 1
   hitsHigh: 1
-  hitstunFrames: 16
-  hitstopFrames: 8
-  motionImpulses:
-  - {x: 2, y: 0}
-  - {x: 2, y: 0}
-  driftSpeed: 0
+  hitstunFrames: 35
+  hitstopFrames: 6
+  motionImpulses: []
+  driftSpeed: 1.8
   followUps:
   - button: 2
     motion: 0
     condition: 1
     nextMove: {fileID: 11400000, guid: 44763366885cd894f94f6e9bffc7a40b, type: 2}
+  hitEffect: {fileID: 11400000, guid: 612c1b3b55fd287448d91b12ce872b46, type: 2}
+  blockEffect: {fileID: 11400000, guid: 5073379ff77a504429562e26d8e7be78, type: 2}

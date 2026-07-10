@@ -19,7 +19,13 @@ namespace FA.Core
     /// CancelWindowClose, Footstep, SpawnProjectile, HurtboxOff, HurtboxOn,
     /// MoveImpulse, MoveDriftOn, MoveDriftOff (P14 — di chuyển trong đòn),
     /// KnockbackPoint (P16 — frame hit-văng của đòn; chỉ frame có event này mới văng knockback),
-    /// PassThroughOn, PassThroughOff (cửa sổ đòn XUYÊN THÂN đối thủ — tắt pushbox P1↔P2). Thêm tên
+    /// ChargeCheck (đòn giữ-để-charge: đặt tại frame "ngắm" — còn giữ nút thì AttackState swap sang
+    /// MoveData.chargedVariant),
+    /// PassThroughOn, PassThroughOff (cửa sổ đòn XUYÊN THÂN đối thủ — tắt pushbox P1↔P2),
+    /// PlayVfx, PlaySfx (VFX/SFX — int = chỉ số slot EffectData trên CharacterEffectPlayer),
+    /// SuperFlashStart, SuperFlashEnd (cinematic super: freeze + zoom + tối màn + cut-in),
+    /// ChantStart, ChantLine, ChantEnd (cinematic niệm chú ultimate: freeze + tối nhẹ + zoom 1/2 +
+    /// dòng chữ theo int), UltimateInstall (kích install-mode ultimate — UBW đổi bg/buff). Thêm tên
     /// mới = thêm 1 method ở đây + (tùy) 1 kênh. Animation Event gọi tên KHÔNG có ở đây → Unity log
     /// warning → giữ danh sách này là duy nhất.
     /// </summary>
@@ -68,29 +74,54 @@ namespace FA.Core
         /// văng knockback: attacker nghe → nếu KHÔNG đang nối thì raise OnKnockbackLaunch cho victim áp
         /// pending. Hit thường (không có event) chỉ tích %/hitstun. KHÔNG đếm/đoán "hit cuối" trong code.</summary>
         public event Action KnockbackPointEvent;
+        /// <summary>Frame QUYẾT CHARGE của đòn giữ-để-charge (đặt tại frame "ngắm" trước khi bắn/vung).
+        /// AttackState nghe → còn GIỮ nút đủ lâu thì BeginMove(MoveData.chargedVariant) (swap sang clip
+        /// charged). Đòn không có chargedVariant → event vô hại (không ai xử lý).</summary>
+        public event Action ChargeCheckEvent;
         /// <summary>MỞ cửa sổ XUYÊN THÂN đối thủ (đòn lướt xuyên người): KnockbackController tắt pushbox
         /// P1↔P2 (IgnoreCollision) tới khi PassThroughOff. Chỉ tắt va chạm THÂN — Hitbox/Hurtbox không đổi.</summary>
         public event Action PassThroughOnEvent;
         /// <summary>ĐÓNG cửa sổ xuyên thân — trả lại pushbox (trừ khi đang tumble, P7 vẫn giữ tắt).</summary>
         public event Action PassThroughOffEvent;
+        /// <summary>(VFX) Spawn hiệu ứng HÌNH theo chỉ số slot EffectData (CharacterEffectPlayer subscribe).
+        /// Đặt trên clip tại frame muốn hiệu ứng xuất hiện (aura, flash, glow...).</summary>
+        public event Action<int> PlayVfxEvent;
+        /// <summary>(SFX) Phát ÂM THANH theo chỉ số slot EffectData (CharacterEffectPlayer subscribe).
+        /// Đặt trên clip tại frame muốn nghe (vung đòn, hét, kích chiêu...).</summary>
+        public event Action<int> PlaySfxEvent;
+        /// <summary>(Cinematic) MỞ super flash: freeze toàn cục + zoom caster + tối màn + cut-in
+        /// (SuperFlashController subscribe). Đặt ở frame đầu clip super; caster chạy tiếp bằng
+        /// unscaled time nên các event sau vẫn bắn. int = chỉ số portrait trên SuperFlashController
+        /// (mỗi super 1 ảnh cut-in riêng; không điền Int → 0 = portrait mặc định).</summary>
+        public event Action<int> SuperFlashStartEvent;
+        /// <summary>(Cinematic) ĐÓNG super flash — trả timeScale/camera/overlay về như cũ. Đặt tại
+        /// frame kết thúc đoạn trình diễn (trước phần đòn thật).</summary>
+        public event Action SuperFlashEndEvent;
+        /// <summary>(Ultimate) MỞ đoạn NIỆM CHÚ: freeze + tối NHẸ màn + zoom 1/2 (ChantController).</summary>
+        public event Action ChantStartEvent;
+        /// <summary>(Ultimate) Hiện DÒNG CHỮ niệm chú thứ int (ChantTextOverlay — lines khai trên component).</summary>
+        public event Action<int> ChantLineEvent;
+        /// <summary>(Ultimate) ĐÓNG đoạn niệm chú — trả freeze/dim/zoom về như cũ.</summary>
+        public event Action ChantEndEvent;
+        /// <summary>(Ultimate) KÍCH install-mode (UBW: đổi background + buff + drain nộ — UBWInstallController).</summary>
+        public event Action UltimateInstallEvent;
 
         // ===================== Method được Animation Event gọi =====================
         // Mỗi method CHỈ raise (decoupling §3.3). KHÔNG đếm frame, KHÔNG logic gameplay.
 
-        /// <summary>Animation Event: bật hitbox (overload không tham số → index 0).</summary>
-        public void HitboxOn() => HitboxOn(0);
+        // ⚠️ KHÔNG ĐƯỢC OVERLOAD tên method Animation Event: Unity dispatch theo TÊN, gặp 2 overload thì
+        // chọn KHÔNG XÁC ĐỊNH (có thể đổi giữa các lần compile) → từng gọi nhầm bản () làm HitboxOn(2)
+        // trên clip bị nhận thành index 0. MỖI TÊN = MỘT method duy nhất nhận int; event không điền Int
+        // vẫn chạy đúng (Unity truyền intParameter mặc định 0).
 
-        /// <summary>Animation Event: bật hitbox theo chỉ số (clip truyền Int).</summary>
+        /// <summary>Animation Event: bật hitbox theo chỉ số (clip không điền Int → Unity truyền 0).</summary>
         public void HitboxOn(int index)
         {
             HitboxOnEvent?.Invoke(index);
             if (hitboxOnChannel != null) hitboxOnChannel.RaiseEvent();
         }
 
-        /// <summary>Animation Event: tắt hitbox (overload không tham số → index 0).</summary>
-        public void HitboxOff() => HitboxOff(0);
-
-        /// <summary>Animation Event: tắt hitbox theo chỉ số.</summary>
+        /// <summary>Animation Event: tắt hitbox theo chỉ số (clip không điền Int → Unity truyền 0).</summary>
         public void HitboxOff(int index)
         {
             HitboxOffEvent?.Invoke(index);
@@ -125,10 +156,7 @@ namespace FA.Core
             if (footstepChannel != null) footstepChannel.RaiseEvent();
         }
 
-        /// <summary>Animation Event: spawn projectile (overload không tham số → id 0).</summary>
-        public void SpawnProjectile() => SpawnProjectile(0);
-
-        /// <summary>Animation Event: spawn projectile theo id biến thể.</summary>
+        /// <summary>Animation Event: spawn projectile theo id biến thể (không điền Int → 0). KHÔNG overload.</summary>
         public void SpawnProjectile(int variantId)
         {
             SpawnProjectileEvent?.Invoke(variantId);
@@ -149,10 +177,7 @@ namespace FA.Core
             if (hurtboxOnChannel != null) hurtboxOnChannel.RaiseEvent();
         }
 
-        /// <summary>(P14) Animation Event: cú đẩy tức thời (overload không tham số → index 0).</summary>
-        public void MoveImpulse() => MoveImpulse(0);
-
-        /// <summary>(P14) Animation Event: cú đẩy tức thời theo chỉ số (clip truyền Int).</summary>
+        /// <summary>(P14) Animation Event: cú đẩy tức thời theo chỉ số (không điền Int → 0). KHÔNG overload.</summary>
         public void MoveImpulse(int index) => MoveImpulseEvent?.Invoke(index);
 
         /// <summary>(P14) Animation Event: mở cửa sổ drift.</summary>
@@ -165,10 +190,38 @@ namespace FA.Core
         /// nghe → xét nối; không nối thì raise OnKnockbackLaunch để victim văng pending.</summary>
         public void KnockbackPoint() => KnockbackPointEvent?.Invoke();
 
+        /// <summary>Animation Event: frame quyết charge (đòn giữ-để-charge — còn giữ nút → biến thể mạnh).</summary>
+        public void ChargeCheck() => ChargeCheckEvent?.Invoke();
+
         /// <summary>Animation Event: MỞ cửa sổ xuyên thân đối thủ (đặt bao khoảng lướt của đòn).</summary>
         public void PassThroughOn() => PassThroughOnEvent?.Invoke();
 
         /// <summary>Animation Event: ĐÓNG cửa sổ xuyên thân (trả pushbox).</summary>
         public void PassThroughOff() => PassThroughOffEvent?.Invoke();
+
+        /// <summary>Animation Event: spawn VFX theo slot (không điền Int → 0). KHÔNG overload.</summary>
+        public void PlayVfx(int index) => PlayVfxEvent?.Invoke(index);
+
+        /// <summary>Animation Event: phát SFX theo slot (không điền Int → 0). KHÔNG overload.</summary>
+        public void PlaySfx(int index) => PlaySfxEvent?.Invoke(index);
+
+        /// <summary>Animation Event: MỞ super flash cinematic (frame đầu clip super). Int = chỉ số
+        /// portrait cut-in trên SuperFlashController (không điền → 0). KHÔNG overload.</summary>
+        public void SuperFlashStart(int portraitIndex) => SuperFlashStartEvent?.Invoke(portraitIndex);
+
+        /// <summary>Animation Event: ĐÓNG super flash cinematic (hết đoạn trình diễn).</summary>
+        public void SuperFlashEnd() => SuperFlashEndEvent?.Invoke();
+
+        /// <summary>Animation Event: MỞ đoạn niệm chú ultimate (frame đầu clip chant).</summary>
+        public void ChantStart() => ChantStartEvent?.Invoke();
+
+        /// <summary>Animation Event: hiện dòng chữ niệm chú theo Int (0-based). KHÔNG overload.</summary>
+        public void ChantLine(int index) => ChantLineEvent?.Invoke(index);
+
+        /// <summary>Animation Event: ĐÓNG đoạn niệm chú (trả freeze/dim/zoom).</summary>
+        public void ChantEnd() => ChantEndEvent?.Invoke();
+
+        /// <summary>Animation Event: KÍCH install-mode ultimate (sau flash — đổi bg/buff/drain nộ).</summary>
+        public void UltimateInstall() => UltimateInstallEvent?.Invoke();
     }
 }

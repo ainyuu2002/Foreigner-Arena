@@ -122,7 +122,8 @@ namespace FA.Combat
             _ctx.Machine.ChangeState(combat.HurtState);
             SnapAnimatorNow(); // hiện pose Hurt_k NGAY frame trúng — cả re-hit đổi variant giữa hitstop.
 
-            Debug.Log($"[HIT] {hit.Attacker.name} → {me.name}  +{hit.DamagePercent:0.#}%  " +
+            Debug.Log($"[HIT] {hit.Attacker.name}(y={hit.Attacker.transform.position.y:0.00}) → " +
+                      $"{me.name}(y={me.transform.position.y:0.00})  +{hit.DamagePercent:0.#}%  " +
                       $"hitstun={hit.HitstunFrames}f  hitstop={hit.HitstopFrames}f  facing={hit.FacingSign}", me);
 
             // "Trúng thật không-block" → ComboCounter/Knockback(P7)/Mana(P8) nghe (tách khỏi OnHitLanded).
@@ -157,7 +158,8 @@ namespace FA.Combat
             return new HitData(
                 hit.Attacker, hit.Victim, hit.DamagePercent, hit.LaunchAngle, hit.BaseKnockback,
                 hit.KnockbackGrowth, hit.HitstopFrames, hit.FacingSign, hit.IsSpike, hit.CausesLaunch,
-                hit.HitsLow, hit.HitsHigh, scaled, hit.ContactPoint, hit.Role);
+                hit.HitsLow, hit.HitsHigh, scaled, hit.ContactPoint, hit.Role,
+                hit.HitEffect, hit.BlockEffect, hit.ManaGainMult); // forward per-move (VFX/SFX + mana).
         }
 
         /// <summary>Chỉ thủ được khi đứng đất + đang Idle/Walk hoặc đang Block (đỡ tiếp). KHÔNG thủ được

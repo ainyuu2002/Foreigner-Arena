@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0bba85baf891744b9c643cea0fe210e, type: 3}
+  m_Name: DefenseConfig
+  m_EditorClassIdentifier: FA.Specials::FA.Specials.DefenseConfigSO
+  groundDodgeManaCost: 1
+  airDodgeManaCost: 1
+  rcDashManaCost: 2
+  burstRageCost: 0.5
+  rageModeRageCost: 1
+  rageModeRefundFraction: 0.22
+  rcDashSpeed: 14
+  groundDodgeBackSpeed: 0
+  burstPushbackForce: 16
+  burstPushbackUp: 6
+  rageModeDuration: 12
+  rageDamageMult: 1.2
+  rageKnockbackMult: 1.2
+  rageSpeedMult: 1.15
+  rageHitstunTakenMult: 0.8

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5620cd6879778c7479bf0f299edbc953, type: 3}
+  m_Name: Ulti2_SwordGlow
+  m_EditorClassIdentifier: FA.Core::FA.Core.EffectData
+  vfxPrefab: {fileID: 5049045951176959441, guid: b16cf1455caa70d4d86183dea8831054, type: 3}
+  offset: {x: 0, y: 0}
+  attachToOwner: 1
+  sfxClips:
+  - {fileID: 8300000, guid: 79c2acf6733deaf4f931bc0afdb0633f, type: 3}
+  volume: 0.85
+  scale: 1

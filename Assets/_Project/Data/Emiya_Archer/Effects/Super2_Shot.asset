@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5620cd6879778c7479bf0f299edbc953, type: 3}
+  m_Name: Super2_Shot
+  m_EditorClassIdentifier: FA.Core::FA.Core.EffectData
+  vfxPrefab: {fileID: 5187513706180844922, guid: 06a5ae4ed56c0ab42b0ce1ee8d99974e, type: 3}
+  offset: {x: 0.35, y: 0.38}
+  attachToOwner: 0
+  sfxClips:
+  - {fileID: 8300000, guid: 19d9bb5ef3502b04cbe79cb3ecd0f6ce, type: 3}
+  volume: 1
+  scale: 1

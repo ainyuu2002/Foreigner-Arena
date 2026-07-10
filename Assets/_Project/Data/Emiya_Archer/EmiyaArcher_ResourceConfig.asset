@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: EmiyaArcher_ResourceConfig
   m_EditorClassIdentifier: FA.Resources::FA.Resources.ResourceConfigSO
   manaPerSegment: 25
-  maxSegments: 7
+  maxSegments: 4
   startSegments: 1
   manaGainPerDamage: 2
   blockMultiplier: 0.3

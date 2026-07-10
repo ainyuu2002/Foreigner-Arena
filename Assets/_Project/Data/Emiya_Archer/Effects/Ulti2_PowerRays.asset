@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5620cd6879778c7479bf0f299edbc953, type: 3}
+  m_Name: Ulti2_PowerRays
+  m_EditorClassIdentifier: FA.Core::FA.Core.EffectData
+  vfxPrefab: {fileID: 2566740812746719628, guid: 5d2fbb6064b184845aff3af24776c092, type: 3}
+  offset: {x: -0.4, y: 0.48}
+  attachToOwner: 1
+  sfxClips:
+  - {fileID: 8300000, guid: 3cb0ca037546c2d4f932ff622be037e0, type: 3}
+  volume: 0.95
+  scale: 0.25
