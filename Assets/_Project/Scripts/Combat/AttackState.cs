@@ -84,6 +84,7 @@ namespace FA.Combat
                 _relay.CancelWindowOpenEvent += OnCancelOpen;
                 _relay.CancelWindowCloseEvent += OnCancelClose;
                 _relay.KnockbackPointEvent += OnKnockbackPoint;
+                _relay.ChargeCheckEvent += OnChargeCheck;
             }
             BeginMove(_pendingMove);
         }
@@ -100,7 +101,24 @@ namespace FA.Combat
             _latchedButton = null;   // (P15 latch) mắt mới bắt đầu sạch — không bleed intent mắt trước.
 
             if (_move != null)
-                _ctx.Animator.SetInteger(CoreAnimatorParams.StateId, _move.animatorStateId);
+            {
+                Animator anim = _ctx.Animator;
+                // FIX kẹt spam-cùng-đòn (bắt qua test H): đòn kế TRÙNG clip Animator đang giữ — vd ấn H
+                // ngay frame đòn H trước vừa về Idle: StateId đi 10→0→10 trong CÙNG frame nên Animator
+                // (evaluate cuối frame) không thấy giá trị đổi, transition Any State lại tắt
+                // canTransitionToSelf → clip KHÔNG restart, đứng im frame cuối → RecoveryEnd không bao
+                // giờ bắn → kẹt AttackState. Phát hiện bằng "clip hiện hành == clip đòn mới" → ép Play
+                // lại state đó từ 0 (restart clip, Animation Event bắn lại từ đầu).
+                bool restart = false;
+                if (_move.clip != null)
+                {
+                    var cur = anim.GetCurrentAnimatorClipInfo(0);
+                    restart = cur.Length > 0 && ReferenceEquals(cur[0].clip, _move.clip);
+                }
+                anim.SetInteger(CoreAnimatorParams.StateId, _move.animatorStateId);
+                if (restart)
+                    anim.Play(anim.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, 0f);
+            }
 
             if (_hitbox != null) _hitbox.SetCurrentMove(_move);
             if (_motion != null) _motion.SetMove(_move);
@@ -161,6 +179,7 @@ namespace FA.Combat
                 _relay.CancelWindowOpenEvent -= OnCancelOpen;
                 _relay.CancelWindowCloseEvent -= OnCancelClose;
                 _relay.KnockbackPointEvent -= OnKnockbackPoint;
+                _relay.ChargeCheckEvent -= OnChargeCheck;
             }
         }
 
@@ -192,9 +211,29 @@ namespace FA.Combat
             return next != null;
         }
 
+        /// <summary>Animation Event ChargeCheck (frame "ngắm" của đòn giữ-để-charge): còn GIỮ nút kích đòn
+        /// đủ ≥ chargeFrames → swap sang biến thể charged (BeginMove — cùng cơ chế nối P15, KHÔNG
+        /// ChangeState). Đòn không khai chargedVariant → bỏ qua (no-regression). Timing nằm TRÊN CLIP
+        /// (§1.1); trần đo giữ = kích thước InputBuffer (~10f) nên chargeFrames nên ≤ 8.</summary>
+        private void OnChargeCheck()
+        {
+            if (_move == null || _move.chargedVariant == null || _ctx.Parser == null) return;
+            if (_ctx.Parser.HeldFrames(_move.button) >= Mathf.Max(1, _move.chargeFrames))
+                BeginMove(_move.chargedVariant);
+        }
+
         // ===== Animation Event callbacks (per-instance relay) =====
         private void OnRecoveryEnd() => _recoveryDone = true;
         private void OnCancelOpen() => _canCancel = true;
-        private void OnCancelClose() => _canCancel = false;
+
+        /// <summary>Đóng cửa sổ nối + LATCH RỚT (spec P15: "quá window không nối thì latch rớt — ấn lại =
+        /// đòn 1 từ neutral"). Bắt buộc khi KnockbackPoint đặt SAU CancelWindowClose (fix vùng-chết nối
+        /// đòn): không xả latch thì cú ấn quá-muộn làm IsChaining()=true tại KnockbackPoint → vừa KHÔNG
+        /// nối (window đóng) vừa KHÔNG văng (KP bị nuốt) = mất knockback.</summary>
+        private void OnCancelClose()
+        {
+            _canCancel = false;
+            _latchedButton = null;
+        }
     }
 }

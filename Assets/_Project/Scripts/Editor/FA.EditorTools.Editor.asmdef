@@ -4,6 +4,8 @@
     "references": [
         "FA.Core",
         "FA.Combat",
+        "FA.Specials",
+        "FA.Effects",
         "FA.Resources",
         "FA.UI",
         "FA.GameFlow",

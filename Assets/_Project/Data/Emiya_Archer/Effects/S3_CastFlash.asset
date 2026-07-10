@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5620cd6879778c7479bf0f299edbc953, type: 3}
+  m_Name: S3_CastFlash
+  m_EditorClassIdentifier: FA.Effects::FA.Effects.EffectData
+  vfxPrefab: {fileID: 7282121864765567893, guid: 25ae64e97873f8b4598e8e931f31fe43, type: 3}
+  offset: {x: 0, y: 0.3}
+  attachToOwner: 0
+  sfxClips:
+  - {fileID: 8300000, guid: c0744aaa68bacd24ab5d00431123f695, type: 3}
+  volume: 1
+  scale: 1

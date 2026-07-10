@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb87c24a6d54abc49b065f621d775942, type: 3}
   m_Name: EmiyaArcher_ResourceConfig
   m_EditorClassIdentifier: FA.Resources::FA.Resources.ResourceConfigSO
-  manaPerSegment: 50
+  manaPerSegment: 25
   maxSegments: 4
-  startSegments: 0
-  manaGainPerDamage: 0.8
+  startSegments: 1
+  manaGainPerDamage: 2
   blockMultiplier: 0.3
   rageMax: 100
   rageGainDealt: 1

@@ -257,27 +257,45 @@ namespace FA.Movement
             _controls ??= new FA_Controls();
             ApplyInputScheme();
             _controls.Enable();
+            // Hot-plug: cắm/rút thiết bị giữa chừng → re-pair (P2 chết input khi rút pad, sống lại khi cắm).
+            InputSystem.onDeviceChange += OnDeviceChange;
+        }
+
+        private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+        {
+            switch (change)
+            {
+                case InputDeviceChange.Added:
+                case InputDeviceChange.Removed:
+                case InputDeviceChange.Reconnected:
+                case InputDeviceChange.Disconnected:
+                    ApplyInputScheme();
+                    break;
+            }
         }
 
         /// <summary>
         /// Pairing thiết bị (local 2-player): giới hạn wrapper này chỉ đọc 1 control scheme + 1 thiết bị.
         /// bindingMask lọc binding theo group ("Keyboard"/"Gamepad"); devices lọc thiết bị vật lý. Đặt
         /// P1=Keyboard, P2=Gamepad → 2 Motor không đè input. AnyDevice = bỏ lọc (1 người, nghe tất cả).
+        /// THIẾU thiết bị của scheme → wrapper bị KHÓA (devices rỗng, không nghe gì) — quyết định người
+        /// dùng: chỉ có keyboard thì P2 (Gamepad) ĐỨNG YÊN, KHÔNG fallback nghe mọi thiết bị (2 motor
+        /// cùng ăn keyboard). Hot-plug lo bởi OnDeviceChange → re-apply.
         /// </summary>
         private void ApplyInputScheme()
         {
             switch (inputScheme)
             {
                 case InputScheme.Keyboard:
-                    if (Keyboard.current == null) { WarnNoDevice("Keyboard"); return; }
                     _controls.bindingMask = InputBinding.MaskByGroup("Keyboard");
+                    if (Keyboard.current == null) { LockNoDevice("Keyboard"); return; }
                     _controls.devices = new InputDevice[] { Keyboard.current };
                     break;
 
                 case InputScheme.Gamepad:
-                    var pads = Gamepad.all;
-                    if (pads.Count <= gamepadIndex) { WarnNoDevice($"Gamepad[{gamepadIndex}]"); return; }
                     _controls.bindingMask = InputBinding.MaskByGroup("Gamepad");
+                    var pads = Gamepad.all;
+                    if (pads.Count <= gamepadIndex) { LockNoDevice($"Gamepad[{gamepadIndex}]"); return; }
                     _controls.devices = new InputDevice[] { pads[gamepadIndex] };
                     break;
 
@@ -288,12 +306,18 @@ namespace FA.Movement
             }
         }
 
-        private void WarnNoDevice(string which) =>
+        /// <summary>Thiếu thiết bị của scheme → KHÓA wrapper (mảng devices RỖNG = không nghe thiết bị nào).
+        /// Nhân vật đứng yên tới khi thiết bị được cắm (OnDeviceChange tự re-apply).</summary>
+        private void LockNoDevice(string which)
+        {
+            _controls.devices = new InputDevice[0];
             Debug.LogWarning($"[CharacterMotor] inputScheme={inputScheme} nhưng không tìm thấy {which}. " +
-                             "Wrapper sẽ nghe mọi thiết bị (fallback) — cắm thiết bị rồi bật lại object.", this);
+                             "Nhân vật KHÔNG nhận input tới khi cắm thiết bị (tự nhận khi cắm).", this);
+        }
 
         private void OnDisable()
         {
+            InputSystem.onDeviceChange -= OnDeviceChange;
             _controls?.Disable();
         }
 
