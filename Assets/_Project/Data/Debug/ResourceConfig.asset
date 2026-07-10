@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: ResourceConfig
   m_EditorClassIdentifier: FA.Resources::FA.Resources.ResourceConfigSO
   manaPerSegment: 100
-  maxSegments: 3
-  startSegments: 1
+  maxSegments: 4
+  startSegments: 0
   manaGainPerDamage: 0.8
   blockMultiplier: 0.3
   rageMax: 100

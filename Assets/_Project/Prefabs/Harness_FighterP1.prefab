@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8364922129431121209, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
+      propertyPath: onPercentChanged
+      value:
+      objectReference: {fileID: 11400000, guid: 6fd86b55db69eee408d18c35162fa785, type: 2}
     - target: {fileID: 584454292511064029, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
       propertyPath: m_Name
       value: Harness_FighterP1
