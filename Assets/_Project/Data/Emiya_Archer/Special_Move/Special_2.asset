@@ -38,7 +38,7 @@ MonoBehaviour:
   hitstunFrames: 0
   hitstopFrames: 0
   motionImpulses:
-  - {x: 1.2, y: 6}
+  - {x: 1.2, y: 7}
   driftSpeed: 2.5
   followUps: []
   hitEffect: {fileID: 11400000, guid: 612c1b3b55fd287448d91b12ce872b46, type: 2}
