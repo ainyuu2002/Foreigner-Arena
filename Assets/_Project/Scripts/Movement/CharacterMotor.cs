@@ -290,6 +290,7 @@ namespace FA.Movement
                     _controls.bindingMask = InputBinding.MaskByGroup("Keyboard");
                     if (Keyboard.current == null) { LockNoDevice("Keyboard"); return; }
                     _controls.devices = new InputDevice[] { Keyboard.current };
+                    Debug.Log($"[CharacterMotor] {name}: paired Keyboard ({Keyboard.current.name}).", this);
                     break;
 
                 case InputScheme.Gamepad:

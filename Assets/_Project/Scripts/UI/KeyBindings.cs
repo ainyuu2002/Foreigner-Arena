@@ -84,6 +84,11 @@ namespace FA.UI
         /// </summary>
         public static void ApplyToRunningInstances()
         {
+            // CHƯA từng lưu rebind → KHÔNG đụng asset đang chạy. RemoveAllBindingOverrides trên asset
+            // ENABLE ép re-resolve binding giữa lúc motor đang chạy — vô ích khi không có override và
+            // là nghi phạm làm rớt input P1 lúc vào trận (Lobby luôn có KeybindApplier, scene test không).
+            if (!PlayerPrefs.HasKey(PrefsKey)) return;
+
             var enabled = new List<InputAction>();
             InputSystem.ListEnabledActions(enabled);
 

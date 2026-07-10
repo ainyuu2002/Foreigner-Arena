@@ -65,7 +65,8 @@ namespace FA.Effects
             if (fx.vfxPrefab != null)
             {
                 GameObject vfx = Instantiate(fx.vfxPrefab, new Vector3(at.x, at.y, 0f), Quaternion.identity);
-                vfx.transform.localScale *= fx.scale;   // MUGEN scale spark theo độ nặng hit.
+                // × độ phóng nhân vật (root ×2.5) — spark tương xứng thân người. .y không đổi dấu facing.
+                vfx.transform.localScale *= fx.scale * Mathf.Abs(transform.lossyScale.y);
             }
             if (audioSource != null)
             {

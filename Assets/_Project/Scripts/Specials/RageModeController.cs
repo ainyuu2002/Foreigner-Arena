@@ -85,6 +85,15 @@ namespace FA.Specials
             SetAura(false);
         }
 
+        /// <summary>Ultimate DÙNG XONG = HẾT SẠCH NỘ (user chốt 2026-07-11): tắt buff không refund +
+        /// xóa thanh nộ về 0 — chặn exploit "rage → ulti → thoát vẫn còn nộ" (gain sót trong lúc ulti
+        /// hoặc refund khi rage hết hạn tự nhiên sau đó). UltimateState.Exit gọi cho MỌI ultimate.</summary>
+        public void DeactivateAndClear()
+        {
+            DeactivateNoRefund();
+            _rageSpender?.ClearRage();
+        }
+
         private void Update()
         {
             if (!_rageActive) return;

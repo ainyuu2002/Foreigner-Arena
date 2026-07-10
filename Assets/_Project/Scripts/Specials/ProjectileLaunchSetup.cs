@@ -32,16 +32,22 @@ namespace FA.Specials
                  "nhiên (MUGEN volley bắn từ nhiều vị trí). 0 = tắt.")]
         [Min(0f)] [SerializeField] private float upSpeedJitter = 0f;
 
+        // Độ phóng theo NGƯỜI BẮN (nhân vật ×2.5) — ProjectileSpawner BroadcastMessage TRƯỚC Start.
+        private float _speedScale = 1f;
+
+        /// <summary>ProjectileSpawner gọi (BroadcastMessage) — nhân tốc độ riêng theo scale người bắn.</summary>
+        public void SetSpeedScale(float s) => _speedScale = Mathf.Max(0.01f, s);
+
         private void Start()
         {
             var rb = GetComponent<Rigidbody2D>();
 
             float vx = rb.linearVelocity.x;
             if (overrideForwardSpeed > 0f)
-                vx = (vx < 0f ? -1f : 1f) * overrideForwardSpeed;   // giữ CHIỀU spawner đã set theo facing.
+                vx = (vx < 0f ? -1f : 1f) * overrideForwardSpeed * _speedScale; // giữ CHIỀU spawner đã set.
 
-            float vy = launchUpSpeed;
-            if (upSpeedJitter > 0f) vy += Random.Range(-upSpeedJitter, upSpeedJitter);
+            float vy = launchUpSpeed * _speedScale;
+            if (upSpeedJitter > 0f) vy += Random.Range(-upSpeedJitter, upSpeedJitter) * _speedScale;
 
             rb.linearVelocity = new Vector2(vx, vy);
 

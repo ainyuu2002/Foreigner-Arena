@@ -29,5 +29,9 @@ namespace FA.Core
         /// <summary>Hoàn <paramref name="fraction"/> (0..1) × RageMax nộ (clamp ≤ max). Rage Mode hết hạn
         /// gọi để hoàn 20–25% (research §5 — tránh người chơi "mất sạch" cảm giác).</summary>
         void RefundRage(float fraction);
+
+        /// <summary>Xóa SẠCH nộ về 0 (user chốt 2026-07-11: Ultimate dùng xong = hết nộ hoàn toàn —
+        /// chặn exploit rage → ulti → thoát mà vẫn còn nộ sót/refund).</summary>
+        void ClearRage();
     }
 }

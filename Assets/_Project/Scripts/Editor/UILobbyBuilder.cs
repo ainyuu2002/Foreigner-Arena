@@ -389,6 +389,32 @@ namespace FA.EditorTools
             UIKit.SetObj(soM, "onMatchEnded", ch.MatchEnded);
             soM.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(manager);
+
+            // FighterIdentityView — tên + chân dung THẬT (registry) lên HUD. Đặt trên systems (LUÔN
+            // active) vì HUD tắt lúc menu → component trong HUD sẽ miss event CharSelected.
+            var identity = root.AddComponent<FA.UI.FighterIdentityView>();
+            var soI = new SerializedObject(identity);
+            UIKit.SetObj(soI, "charSelectedP1", ch.CharSelP1);
+            UIKit.SetObj(soI, "charSelectedP2", ch.CharSelP2);
+            UIKit.SetObj(soI, "registry", ch.CharacterRegistry);
+            UIKit.SetObj(soI, "portraitP1", FindDeep<UnityEngine.UI.Image>(hud, "HUDTop_P1/Portrait_P1/Pic"));
+            UIKit.SetObj(soI, "nameP1", FindDeep<UnityEngine.UI.Text>(hud, "HUDTop_P1/Info_P1/NameLabel"));
+            UIKit.SetObj(soI, "portraitP2", FindDeep<UnityEngine.UI.Image>(hud, "HUDTop_P2/Portrait_P2/Pic"));
+            UIKit.SetObj(soI, "nameP2", FindDeep<UnityEngine.UI.Text>(hud, "HUDTop_P2/Info_P2/NameLabel"));
+            soI.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(identity);
+        }
+
+        /// <summary>Tìm component theo PATH con của root (transform.Find hỗ trợ path) — log rõ khi trượt
+        /// thay vì wire null im lặng (bài học "scene chết im lặng").</summary>
+        private static T FindDeep<T>(GameObject rootGo, string path) where T : Component
+        {
+            Transform t = rootGo != null ? rootGo.transform.Find(path) : null;
+            T c = t != null ? t.GetComponent<T>() : null;
+            if (c == null)
+                Debug.LogWarning($"[UILobbyBuilder] Không tìm thấy {typeof(T).Name} tại '{path}' trong HUD — " +
+                                 "FighterIdentityView sẽ thiếu ref này.");
+            return c;
         }
 
         // ───────────────────── Kiểm tra Build Settings (map load được không) ─────────────────────

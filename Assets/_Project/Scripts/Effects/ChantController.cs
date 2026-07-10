@@ -47,6 +47,7 @@ namespace FA.Effects
         private Camera _cam;
         private Vector3 _camStartPos, _camTargetPos;
         private float _camStartSize;
+        private float _ownerScale = 1f;   // độ phóng nhân vật (lossyScale) — nhân vào zoom/aim.
         private Animator _animator;
         private AnimatorUpdateMode _prevUpdateMode;
         private GameObject _dimQuad;
@@ -97,7 +98,11 @@ namespace FA.Effects
                 CameraCinematicLock.Acquire(_cam);   // tắt tạm Cinemachine Brain — nó đè zoom mỗi LateUpdate.
                 _camStartPos = _cam.transform.position;
                 _camStartSize = _cam.orthographicSize;
-                _camTargetPos = new Vector3(transform.position.x, transform.position.y + aimHeight,
+                // × độ phóng nhân vật (root ×2.5): zoomOrthoSize/aimHeight tinh chỉnh cho char scale 1
+                // (~1/2 màn) — nhân lossyScale giữ ĐÚNG tỉ lệ đó mọi scale (fix "zoom to quá" sau ×2.5).
+                _ownerScale = Mathf.Abs(transform.lossyScale.y);
+                _camTargetPos = new Vector3(transform.position.x,
+                                            transform.position.y + aimHeight * _ownerScale,
                                             _camStartPos.z);
             }
 
@@ -150,7 +155,7 @@ namespace FA.Effects
             float k = Mathf.Clamp01(_t / zoomInSeconds);
             k = 1f - (1f - k) * (1f - k);
             _cam.transform.position = Vector3.Lerp(_camStartPos, _camTargetPos, k);
-            _cam.orthographicSize = Mathf.Lerp(_camStartSize, zoomOrthoSize, k);
+            _cam.orthographicSize = Mathf.Lerp(_camStartSize, zoomOrthoSize * _ownerScale, k);
         }
 
         private static Sprite BlackSprite()

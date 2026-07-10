@@ -24,7 +24,19 @@ namespace FA.UI
         [Tooltip("Text số mạng (vd 'x3'). Bỏ trống nếu dùng icon.")]
         [SerializeField] private Text label;
 
-        private void OnEnable() { if (channel != null) channel.OnEventRaised += OnLives; }
+        [Header("Reset đầu trận (đồng bộ ManaSegmentView)")]
+        [Tooltip("OnEnable áp initialLives ngay — builder bake đủ 5 slot (cap GDD) nên phải ẩn hết " +
+                 "tới khi LivesSystem raise số mạng thật (theo MatchSettings), tránh nháy 5 tim.")]
+        [SerializeField] private bool resetOnEnable;
+
+        [Tooltip("Số mạng hiển thị ngay khi bật (thường 0 — chờ LivesSystem raise).")]
+        [SerializeField] private int initialLives;
+
+        private void OnEnable()
+        {
+            if (channel != null) channel.OnEventRaised += OnLives;
+            if (resetOnEnable) OnLives(initialLives);
+        }
         private void OnDisable() { if (channel != null) channel.OnEventRaised -= OnLives; }
 
         private void OnLives(int lives)

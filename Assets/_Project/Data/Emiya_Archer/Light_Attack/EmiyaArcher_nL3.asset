@@ -19,14 +19,15 @@ MonoBehaviour:
   motion: 0
   button: 2
   chargeFrames: 0
+  chargedVariant: {fileID: 0}
   manaCostUnits: 0
   rageCost: 0
   requiresRageMode: 0
   manaGainMultiplier: 1
   baseDamagePercent: 0.8
   launchAngle: 20
-  baseKnockback: 3
-  knockbackGrowth: 0.1
+  baseKnockback: 7.5
+  knockbackGrowth: 0.25
   isSpike: 0
   causesLaunch: 0
   role: 0
@@ -37,7 +38,7 @@ MonoBehaviour:
   hitstunFrames: 15
   hitstopFrames: 14
   motionImpulses: []
-  driftSpeed: 1.2
+  driftSpeed: 3
   followUps: []
   hitEffect: {fileID: 11400000, guid: c84371a0261bfb940b2bb18afc8cbffa, type: 2}
   blockEffect: {fileID: 11400000, guid: 5073379ff77a504429562e26d8e7be78, type: 2}

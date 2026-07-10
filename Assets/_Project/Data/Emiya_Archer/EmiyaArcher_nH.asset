@@ -26,8 +26,8 @@ MonoBehaviour:
   manaGainMultiplier: 0.7
   baseDamagePercent: 0
   launchAngle: 45
-  baseKnockback: 5
-  knockbackGrowth: 0.1
+  baseKnockback: 12.5
+  knockbackGrowth: 0.25
   isSpike: 0
   causesLaunch: 0
   role: 1
@@ -38,7 +38,7 @@ MonoBehaviour:
   hitstunFrames: 0
   hitstopFrames: 0
   motionImpulses:
-  - {x: -1.2, y: 0}
+  - {x: -3, y: 0}
   driftSpeed: 0
   followUps: []
   hitEffect: {fileID: 11400000, guid: 274f3bc7cc71bc045874ec41992f0e45, type: 2}

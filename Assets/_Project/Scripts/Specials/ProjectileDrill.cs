@@ -65,6 +65,12 @@ namespace FA.Specials
         [Tooltip("Vào pha nổ mà không kết được (victim thoát) → tự hủy sau bấy nhiêu fixed-frame.")]
         [Min(10)] [SerializeField] private int explosionFailsafeFrames = 90;
 
+        // Độ phóng theo NGƯỜI BẮN (nhân vật ×2.5) — ProjectileSpawner BroadcastMessage khi spawn.
+        private float _speedScale = 1f;
+
+        /// <summary>ProjectileSpawner gọi (BroadcastMessage) — nhân drillSpeed theo scale người bắn.</summary>
+        public void SetSpeedScale(float s) => _speedScale = Mathf.Max(0.01f, s);
+
         private Projectile _proj;
         private Rigidbody2D _rb;
         private HitEventChannelSO _channel;
@@ -126,9 +132,10 @@ namespace FA.Specials
             if (!_drilling)
             {
                 _drilling = true;   // GHIM: bò chậm xuyên người — victim bị khoan tại chỗ.
+                float v = drillSpeed * _speedScale; // × độ phóng người bắn (nhân vật ×2.5).
                 _rb.linearVelocity = _rb.linearVelocity.sqrMagnitude > 0.0001f
-                    ? _rb.linearVelocity.normalized * drillSpeed
-                    : new Vector2(drillSpeed * Mathf.Sign(transform.lossyScale.x), 0f);
+                    ? _rb.linearVelocity.normalized * v
+                    : new Vector2(v * Mathf.Sign(transform.lossyScale.x), 0f);
             }
 
             if (_hits == carryHits) Explode();                       // khoan đủ → NỔ NGAY (chưa văng).

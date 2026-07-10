@@ -26,8 +26,8 @@ MonoBehaviour:
   manaGainMultiplier: 0.5
   baseDamagePercent: 0.5
   launchAngle: 85
-  baseKnockback: 3
-  knockbackGrowth: 0.02
+  baseKnockback: 7.5
+  knockbackGrowth: 0.049999997
   isSpike: 0
   causesLaunch: 1
   role: 0

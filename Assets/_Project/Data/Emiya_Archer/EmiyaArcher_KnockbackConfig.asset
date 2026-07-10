@@ -17,12 +17,13 @@ MonoBehaviour:
   milestone1: 10
   milestone2: 20
   referenceWeight: 1
-  knockbackReleaseFrames: 26
   diMaxDegrees: 15
   enableSDI: 0
-  wallSplatSpeedThreshold: 12
+  enableWallSplat: 0
+  wallSplatSpeedThreshold: 30
   wallSplatStunFrames: 18
-  groundBounceSpeedThreshold: 14
+  groundBounceSpeedThreshold: 35
   wallBounciness: 0.5
   groundBounciness: 0.4
-  tumbleEndSpeed: 1.5
+  tumbleEndSpeed: 3.75
+  groundedFailsafeFrames: 8

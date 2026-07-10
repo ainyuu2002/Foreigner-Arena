@@ -39,6 +39,13 @@ namespace FA.GameFlow
         [SerializeField] private Transform root;
 
         private int _lives;
+        private float _lastDeathTime = -999f;
+
+        // Chống MẤT 2 MẠNG cho 1 lần chết: DeathZone raise MỖI COLLIDER chạm zone (capsule + hurtbox
+        // cùng attachedRigidbody) và các zone chồng góc cũng raise riêng — knockback ×2.5 khiến nhiều
+        // collider/zone kích trong cùng physics step (bug "tự nhiên mất 1 tim"). Respawn teleport về
+        // giữa map nên chết THẬT lần kế không thể xảy ra trong cửa sổ này.
+        private const float DeathDedupSeconds = 0.5f;
 
         /// <summary>Mạng còn lại (WinCondition/ScoreSystem đọc cho tie-break so mạng).</summary>
         public int Lives => _lives;
@@ -76,6 +83,11 @@ namespace FA.GameFlow
             if (!ReferenceEquals(victim, me)) return;
 
             if (_lives <= 0) return; // đã hết — bỏ qua (chống double-trigger chết đồng thời).
+
+            // Dedupe 1 lần chết = 1 mạng (xem chú thích DeathDedupSeconds). unscaledTime: hitstop/pause
+            // không kéo dài cửa sổ vô hạn.
+            if (Time.unscaledTime - _lastDeathTime < DeathDedupSeconds) return;
+            _lastDeathTime = Time.unscaledTime;
 
             _lives--;
             if (onLivesChanged != null) onLivesChanged.RaiseEvent(_lives);
