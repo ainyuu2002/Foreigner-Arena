@@ -24,6 +24,7 @@ namespace FA.EditorTools
         public const string Aurora = Dir + "/Ice_Aurora.png";
         public const string FloorFace = Dir + "/Ice_FloorFace.png";
         public const string Spikes = Dir + "/Ice_Spikes.png";
+        public const string ClingWall = Dir + "/Ice_ClingWall.png";
 
         public static void Generate()
         {
@@ -39,6 +40,40 @@ namespace FA.EditorTools
             GenFloorFace();
             GenSpikes();
             GenAurora();
+            GenClingWall();
+        }
+
+        /// <summary>CỘT BĂNG BÁM lơ lửng (feedback: tường trên không bám được): trụ băng dọc 1×4 unit,
+        /// chỏm tuyết trên đỉnh, highlight chéo + vết nứt, nhũ băng rủ dưới đáy.</summary>
+        private static void GenClingWall()
+        {
+            StagePxCanvas.Reseed(515);
+            var c = new StagePxCanvas(32, 128, new Color32(0, 0, 0, 0));
+            c.FillRect(1, 6, 30, 118, StagePxCanvas.Hex("3a7cb0"));         // thân trụ
+            for (int y = 6; y < 124; y++)                                    // gradient dọc thủ công
+                if (y % 3 != 0) c.BlendRect(1, y, 30, 1, new Color32(43, 99, 148, 60));
+            c.FillRect(1, 6, 3, 118, StagePxCanvas.Hex("245a86"));           // rìa tối trái
+            c.FillRect(28, 6, 3, 118, StagePxCanvas.Hex("245a86"));          // rìa tối phải
+            c.FillRect(5, 6, 2, 118, StagePxCanvas.Hex("7ec5e8"));           // vệt sáng trong
+            var hi = StagePxCanvas.Hex("bfe6fa"); hi.a = 170;
+            for (int i = 0; i < 7; i++)                                      // highlight chéo lấp lánh
+            {
+                int x = StagePxCanvas.RandInt(4, 24), y = StagePxCanvas.RandInt(12, 112);
+                for (int k = 0; k < StagePxCanvas.RandInt(4, 8); k++) c.Blend(x + k, y + k, hi);
+            }
+            var crack = new Color32(30, 70, 104, 160);
+            for (int i = 0; i < 4; i++)                                      // vết nứt ngang mảnh
+            {
+                int y = StagePxCanvas.RandInt(16, 110), x0 = StagePxCanvas.RandInt(3, 12);
+                for (int k = 0; k < StagePxCanvas.RandInt(10, 18); k++)
+                    c.Blend(x0 + k, y + (k % 4 == 0 ? 1 : 0), crack);
+            }
+            c.FillRect(0, 118, 32, 8, StagePxCanvas.Hex("eef6ff"));          // chỏm tuyết đỉnh
+            c.Disc(8, 125, 3, Color.white);
+            c.Disc(22, 126, 4, Color.white);
+            c.TriangleDown(8, 8, 8, 14, StagePxCanvas.Hex("3d7fb0"));        // nhũ băng rủ đáy
+            c.TriangleDown(20, 8, 10, 20, StagePxCanvas.Hex("2b6394"));
+            c.Save(ClingWall, 32f);
         }
 
         /// <summary>Cực quang TÁCH LỚP RIÊNG (để gắn AmbientDrift trôi lững lờ) — 5 dải đa sắc + màn dọc.</summary>
@@ -153,10 +188,10 @@ namespace FA.EditorTools
 
         private static void GenTiles()
         {
-            // FEEDBACK TEST: tile phải KHÍT (không viền khối), nền là ĐẤT ĐÓNG BĂNG, xen kẽ Ô THUẦN BĂNG trơn.
-            // 2 variant đất mặt (tuyết phủ trên đất nâu lạnh) — sprite không lặp đều.
-            GenEarthTop(TileTop, 11);
-            GenEarthTop(TileTopB, 77);
+            // FEEDBACK TEST (mới): TOÀN BỘ SÀN LÀ BĂNG — bỏ hẳn đất nâu. 2 variant mặt = băng xanh
+            // tuyết phủ; TileGloss = mảng băng TRẦN bóng loáng làm điểm nhấn. Tile KHÍT, không viền khối.
+            GenIceTop(TileTop, 11);
+            GenIceTop(TileTopB, 77);
 
             // Ô THUẦN BĂNG bóng loáng (đặt thành mảng trượt riêng, gán IceSurface).
             var g = new StagePxCanvas(64, 64, StagePxCanvas.Hex("9fd4ef"));
@@ -176,48 +211,46 @@ namespace FA.EditorTools
             g.FillRect(0, 60, 64, 4, new Color32(224, 244, 255, 255)); // mặt băng sáng
             g.Save(TileGloss, 64f);
 
-            // 2 variant lòng đất: đất nâu lạnh + đá + rễ đông cứng.
-            GenEarthInner(TileInner, 23);
-            GenEarthInner(TileInnerB, 91);
+            // 2 variant lòng sàn: BĂNG SÂU xanh đậm (bọt khí + vết nứt) — không còn đất nâu.
+            GenIceInner(TileInner, 23);
+            GenIceInner(TileInnerB, 91);
         }
 
-        private static void GenEarthTop(string path, int seed)
+        /// <summary>Ô mặt sàn: THÂN BĂNG xanh (cùng tông platform) + tuyết phủ trên — hết đất nâu.</summary>
+        private static void GenIceTop(string path, int seed)
         {
             StagePxCanvas.Reseed(seed);
-            var t = new StagePxCanvas(64, 64, StagePxCanvas.Hex("564742"));
-            EarthDetail(t, 0, 46);
+            var t = new StagePxCanvas(64, 64, StagePxCanvas.Hex("3a7cb0"));
+            t.VerticalGradient(StagePxCanvas.Hex("2b6394"), StagePxCanvas.Hex("58a0cc"), 0.05f);
+            IceBody(t, 0, 46);
+            var crack = new Color32(30, 70, 104, 150); // vết nứt băng chéo mảnh
+            for (int i = 0; i < 3; i++)
+            {
+                int x = StagePxCanvas.RandInt(4, 52), y = StagePxCanvas.RandInt(6, 40);
+                for (int k = 0; k < StagePxCanvas.RandInt(8, 14); k++)
+                    t.Blend(x + k, y - (k % 3 == 0 ? 1 : 0), crack);
+            }
             t.FillRect(0, 50, 64, 14, StagePxCanvas.Hex("eef6ff"));               // tuyết phủ
             t.FillRect(0, 47, 64, 3, StagePxCanvas.Hex("c9e2f4"));                // mép tuyết
             for (int i = 0; i < 7; i++)                                            // mô tuyết nhấp nhô
                 t.Disc(StagePxCanvas.RandInt(2, 62), 62, StagePxCanvas.RandInt(2, 5), Color.white);
-            for (int i = 0; i < 4; i++)                                            // tuyết rủ xuống mép đất
+            for (int i = 0; i < 4; i++)                                            // tuyết rủ xuống thân băng
                 t.VLine(StagePxCanvas.RandInt(3, 61), 47, 47 - StagePxCanvas.RandInt(2, 6), StagePxCanvas.Hex("dceffb"));
             t.Save(path, 64f);
         }
 
-        private static void GenEarthInner(string path, int seed)
+        /// <summary>Ô lòng sàn: BĂNG SÂU xanh đậm — bọt khí li ti + highlight chéo, ghép khít không viền.</summary>
+        private static void GenIceInner(string path, int seed)
         {
             StagePxCanvas.Reseed(seed);
-            var c = new StagePxCanvas(64, 64, StagePxCanvas.Hex("4a3d39"));
-            EarthDetail(c, 0, 64);
+            var c = new StagePxCanvas(64, 64, StagePxCanvas.Hex("2b5f8e"));
+            c.VerticalGradient(StagePxCanvas.Hex("1e4668"), StagePxCanvas.Hex("34719f"), 0.05f);
+            IceBody(c, 0, 64);
+            var bubble = new Color32(214, 238, 252, 110); // bọt khí kẹt trong băng
+            for (int i = 0; i < 9; i++)
+                c.Disc(StagePxCanvas.RandInt(3, 61), StagePxCanvas.RandInt(3, 61),
+                       StagePxCanvas.RandInt(1, 3), bubble);
             c.Save(path, 64f);
-        }
-
-        /// <summary>Chất đất đóng băng: đá xám, mảng băng lấp lánh, đốm tối — KHÔNG viền, ghép khít.</summary>
-        private static void EarthDetail(StagePxCanvas c, int y0, int h)
-        {
-            var stone = StagePxCanvas.Hex("6b5d57");
-            var dark = StagePxCanvas.Hex("38302d");
-            var frost = new Color32(154, 196, 226, 120);
-            for (int i = 0; i < 8; i++)
-                c.BlendRect(StagePxCanvas.RandInt(0, 56), y0 + StagePxCanvas.RandInt(0, Mathf.Max(4, h - 8)),
-                            StagePxCanvas.RandInt(4, 10), StagePxCanvas.RandInt(3, 6), stone);
-            for (int i = 0; i < 10; i++)
-                c.BlendRect(StagePxCanvas.RandInt(0, 60), y0 + StagePxCanvas.RandInt(0, Mathf.Max(4, h - 4)),
-                            StagePxCanvas.RandInt(2, 5), StagePxCanvas.RandInt(2, 4), dark);
-            for (int i = 0; i < 5; i++) // vệt băng lấp lánh trong đất
-                c.Disc(StagePxCanvas.RandInt(4, 60), y0 + StagePxCanvas.RandInt(4, Mathf.Max(6, h - 4)),
-                       StagePxCanvas.RandInt(1, 3), frost);
         }
 
         private static void IceBody(StagePxCanvas c, int y0, int h)

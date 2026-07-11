@@ -26,6 +26,7 @@ namespace FA.EditorTools
         public const string BigVolcano = Dir + "/Fire_BigVolcano.png";
         public const string LavaField = Dir + "/Fire_LavaField.png";
         public const string Ceiling = Dir + "/Fire_Ceiling.png";
+        public const string ClingWall = Dir + "/Fire_ClingWall.png";
 
         public static void Generate()
         {
@@ -41,6 +42,39 @@ namespace FA.EditorTools
             GenLavaShine();
             GenLavaField();
             GenCeiling();
+            GenClingWall();
+        }
+
+        /// <summary>CỘT BAZAN BÁM lơ lửng (feedback: tường trên không bám được): trụ đá dọc 1×4 unit,
+        /// vân cột bazan + khe nứt magma phát sáng, mặt đỉnh rám sáng.</summary>
+        private static void GenClingWall()
+        {
+            StagePxCanvas.Reseed(929);
+            var c = new StagePxCanvas(32, 128, new Color32(0, 0, 0, 0));
+            c.FillRect(1, 2, 30, 122, StagePxCanvas.Hex("2c1c28"));          // thân trụ
+            c.FillRect(1, 2, 3, 122, StagePxCanvas.Hex("120a10"));           // rìa tối trái
+            c.FillRect(28, 2, 3, 122, StagePxCanvas.Hex("120a10"));          // rìa tối phải
+            c.FillRect(5, 2, 2, 122, StagePxCanvas.Hex("4a3040"));           // vệt sáng trong
+            var stone = StagePxCanvas.Hex("3d2836");
+            for (int i = 0; i < 10; i++)                                     // vân đá loang
+                c.BlendRect(StagePxCanvas.RandInt(3, 22), StagePxCanvas.RandInt(6, 116),
+                            StagePxCanvas.RandInt(4, 9), StagePxCanvas.RandInt(2, 5), stone);
+            for (int y = 14; y < 124; y += 18)                               // khớp nối cột bazan ngang
+                c.HLine(y, 2, 29, StagePxCanvas.Hex("1a0e16"));
+            var mag = StagePxCanvas.Hex("ff6a22"); mag.a = 220;
+            var hot = StagePxCanvas.Hex("ffdd55"); hot.a = 200;
+            for (int i = 0; i < 3; i++)                                      // khe nứt magma phát sáng
+            {
+                int x = StagePxCanvas.RandInt(6, 16), y = StagePxCanvas.RandInt(14, 108);
+                for (int k = 0; k < StagePxCanvas.RandInt(8, 14); k++)
+                {
+                    c.Blend(x + k, y + (k % 3 == 0 ? 1 : 0), mag);
+                    if (k % 4 == 2) c.Blend(x + k, y + 1, hot);
+                }
+            }
+            c.FillRect(1, 120, 30, 4, StagePxCanvas.Hex("4a3040"));          // mặt đỉnh sáng
+            c.HLine(119, 2, 29, StagePxCanvas.Hex("7a2408"));                // viền rám đỏ dưới đỉnh
+            c.Save(ClingWall, 32f);
         }
 
         /// <summary>TRẦN HANG — LỚP RIÊNG đặt đúng tầm camera (măng đá rủ lộ ngay khung hình mặc định).</summary>
@@ -309,26 +343,101 @@ namespace FA.EditorTools
             c.Save(Volcanoes, 16f);
         }
 
+        /// <summary>BIỂN DUNG NHAM DÂNG — bản CHÂN THẬT (feedback: "giao diện dung nham chân thật vào").
+        /// Vẽ ĐÚNG kích thước hiển thị 816×168 @16 = 51×10.5 unit, scale (1,1) → hết kéo giãn pixel méo.
+        /// Như hồ dung nham thật: mặt lượn sóng viền trắng-nóng, MẢNG VÁNG ĐÁ NGUỘI sẫm trôi trên mặt
+        /// với KHE NỨT PHÁT SÁNG rực giữa các mảng, thân gradient tắt dần vào tối, quầng nhiệt tỏa lên.</summary>
         private static void GenLava()
         {
-            var c = new StagePxCanvas(512, 128, StagePxCanvas.Hex("e8541c"));
-            c.VerticalGradient(StagePxCanvas.Hex("b03410"), StagePxCanvas.Hex("ff9a22"), 0.06f);
-            // Váng đá đen trôi trên mặt.
-            var crust = StagePxCanvas.Hex("7a2408"); crust.a = 230;
+            StagePxCanvas.Reseed(707);
+            var c = new StagePxCanvas(816, 168, new Color32(0, 0, 0, 0));
+            var deep = StagePxCanvas.Hex("140302");
+            var low = StagePxCanvas.Hex("571103");
+            var mid = StagePxCanvas.Hex("b83408");
+            var hi = StagePxCanvas.Hex("ff7a14");
+            var amber = StagePxCanvas.Hex("ffb028");
+            var crest = StagePxCanvas.Hex("ffdf60");
+            var foam = StagePxCanvas.Hex("fff4c0");
+            var white = StagePxCanvas.Hex("fffbe8");
+
+            // ---- Thân + mặt sóng (2 tần số chồng nhau, chu kỳ khớp mép trái-phải: k×2π/816) ----
+            var tops = new int[816];
+            for (int x = 0; x < 816; x++)
+            {
+                float w = Mathf.Sin(x * (Mathf.PI * 2f * 5f / 816f)) * 4f
+                        + Mathf.Sin(x * (Mathf.PI * 2f * 13f / 816f) + 1.7f) * 2.5f;
+                int top = 154 + Mathf.RoundToInt(w); // ~147..161
+                tops[x] = top;
+                for (int y = 0; y <= top - 4; y++)
+                {
+                    float t = Mathf.Clamp01(y / (float)(top - 4));
+                    var col = t < 0.45f ? Color32.Lerp(deep, low, t / 0.45f)
+                            : t < 0.78f ? Color32.Lerp(low, mid, (t - 0.45f) / 0.33f)
+                            : Color32.Lerp(mid, hi, (t - 0.78f) / 0.22f);
+                    c.Set(x, y, col);
+                }
+                // Viền tiếp xúc: hổ phách → vàng → kem trắng-nóng (chỗ nóng nhất của hồ lava thật).
+                c.Set(x, top - 3, amber);
+                c.Set(x, top - 2, crest);
+                c.Set(x, top - 1, crest);
+                c.Set(x, top, foam);
+                // Quầng nhiệt tỏa lên trên mặt sóng (alpha nhạt dần).
+                for (int k = 1; k <= 9; k++)
+                    c.Blend(x, top + k, new Color32(255, 150, 45, (byte)(80 - k * 8)));
+            }
+
+            // ---- MẢNG VÁNG ĐÁ NGUỘI (như hồ lava thật: mặt đóng váng sẫm, KHE NỨT rực giữa các mảng).
+            // Vẽ capsule seam SÁNG to trước rồi phủ mảng TỐI lên → chỉ lộ 2px viền rực quanh mép;
+            // các mảng chồng lấn tạo mạng khe nứt tự nhiên. ----
+            void Capsule(int cx, int cy, int half, int r, Color32 col)
+            {
+                c.FillRect(cx - half, cy - r, half * 2, r * 2 + 1, col);
+                c.Disc(cx - half, cy, r, col);
+                c.Disc(cx + half, cy, r, col);
+            }
+            var crustA = StagePxCanvas.Hex("300e06");
+            var crustB = StagePxCanvas.Hex("451507");
+            var crustCore = StagePxCanvas.Hex("200a05");
+            for (int i = 0; i < 18; i++)
+            {
+                int cx = StagePxCanvas.RandInt(12, 804);
+                int cy = StagePxCanvas.RandInt(52, 122);
+                int half = StagePxCanvas.RandInt(10, 34);
+                int r = StagePxCanvas.RandInt(5, 11);
+                Capsule(cx, cy, half, r + 2, crest);                    // khe nứt sáng lộ quanh viền
+                Capsule(cx, cy, half, r, i % 3 == 0 ? crustB : crustA); // mảng váng nguội
+                c.Disc(cx + StagePxCanvas.RandInt(-half / 2, half / 2 + 1), cy,
+                       Mathf.Max(2, r - 3), crustCore);                 // lõi nguội sẫm nhất
+            }
+
+            // ---- Vệt magma trào mảnh dưới mặt sóng (chuyển động dâng của lava thật) ----
             for (int i = 0; i < 26; i++)
             {
-                int w = StagePxCanvas.RandInt(14, 44);
-                c.BlendRect(StagePxCanvas.RandInt(0, 512 - 10), StagePxCanvas.RandInt(4, 116), w, StagePxCanvas.RandInt(3, 7), crust);
+                int x0 = StagePxCanvas.RandInt(4, 812);
+                int y0 = tops[x0] - StagePxCanvas.RandInt(6, 20);
+                int len = StagePxCanvas.RandInt(3, 9);
+                for (int k = 0; k < len; k++)
+                    c.Blend(x0, y0 - k, new Color32(255, 176, 55, 165));
             }
-            // Vệt sáng cháy chói ngang mặt (đường nứt phát sáng).
-            for (int i = 0; i < 16; i++)
+
+            // ---- Đốm trắng-nóng lấp lánh trên crest + than hồng sâu bên dưới ----
+            for (int i = 0; i < 40; i++)
             {
-                int y = StagePxCanvas.RandInt(8, 124);
-                int x0 = StagePxCanvas.RandInt(0, 460);
-                c.HLine(y, x0, x0 + StagePxCanvas.RandInt(12, 50), StagePxCanvas.Hex("ffdd55"));
+                int x0 = StagePxCanvas.RandInt(2, 814);
+                c.Blend(x0, tops[x0] - StagePxCanvas.RandInt(0, 2), white);
             }
-            // Mặt trên cùng sáng nhất (viền tiếp xúc).
-            c.FillRect(0, 124, 512, 4, StagePxCanvas.Hex("ffe98a"));
+            for (int i = 0; i < 55; i++)
+                c.Blend(StagePxCanvas.RandInt(0, 816), StagePxCanvas.RandInt(8, 70),
+                        new Color32(255, 106, 34, 110));
+
+            // ---- Dithering nhiễu hạt chống dải màu phẳng (chất pixel-art, đỡ "giả") ----
+            for (int i = 0; i < 3000; i++)
+                c.Blend(StagePxCanvas.RandInt(0, 816), StagePxCanvas.RandInt(0, 142),
+                        new Color32(0, 0, 0, 26));
+            for (int i = 0; i < 1600; i++)
+                c.Blend(StagePxCanvas.RandInt(0, 816), StagePxCanvas.RandInt(34, 148),
+                        new Color32(255, 122, 20, 30));
+
             c.Save(Lava, 16f);
         }
 

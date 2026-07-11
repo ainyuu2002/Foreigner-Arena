@@ -28,7 +28,7 @@
 | Layout | Sàn băng chính + 2 platform bay đối xứng | 2 bờ đất cao + bệ chìm giữa nước + 2 platform lệch tầng | Đảo bazan + 3 platform bay trên biển dung nham |
 | Cơ chế thường trực | Mặt băng trượt (`IceSurface` friction 0.02 — Unity vật lý lo) | **SwampBiome**: slowness khi đứng đất + giảm lực nhảy ~25% | **FireBiome**: đứng yên trên đảo → +%/giây |
 | Thiên tai | **SnowstormHazard**: bão chu kỳ random, slow + gió đẩy ngang phá combo | **Không có** (đúng GDD Trang 9) | **RisingLava**: cảnh báo nhấp nháy → lava dâng, chạm = chết |
-| Đặc biệt | 2 **BreakableWall** 2 bên (vỡ → mở death zone; có hồi `wallRecovers=true`) | Nấm phát sáng + đom đóm + rừng sương parallax | Lava vẽ đè lên nhân vật (nuốt chửng), 3 đèn cam hắt sáng |
+| Đặc biệt | Gai băng chạm = +% (`LavaFloorZone` tái dùng) | **MudPitZone**: ô bùn ướt lầy RÕ hơn + **MushroomBouncer**: 3 nấm nhún đáp mũ bật cao (thoát pit giữa / lên tầng cao) | **LavaFloorZone** dải đất nóng giữa đảo +%/giây; lava vẽ đè nhân vật (nuốt chửng) |
 | Visual | Trời đêm + cực quang + trăng + núi tuyết parallax 3 lớp, tuyết rơi, nhũ băng | Trăng độc + dây leo + cây cổ thụ + mặt nước phản chiếu | Núi lửa phun + khói + tàn lửa bay + trăng máu |
 
 Mọi map đều có: Death Zone 4 phía (xa rìa), `StageSpawnPoints` (spawnP1/P2 + respawn giữa map),
@@ -52,9 +52,12 @@ camera **Cinemachine 3** (TargetGroup + PositionComposer + **Confiner2D** theo b
 - [ ] Platform 1 chiều: nhảy xuyên từ DƯỚI lên đứng được; đứng trên giữ **↓** ~0.2s → rớt xuyên.
 - [ ] **Ice**: knockback trên sàn băng trượt xa hơn rõ rệt; bão tuyết bật theo chu kỳ (hạt tuyết dày lên,
       bị gió đẩy lệch); đập tường băng nhiều lần (knockback ≥12) → vỡ → lộ death zone; để yên ~5s tường hồi.
-- [ ] **Swamp**: đi trên đất chậm hơn hẳn; nhảy thấp hơn rõ (so với map khác); trên không knockback bình thường.
+- [ ] **Swamp**: đi trên đất chậm hơn hẳn; nhảy thấp hơn rõ (so với map khác); trên không knockback bình thường;
+      đứng trên Ô BÙN ƯỚT còn lầy hơn nữa; đáp xuống MŨ NẤM HỒNG → bật tung lên (nấm nhún dẹt xuống rồi nảy lại).
 - [ ] **Fire**: đứng yên trên đảo → % tăng dần (HUD); di chuyển thì không; icon ⚠ nhấp nháy ~2.5-3s rồi lava
       dâng; chạm lava = mất mạng; lava dừng ở `maxRiseY`.
+- [ ] **Cả 3 map**: TƯỜNG BÁM lơ lửng 2 bên — trên không áp vào mặt bên là trượt xuống CHẬM (bám),
+      đứng được trên đỉnh cột; nhảy lên/knockback bay lên KHÔNG bị ảnh hưởng.
 - [ ] Camera zoom/bám 2 người, KHÔNG lia ra ngoài mép map (Confiner).
 - [ ] Không hồi quy P1–P10 (di chuyển/combat/resource như cũ — P11 chỉ ADD môi trường).
 - [ ] Chọn map qua luồng P12 (CharSelect → StageSelect): 3 map xuất hiện trong danh sách, load additive OK
@@ -67,6 +70,9 @@ camera **Cinemachine 3** (TargetGroup + PositionComposer + **Confiner2D** theo b
 | StageConfig_Swamp | `swampSpeedFactor` | 0.8 | slow đứng đất; nhỏ hơn = lầy hơn |
 | StageConfig_Swamp | `swampJumpScale` | 0.85 | ~giảm 25-28% chiều cao nhảy (GDD: 25%) |
 | StageConfig_Swamp | `swampJumpImpulseThreshold` | 6 | < jumpSpeed nhân vật (~12) |
+| StageConfig_Swamp | `mudSpeedFactor` | 0.72 | lầy THÊM khi đứng ô bùn ướt (chồng swampSpeedFactor) |
+| StageConfig_Swamp | `mushroomBounceSpeed` | 18 | vy bật lên khi đáp mũ nấm nhún |
+| StageConfig (cả 3) | `wallClingSlideSpeed` | 1.2 | tốc trượt khi bám tường lơ lửng; nhỏ = dính hơn |
 | StageConfig_Ice | `snowstorm*` | 12/5/3/0.4/3/0.85 | nhịp + cường độ bão |
 | StageConfig_Ice/Fire | `breakThreshold`, `wallImpactMinSpeed` | 100 / 12 | đồng bộ thang lực P7 |
 | StageConfig_Fire | `firePercentPerSec` | 2.5 | %/giây đứng yên |

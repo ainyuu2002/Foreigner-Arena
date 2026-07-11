@@ -67,6 +67,11 @@ namespace FA.Stage
         [Tooltip("Trần tốc độ ngang mà gió còn đẩy thêm được (chặn cộng dồn vô hạn khi đang bay knockback). CẦN TEST.")]
         [Min(1f)] public float snowstormWindMaxCarry = 12f;
 
+        [Header("Chung — Tường bám trên không (ClingWall, cả 3 map)")]
+        [Tooltip("Tốc độ TRƯỢT XUỐNG tối đa khi áp vào tường bám (kẹp vy khi đang rơi). " +
+                 "Nhỏ hơn = bám dính hơn. CẦN TEST.")]
+        [Min(0f)] public float wallClingSlideSpeed = 1.2f;
+
         [Header("Biome Fire — Đứng yên tăng % (FireBiome)")]
         [Tooltip("%/giây cộng cho nhân vật ĐỨNG YÊN trong vùng lửa (đủ răn đe đứng yên, ép di chuyển). " +
                  "Đi qua IPercentReceiver → clamp tại percentCap. CẦN TEST.")]
@@ -109,6 +114,14 @@ namespace FA.Stage
         [Tooltip("Hệ số nhân vận tốc NHẢY (vy) ngay khi phát hiện cú nhảy trong đầm lầy. 0.85 ≈ giảm ~25-28% " +
                  "chiều cao (GDD: 'lực nhảy suy giảm phẳng 25%'). CẦN TEST.")]
         [Range(0.5f, 1f)] public float swampJumpScale = 0.85f;
+
+        [Tooltip("Hệ số vận tốc ngang NHÂN THÊM khi đứng trong VŨNG BÙN ĐẶC (MudPitZone — CHỒNG với " +
+                 "swampSpeedFactor: ô bùn ướt lầy RÕ RỆT hơn nền đầm thường). CẦN TEST.")]
+        [Range(0.3f, 1f)] public float mudSpeedFactor = 0.72f;
+
+        [Tooltip("Vận tốc bật lên (vy) khi đáp xuống MŨ NẤM NHÚN (MushroomBouncer — bù trừ giảm lực nhảy, " +
+                 "đường thoát bệ chìm giữa map / lên tầng cao). CẦN TEST.")]
+        [Min(0f)] public float mushroomBounceSpeed = 18f;
 
         [Tooltip("Ngưỡng vy tăng đột ngột trong 1 FixedUpdate để coi-là cú nhảy (impulse). Nhỏ hơn jumpSpeed " +
                  "nhân vật (~12) nhưng lớn hơn dao động thường. CẦN TEST.")]

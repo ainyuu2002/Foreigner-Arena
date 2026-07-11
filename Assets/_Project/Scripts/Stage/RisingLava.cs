@@ -4,13 +4,12 @@ using FA.Core;
 namespace FA.Stage
 {
     /// <summary>
-    /// DUNG NHAM DÂNG (P11, biome Fire, research §3.5) — death-zone DI ĐỘNG. Lava là Kinematic
-    /// <see cref="Rigidbody2D"/> + BoxCollider2D trigger Layer DeathZone (+ DeathZone.cs để raise kênh khi
-    /// player chạm). Dâng bằng <c>MovePosition</c> trong FixedUpdate (Unity vật lý lo va trigger chuẩn,
-    /// KHÔNG SetPosition nhảy-qua-player research §4 cạm bẫy 10). Có cảnh báo NHẤP NHÁY icon TRƯỚC khi dâng.
+    /// DUNG NHAM DÂNG (P11, biome Fire, research §3.5). Lava là Kinematic <see cref="Rigidbody2D"/> +
+    /// BoxCollider2D trigger. Dâng bằng <c>MovePosition</c> trong FixedUpdate (Unity vật lý lo va trigger
+    /// chuẩn, KHÔNG SetPosition nhảy-qua-player research §4 cạm bẫy 10). Có cảnh báo NHẤP NHÁY icon TRƯỚC khi dâng.
     ///
     /// Map đủ cao để lava lúc mới dâng không chạm người ngay (GDD). Code chỉ điều phối tốc-độ-dâng +
-    /// warning blink (số ở StageConfigSO, CẦN TEST). Chết khi chạm lava do Layer DeathZone + DeathZone.cs
+    /// warning blink (số ở StageConfigSO, CẦN TEST). CHẠM LAVA = CHẾT do Layer DeathZone + DeathZone.cs
     /// (gắn cùng object) lo — RisingLava KHÔNG tự xử mạng (chống cross-module §1.3).
     /// </summary>
     [DisallowMultipleComponent]

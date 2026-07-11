@@ -8,7 +8,8 @@ namespace FA.EditorTools
 {
     /// <summary>
     /// Dựng scene MAP_FIRE "Lò Dung Nham" (design 03): đảo bazan chính + 3 platform bay, biển dung nham
-    /// dâng (RisingLava + DeathZone) có icon cảnh báo nhấp nháy, FireBiome (đứng yên tăng %), núi lửa
+    /// dâng (RisingLava + DeathZone: CHẠM LÀ CHẾT) có icon cảnh báo nhấp nháy,
+    /// FireBiome (đứng yên tăng %), núi lửa
     /// phun nền sau, tàn lửa bay, ánh sáng cam hắt từ lava, death zone 4 phía, camera Confiner.
     /// </summary>
     internal static class StageMapBuilderFire
@@ -41,6 +42,14 @@ namespace FA.EditorTools
             for (int x = -2; x <= 1; x++)
                 tm.SetTile(new Vector3Int(x, -1, 0), hotT);                    // dải đất dung nham nóng rực
 
+            // MÉP BẬC DƯỚI 2 BÊN (feedback: "mép bên dưới cũng phải đứng được"): vai bazan nhô ra của
+            // FloorFace giờ có COLLISION THẬT — bậc thấp hơn mặt đảo 1 unit, đứng/bám được như mép đài Smash.
+            foreach (int sx in new[] { -11, 10 })
+            {
+                tm.SetTile(new Vector3Int(sx, -2, 0), StageSceneKit.PickVariant(tops, sx, -2));
+                tm.SetTile(new Vector3Int(sx, -3, 0), StageSceneKit.PickVariant(inners, sx, -3));
+            }
+
             // (Đã bỏ gò chặn mép theo feedback — leo cao bằng TẦNG PLATFORM BAY.)
 
             // MẶT ĐẢO HỮU CƠ kiểu Norfair: vách bazan cột lởm chởm + nứt magma + măng đá rủ xuống lava.
@@ -48,12 +57,8 @@ namespace FA.EditorTools
             StageSceneKit.MakeSpriteGO("Deco_FloorFace", StageSceneKit.LoadSprite(StageArtFire.FloorFace),
                 new Vector3(0f, -2.9f, 0f), -4, null);
 
-            // Tháp đá núi lửa 2 bên (điểm nhấn silhouette).
-            var spire = StageSceneKit.LoadSprite(StageArtFire.RockSpire);
-            StageSceneKit.MakeSpriteGO("Deco_RockSpire", spire, new Vector3(-8.4f, 2.7f, 0f), -3, null,
-                new Vector3(0.75f, 0.85f, 1f));   // thu nhỏ + lùi ra mép: không che tầm nhìn đòn đánh
-            StageSceneKit.MakeSpriteGO("Deco_RockSpire", spire, new Vector3(8.9f, 2.9f, 0f), -3, null,
-                new Vector3(-0.65f, 0.9f, 1f));
+            // (Đã XÓA 2 tháp đá silhouette Deco_RockSpire theo feedback — đứng trùng chỗ cột bám,
+            // nhìn thành khối đen khó hiểu mà không có collision. Măng đá nền xa ở BG_LavaField đủ đẹp.)
 
             // ---- 3 platform bay 1 chiều (trái/phải thấp + giữa cao) ----
             StageSceneKit.MakeOneWayPlatform("Platform_L", StageArtFire.Platform, new Vector2(-11f, 1.8f), null, -5, 1f, 0.33f); // mép trong platform chớm đè mép đảo → nhảy sang dễ
@@ -67,7 +72,7 @@ namespace FA.EditorTools
             var respawn = StageSceneKit.MakeSpawnPoints(null, new Vector2(-5f, 1.2f), new Vector2(5f, 1.2f), new Vector2(0f, 5.2f));
             StageSceneKit.MakeDeathZones(null, 24f, 22f, -18f, respawn);
 
-            // ---- Dung nham dâng (RisingLava + DeathZone cùng object) ----
+            // ---- Dung nham dâng (RisingLava + DeathZone cùng object — CHẠM LÀ CHẾT, feedback test) ----
             var fireCfg = AssetDatabase.LoadAssetAtPath<StageConfigSO>(StageSceneKit.DataFolder + "/StageConfig_Fire.asset");
             var lavaGo = new GameObject("RisingLava");
             lavaGo.transform.position = new Vector3(0f, -9.5f, 0f);
@@ -75,38 +80,34 @@ namespace FA.EditorTools
             var lavaSr = lavaGo.AddComponent<SpriteRenderer>();
             lavaSr.sprite = StageSceneKit.LoadSprite(StageArtFire.Lava);
             lavaSr.sortingOrder = 30; // trước platform/nhân vật → nuốt chửng khi dâng.
-            lavaGo.transform.localScale = new Vector3(1.6f, 1.3f, 1f);
+            // Scale (1,1): sprite vẽ ĐÚNG kích thước thật 51×10.5 unit — hết kéo giãn pixel méo (fix xấu).
             var lavaCol = lavaGo.AddComponent<BoxCollider2D>();
             lavaCol.isTrigger = true;
-            lavaCol.size = new Vector2(32f, 8f);
+            // Mép trên collider KHỚP MẶT SÓNG THẤY ĐƯỢC (đáy sóng ~+3.95 local) — không "chết trên không"
+            // phía trên lava; sprite cao 10.5 nhưng ~1 unit trên cùng là quầng nhiệt trong suốt.
+            lavaCol.size = new Vector2(51f, 9.2f);
+            lavaCol.offset = new Vector2(0f, -0.65f);
 
             var warnGo = new GameObject("WarningIcon");
             warnGo.transform.SetParent(lavaGo.transform, false);
-            warnGo.transform.localPosition = new Vector3(0f, 6.2f, 0f);
-            warnGo.transform.localScale = new Vector3(0.625f, 0.77f, 1f); // bù scale cha ≈ icon 1×1.
+            warnGo.transform.localPosition = new Vector3(0f, 7.4f, 0f);
             var warnSr = warnGo.AddComponent<SpriteRenderer>();
             warnSr.sprite = StageSceneKit.LoadSprite(StageArtFire.WarnIcon);
             warnSr.sortingOrder = 60;
 
-            // Váng sáng mặt lava DẬP DỀNH (child — localPosition drift, không đánh nhau với Rigidbody cha).
-            var shineGo = new GameObject("LavaShine");
-            shineGo.transform.SetParent(lavaGo.transform, false);
-            shineGo.transform.localPosition = new Vector3(0f, 3.85f, 0f);
-            shineGo.transform.localScale = new Vector3(2f, 1f, 1f);
-            var shineSr = shineGo.AddComponent<SpriteRenderer>();
-            shineSr.sprite = StageSceneKit.LoadSprite(StageArtFire.LavaShine);
-            shineSr.sortingOrder = 31;
-            StageSceneKit.AddDrift(shineGo, new Vector2(0.18f, 0.07f), 3.4f);
+            // (Đã BỎ lớp váng sáng LavaShine rời — art lava mới tự có viền crest trắng-nóng;
+            // lớp rời đặt lệch trông như 1 vạch trôi lơ lửng — feedback "dung nham bị lệch".)
 
             var lava = lavaGo.AddComponent<RisingLava>(); // RequireComponent tự thêm Rigidbody2D.
             StageSceneKit.SetObj(lava, "config", fireCfg);
             StageSceneKit.SetObj(lava, "warningIcon", warnSr);
             StageSceneKit.SetBool(lava, "autoStart", true);
-            // maxRiseY là tọa độ TÂM khối lava (nửa cao 5.2): -5.35 → mặt lava dừng ở -0.15,
-            // SÁT mép đảo nhưng KHÔNG nuốt mặt đảo — đảo chính luôn đứng được (theo feedback test).
-            // Muốn gắt hơn (nuốt đảo ép leo cao) thì chỉnh lên -4.4 trong Inspector. CẦN TEST.
-            StageSceneKit.SetFloat(lava, "maxRiseY", -5.35f);
+            // maxRiseY là tọa độ TÂM khối lava. Mặt sóng THẤY ĐƯỢC cao ~+4.4 so với tâm →
+            // -2.9 → mặt lava dừng ở ~+1.5: NUỐT TRỌN mặt đảo (y=0), liếm SÁT gầm platform thấp
+            // (mặt đứng ~2.1) → ép leo platform ("lava phải dâng tới gò đất gần nhất"). CẦN TEST.
+            StageSceneKit.SetFloat(lava, "maxRiseY", -2.9f);
 
+            // CHẠM LAVA = CHẾT LUÔN (feedback test) — DeathZone di động cùng object.
             var channel = AssetDatabase.LoadAssetAtPath<ScriptableObject>(StageSceneKit.PlayerDiedChannelPath);
             var lavaDz = lavaGo.AddComponent<DeathZone>();
             StageSceneKit.SetObj(lavaDz, "onPlayerDied", channel);
@@ -137,6 +138,13 @@ namespace FA.EditorTools
             StageSceneKit.SetObj(hotZone, "hotArea", hotCol);
             StageSceneKit.SetMask(hotZone, "playerLayers", GameLayers.Player1Mask | GameLayers.Player2Mask);
             StageSceneKit.SetMask(hotZone, "groundLayers", GameLayers.GroundMask);
+
+            // ---- TƯỜNG BÁM lơ lửng 2 bên (feedback: chạm tường trên không là bám được) ----
+            // Treo CAO (chân cột cách mặt đảo ~4.2 — gấp đôi bản đầu, feedback): với tới từ tầng cao
+            // (±5.5, 5.8); khi lava dâng đỉnh vẫn là chỗ bám né an toàn trên không.
+            // (Feedback: dời tường XA platform tầng cao thêm 1 unit — hết dính sát nhau.)
+            StageSceneKit.MakeClingWall("ClingWall_L", StageArtFire.ClingWall, new Vector2(-9.3f, 6.2f), fireCfg);
+            StageSceneKit.MakeClingWall("ClingWall_R", StageArtFire.ClingWall, new Vector2(9.3f, 6.2f), fireCfg);
 
             // ---- Tàn lửa + tia lửa ----
             StageSceneKit.MakeParticles(null, "PS_Embers", new Vector2(0f, -3f), new Vector2(40f, 2f),

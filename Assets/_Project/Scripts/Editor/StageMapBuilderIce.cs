@@ -30,8 +30,8 @@ namespace FA.EditorTools
             StageSceneKit.MakeBackdrop("BG_Iceberg", StageArtIce.Iceberg, new Vector3(0f, 3.6f, 0f), -85, 0.68f, null, 0.92f);
             StageSceneKit.MakeBackdrop("BG_Pines", StageArtIce.Pines, new Vector3(0f, 1.2f, 0f), -80, 0.5f, null, 1.3f);
 
-            // ---- Sàn: ĐẤT ĐÓNG BĂNG (ma sát thường) xen kẽ MẢNG THUẦN BĂNG trơn (IceSurface) ----
-            // Feedback test: "1 số ô thuần băng đi bị trơn, bên dưới là đất" + tile khít không viền.
+            // ---- Sàn: TOÀN BỘ LÀ BĂNG (feedback mới: bỏ hết đất nâu) — TRƠN TOÀN SÀN đúng GDD design 01.
+            // 2 variant mặt = băng xanh tuyết phủ; mảng TileGloss = băng TRẦN bóng loáng làm điểm nhấn. ----
             var iceMat = AssetDatabase.LoadAssetAtPath<PhysicsMaterial2D>(StageSceneKit.IceMaterialPath);
             var topA = StageSceneKit.MakeTileAsset(StageArtIce.TileTop, StageArtIce.Dir + "/Tile_IceTop.asset");
             var topB = StageSceneKit.MakeTileAsset(StageArtIce.TileTopB, StageArtIce.Dir + "/Tile_IceTopB.asset");
@@ -41,20 +41,25 @@ namespace FA.EditorTools
             Tile[] tops = { topA, topB };
             Tile[] inners = { inA, inB };
 
-            var tmEarth = StageSceneKit.MakeGroundTilemap(null, null, -6);      // đất thường — bám chân
-            tmEarth.gameObject.name = "Tilemap (GroundEarth)";
-            var tmIce = StageSceneKit.MakeGroundTilemap(null, iceMat, -5);      // mảng băng — TRƠN
+            var tmIce = StageSceneKit.MakeGroundTilemap(null, iceMat, -5);      // 1 tilemap duy nhất — TRƠN hết
             tmIce.gameObject.name = "Tilemap (GroundIce)";
 
-            bool IsIcePatch(int x) => (x >= -9 && x <= -6) || (x >= 1 && x <= 3) || (x >= 9 && x <= 12);
+            bool IsGlossPatch(int x) => (x >= -9 && x <= -6) || (x >= 1 && x <= 3) || (x >= 9 && x <= 12);
             for (int x = -14; x <= 13; x++)
             {
-                if (IsIcePatch(x))
-                    tmIce.SetTile(new Vector3Int(x, -1, 0), gloss);             // mặt thuần băng trơn
-                else
-                    tmEarth.SetTile(new Vector3Int(x, -1, 0), StageSceneKit.PickVariant(tops, x, -1));
-                for (int d = 2; d <= 4; d++)                                     // dưới mọi ô đều là đất
-                    tmEarth.SetTile(new Vector3Int(x, -d, 0), StageSceneKit.PickVariant(inners, x, -d));
+                tmIce.SetTile(new Vector3Int(x, -1, 0),
+                    IsGlossPatch(x) ? gloss : StageSceneKit.PickVariant(tops, x, -1));
+                for (int d = 2; d <= 4; d++)                                     // lòng sàn = băng sâu xanh đậm
+                    tmIce.SetTile(new Vector3Int(x, -d, 0), StageSceneKit.PickVariant(inners, x, -d));
+            }
+
+            // MÉP BẬC DƯỚI 2 BÊN (feedback: "mép bên dưới cũng phải đứng được"): vai băng nhô ra của
+            // FloorFace giờ có COLLISION THẬT — bậc thấp hơn mặt sàn 1 unit, đứng/bám được như mép đài Smash.
+            foreach (int sx in new[] { -15, 14 })
+            {
+                tmIce.SetTile(new Vector3Int(sx, -2, 0), StageSceneKit.PickVariant(tops, sx, -2));
+                for (int d = 3; d <= 4; d++)
+                    tmIce.SetTile(new Vector3Int(sx, -d, 0), StageSceneKit.PickVariant(inners, sx, -d));
             }
 
             // (Đã bỏ gò chặn mép theo feedback — mép sàn để thoáng, leo cao bằng TẦNG PLATFORM BAY.)
@@ -91,6 +96,13 @@ namespace FA.EditorTools
             StageSceneKit.MakeDeathZones(null, 24f, 20f, -14f, respawn);
 
             var iceCfg = AssetDatabase.LoadAssetAtPath<StageConfigSO>(StageSceneKit.DataFolder + "/StageConfig_Ice.asset");
+
+            // ---- TƯỜNG BÁM lơ lửng 2 bên (feedback: chạm tường trên không là bám được) ----
+            // Treo CAO (chân cột cách sàn ~4.6 — gấp đôi bản đầu, feedback): với tới từ TẦNG CAO
+            // (±4.5, 6.5) hoặc nấm/đà nhảy đôi; đứng được trên đỉnh cột.
+            // (Feedback: dời tường XA platform thêm 1 unit — hết dính sát nhau.)
+            StageSceneKit.MakeClingWall("ClingWall_L", StageArtIce.ClingWall, new Vector2(-9.5f, 6.6f), iceCfg);
+            StageSceneKit.MakeClingWall("ClingWall_R", StageArtIce.ClingWall, new Vector2(9.5f, 6.6f), iceCfg);
 
             // ---- Bão tuyết + hạt tuyết ----
             var hazardGo = new GameObject("SnowstormHazard");

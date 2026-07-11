@@ -24,6 +24,10 @@ namespace FA.EditorTools
         public const string FloorFace = Dir + "/Swamp_FloorFace.png";
         public const string BigTree = Dir + "/Swamp_BigTree.png";
         public const string Roots = Dir + "/Swamp_Roots.png";
+        public const string BounceShroom = Dir + "/Swamp_BounceShroom.png";
+        public const string Fog = Dir + "/Swamp_Fog.png";
+        public const string WaterGlint = Dir + "/Swamp_WaterGlint.png";
+        public const string ClingWall = Dir + "/Swamp_ClingWall.png";
 
         public static void Generate()
         {
@@ -38,6 +42,129 @@ namespace FA.EditorTools
             GenFloorFace();
             GenBigTree();
             GenRoots();
+            GenBounceShroom();
+            GenFog();
+            GenWaterGlint();
+            GenClingWall();
+        }
+
+        /// <summary>THÂN CÂY BÁM lơ lửng (feedback: tường trên không bám được): khúc thân cây dọc
+        /// 1×4 unit phủ rêu phát sáng, dây leo quấn quanh, chỏm lá trên đỉnh.</summary>
+        private static void GenClingWall()
+        {
+            StagePxCanvas.Reseed(737);
+            var c = new StagePxCanvas(32, 128, new Color32(0, 0, 0, 0));
+            c.FillRect(1, 2, 30, 122, StagePxCanvas.Hex("5a4028"));          // thân gỗ
+            c.FillRect(1, 2, 3, 122, StagePxCanvas.Hex("3a2a1e"));           // rìa tối trái
+            c.FillRect(28, 2, 3, 122, StagePxCanvas.Hex("3a2a1e"));          // rìa tối phải
+            c.FillRect(5, 2, 2, 122, StagePxCanvas.Hex("7a5a38"));           // vệt sáng trong
+            var bark = StagePxCanvas.Hex("46321f");
+            for (int i = 0; i < 9; i++)                                      // vân vỏ cây dọc
+            {
+                int x = StagePxCanvas.RandInt(4, 26), y0 = StagePxCanvas.RandInt(4, 60);
+                c.VLine(x, y0, y0 + StagePxCanvas.RandInt(14, 34), bark);
+            }
+            var moss = StagePxCanvas.Hex("2a5434");
+            var mossGlow = StagePxCanvas.Hex("7ad8a0"); mossGlow.a = 180;
+            for (int i = 0; i < 8; i++)                                      // mảng rêu loang
+                c.Disc(StagePxCanvas.RandInt(4, 28), StagePxCanvas.RandInt(8, 118),
+                       StagePxCanvas.RandInt(2, 5), moss);
+            for (int i = 0; i < 10; i++)                                     // đốm rêu phát sáng
+                c.Blend(StagePxCanvas.RandInt(3, 29), StagePxCanvas.RandInt(6, 120), mossGlow);
+            var vine = StagePxCanvas.Hex("2a5434");
+            for (int y = 10; y < 120; y++)                                   // dây leo quấn xoắn quanh thân
+            {
+                int x = 16 + Mathf.RoundToInt(Mathf.Sin(y * 0.22f) * 13f);
+                c.Blend(x, y, vine);
+                c.Blend(x + 1, y, vine);
+            }
+            c.FillRect(0, 118, 32, 8, StagePxCanvas.Hex("2a5434"));          // chỏm lá đỉnh
+            c.Disc(7, 124, 4, StagePxCanvas.Hex("35683f"));
+            c.Disc(24, 125, 5, StagePxCanvas.Hex("35683f"));
+            c.Disc(16, 127, 4, StagePxCanvas.Hex("2a5434"));
+            c.Save(ClingWall, 32f);
+        }
+
+        /// <summary>NẤM NHÚN khổng lồ (cơ chế mới): mũ vòm rộng hồng-tím phát sáng kiểu Pikmin,
+        /// thân kem có gân, đốm sáng trên mũ. 96×96 @32 = 3×3 unit, gốc chạm đáy canvas.</summary>
+        private static void GenBounceShroom()
+        {
+            StagePxCanvas.Reseed(626);
+            var c = new StagePxCanvas(96, 96, new Color32(0, 0, 0, 0));
+            // Quầng sáng hồng quanh mũ.
+            c.Disc(48, 52, 36, new Color32(255, 150, 200, 22));
+            // Thân kem loe gốc + gân đổ bóng.
+            c.FillRect(38, 4, 20, 40, StagePxCanvas.Hex("e8e0c8"));
+            c.FillRect(34, 4, 28, 7, StagePxCanvas.Hex("d8ccae"));
+            for (int y = 6; y < 42; y += 5)
+                c.HLine(y, 52, 57, StagePxCanvas.Hex("c0b498"));
+            c.VLine(55, 6, 44, StagePxCanvas.Hex("c0b498"));
+            // Lá tia dưới mũ (gills).
+            c.FillRect(24, 38, 48, 6, StagePxCanvas.Hex("8a3c64"));
+            for (int x = 26; x < 70; x += 4)
+                c.VLine(x, 38, 44, StagePxCanvas.Hex("6e2c50"));
+            // Mũ VÒM (chỉ nửa trên: tâm (48,40), bán kính 30).
+            var capCol = StagePxCanvas.Hex("d86a9c");
+            for (int y = 0; y <= 30; y++)
+            {
+                int half = Mathf.RoundToInt(Mathf.Sqrt(900f - y * y));
+                c.FillRect(48 - half, 40 + y, half * 2, 1, capCol);
+            }
+            // Khối sáng trên-trái mũ + viền đỉnh rực (điểm đáp).
+            for (int y = 14; y <= 27; y++)
+            {
+                int half = Mathf.RoundToInt(Mathf.Sqrt(900f - y * y));
+                c.BlendRect(48 - half + 2, 40 + y, half, 1, new Color32(240, 154, 192, 120));
+            }
+            for (int y = 28; y <= 30; y++)
+            {
+                int half = Mathf.RoundToInt(Mathf.Sqrt(900f - y * y));
+                c.FillRect(48 - half, 40 + y, half * 2, 1, StagePxCanvas.Hex("ffd8ea"));
+            }
+            // Đốm sáng trên mũ.
+            c.Disc(36, 56, 4, StagePxCanvas.Hex("ffd8ea"));
+            c.Disc(60, 52, 3, StagePxCanvas.Hex("ffd8ea"));
+            c.Disc(48, 62, 2, StagePxCanvas.Hex("fff0f8"));
+            c.Save(BounceShroom, 32f);
+        }
+
+        /// <summary>SƯƠNG ĐỘC — dải sương mờ trôi (đúng tên map "Rừng Sương Độc"): blob trong mờ
+        /// chồng lớp, đặc phía dưới loãng dần lên trên. 768×112 @16 = 48×7 unit. Dùng cho cả lớp
+        /// sau LẪN lớp TRƯỚC nhân vật (chiều sâu kiểu Smash).</summary>
+        private static void GenFog()
+        {
+            StagePxCanvas.Reseed(838);
+            var c = new StagePxCanvas(768, 112, new Color32(0, 0, 0, 0));
+            c.BlendRect(0, 0, 768, 26, new Color32(184, 214, 196, 16)); // đáy đặc nhẹ
+            for (int i = 0; i < 95; i++)
+                c.Disc(StagePxCanvas.RandInt(0, 768), StagePxCanvas.RandInt(4, 58),
+                       StagePxCanvas.RandInt(14, 36),
+                       new Color32(190, 222, 200, (byte)StagePxCanvas.RandInt(9, 20)));
+            for (int i = 0; i < 40; i++) // wisp loãng phía trên
+                c.Disc(StagePxCanvas.RandInt(0, 768), StagePxCanvas.RandInt(52, 100),
+                       StagePxCanvas.RandInt(10, 24),
+                       new Color32(196, 228, 208, (byte)StagePxCanvas.RandInt(6, 12)));
+            c.Save(Fog, 16f);
+        }
+
+        /// <summary>Vệt LẤP LÁNH mặt nước: gạch ngang trong mờ xanh nhạt, vài vệt sáng hơn. 512×12 @16.</summary>
+        private static void GenWaterGlint()
+        {
+            StagePxCanvas.Reseed(949);
+            var c = new StagePxCanvas(512, 12, new Color32(0, 0, 0, 0));
+            for (int i = 0; i < 42; i++)
+            {
+                int y = StagePxCanvas.RandInt(2, 10);
+                int x0 = StagePxCanvas.RandInt(0, 486);
+                c.HLine(y, x0, x0 + StagePxCanvas.RandInt(6, 26), new Color32(190, 235, 215, 110));
+            }
+            for (int i = 0; i < 12; i++)
+            {
+                int x0 = StagePxCanvas.RandInt(0, 498);
+                c.HLine(StagePxCanvas.RandInt(3, 9), x0, x0 + StagePxCanvas.RandInt(4, 12),
+                        new Color32(226, 250, 236, 185));
+            }
+            c.Save(WaterGlint, 16f);
         }
 
         /// <summary>Mặt bờ đất hữu cơ (kiểu Distant Planet): vai tròn, tầng đất-rêu, rễ cây rủ xuống nước.</summary>

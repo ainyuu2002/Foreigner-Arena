@@ -234,6 +234,33 @@ namespace FA.EditorTools
             return go;
         }
 
+        /// <summary>
+        /// TƯỜNG BÁM lơ lửng (feedback P11, cả 3 map): khối ĐẶC layer Ground (đứng được trên đỉnh,
+        /// chặn di chuyển ngang) + trigger bám ốp rộng hơn 2 mặt bên + ClingWall (áp vào khi rơi →
+        /// trượt xuống chậm). Sprite chuẩn 1×4 unit (32×128 @32); treo CAO — khoảng hở với mặt đất
+        /// gấp đôi bản đầu (feedback).
+        /// </summary>
+        public static GameObject MakeClingWall(string name, string spritePath, Vector2 pos,
+                                               StageConfigSO cfg, int order = -2)
+        {
+            var sr = MakeSpriteGO(name, LoadSprite(spritePath), pos, order, null);
+            var go = sr.gameObject;
+            go.layer = GameLayers.Ground;
+            var solid = go.AddComponent<BoxCollider2D>();
+            solid.size = new Vector2(0.9f, 3.9f); // hụt mép sprite chút — khớp phần vẽ đặc.
+
+            var clingGo = new GameObject("ClingZone");
+            clingGo.transform.SetParent(go.transform, false);
+            var clingCol = clingGo.AddComponent<BoxCollider2D>();
+            clingCol.isTrigger = true;
+            clingCol.size = new Vector2(1.7f, 3.7f); // rộng hơn ~0.4 mỗi bên — chạm mặt bên là bám.
+            var cling = clingGo.AddComponent<ClingWall>();
+            SetObj(cling, "config", cfg);
+            SetObj(cling, "clingArea", clingCol);
+            SetMask(cling, "playerLayers", GameLayers.Player1Mask | GameLayers.Player2Mask);
+            return go;
+        }
+
         // ---------- Death zone / spawn points ----------
 
         public static void MakeDeathZones(Transform parent, float halfW, float topY, float bottomY,
