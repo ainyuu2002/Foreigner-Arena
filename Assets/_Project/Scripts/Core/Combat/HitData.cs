@@ -66,6 +66,19 @@ namespace FA.Core
         /// toàn). Mặc định <see cref="MoveRole.Normal"/> (constructor cũ không truyền) → P5/P7 không đổi.</summary>
         public readonly MoveRole Role;
 
+        /// <summary>(VFX/SFX ADD) Hiệu ứng trúng đòn PER-MOVE (MoveData.hitEffect — spark + hitsound
+        /// riêng từng đòn như MUGEN). null = HitEffectPlayer dùng mặc định nhân vật. CHỈ cho
+        /// presentation — không đọc số gameplay từ đây.</summary>
+        public readonly EffectData HitEffect;
+
+        /// <summary>(VFX/SFX ADD) Hiệu ứng bị đỡ PER-MOVE (MoveData.blockEffect). null = mặc định.</summary>
+        public readonly EffectData BlockEffect;
+
+        /// <summary>(Balance ADD) Hệ số hồi mana của đòn này (MoveData.manaGainMultiplier). ManaBar (P8)
+        /// nhân vào gain — đòn tiêu mana đặt &lt;1/0 để không "hòa vốn" meter. Constructor cũ không truyền
+        /// → mặc định 1 (đòn thường không đổi).</summary>
+        public readonly float ManaGainMult;
+
         public HitData(
             GameObject attacker, GameObject victim,
             float damagePercent, float launchAngle, float baseKnockback, float knockbackGrowth,
@@ -73,8 +86,14 @@ namespace FA.Core
             bool hitsLow, bool hitsHigh,
             int hitstunFrames,
             Vector2 contactPoint,
-            MoveRole role = MoveRole.Normal)
+            MoveRole role = MoveRole.Normal,
+            EffectData hitEffect = null,
+            EffectData blockEffect = null,
+            float manaGainMult = 1f)
         {
+            HitEffect = hitEffect;
+            BlockEffect = blockEffect;
+            ManaGainMult = manaGainMult;
             Role = role;
             Attacker = attacker;
             Victim = victim;

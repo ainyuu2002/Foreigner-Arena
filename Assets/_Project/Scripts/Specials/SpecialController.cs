@@ -46,6 +46,9 @@ namespace FA.Specials
         private IManaSpender _mana;
         private SpecialState _specialState;
         private SuperState _superState;
+        // DefenseController CÙNG module (ref trực tiếp hợp lệ §1.3) — chặn super cắt ngang state phòng
+        // thủ (rage pose/chant, dodge, burst, ultimate). Null ở prefab chưa có P10 → như cũ.
+        private DefenseController _defense;
 
         private void Awake()
         {
@@ -65,6 +68,7 @@ namespace FA.Specials
             // (P15) HitConfirmTracker cùng prefab (Core) — follow-up điều kiện OnHit. Null → coi như chưa trúng.
             // hitboxController truyền vào state để BeginMove re-point MoveData mỗi mắt nối (qua SendMessage).
             var hitConfirm = GetComponent<HitConfirmTracker>();
+            _defense = GetComponent<DefenseController>();
             // (P16) Root attacker → raise OnKnockbackLaunch (so HitData.Attacker bên victim).
             GameObject attackerRoot = transform.root.gameObject;
             _specialState = new SpecialState(_ctx, relay, motion, hitboxController, hitConfirm,
@@ -80,6 +84,7 @@ namespace FA.Specials
         private void Update()
         {
             if (_ctx == null || _ctx.Parser == null || moveSet == null) return;
+            if (CinematicGate.IsActive) return;   // đang chant/flash — không kích gì giữa cinematic.
 
             // 1) SUPER trước (nút riêng, air-usable). Quét entry có category=Super.
             if (TrySuper()) return;
@@ -95,6 +100,9 @@ namespace FA.Specials
             // Đang ở state combat LẠ (không phải state Movement của Motor)? Cho phép — Motor chặn riêng;
             // nhưng tránh kích super khi đang special/super rồi (đang khóa input đến RecoveryEnd).
             if (IsSpecial || IsSuper) return false;
+            // KHÔNG cho super cắt ngang state phòng thủ P10 (fix kẹt flash: super giữa RageModeState kéo
+            // Animator khỏi clip chant UBW → ChantEnd/UltimateInstall không bắn → freeze kẹt vĩnh viễn).
+            if (_defense != null && _defense.OwnsCurrentState) return false;
 
             int win = _ctx.EdgeWindow;
             for (int i = 0; i < moveSet.Count; i++)

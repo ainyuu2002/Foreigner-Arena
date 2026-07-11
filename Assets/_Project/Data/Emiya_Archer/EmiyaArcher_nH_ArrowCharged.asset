@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4b9168800b97d4eb5191c6042d08ba, type: 3}
+  m_Name: EmiyaArcher_nH_ArrowCharged
+  m_EditorClassIdentifier: FA.Core::FA.Core.MoveData
+  moveId: nH_arrow_charged
+  category: 0
+  animatorStateId: 40
+  clip: {fileID: 0}
+  motion: 0
+  button: 4
+  chargeFrames: 0
+  chargedVariant: {fileID: 0}
+  manaCostUnits: 0
+  rageCost: 0
+  requiresRageMode: 0
+  manaGainMultiplier: 0.7
+  baseDamagePercent: 2.9
+  launchAngle: 27
+  baseKnockback: 17.5
+  knockbackGrowth: 0.29999998
+  isSpike: 0
+  causesLaunch: 1
+  role: 1
+  onBlockAdvantage: 0
+  onHitAdvantage: 0
+  hitsLow: 1
+  hitsHigh: 1
+  hitstunFrames: 25
+  hitstopFrames: 12
+  motionImpulses: []
+  driftSpeed: 0
+  followUps: []
+  hitEffect: {fileID: 11400000, guid: 2d0c224c2965bf84eb865e7f83a977ef, type: 2}
+  blockEffect: {fileID: 11400000, guid: 5073379ff77a504429562e26d8e7be78, type: 2}

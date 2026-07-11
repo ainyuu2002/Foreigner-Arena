@@ -24,15 +24,24 @@ namespace FA.Specials
         private readonly ICombatContext _ctx;
         private readonly AnimationEventRelay _relay;
         private readonly RageModeController _rage;
+        // (Ultimate-trong-UBW, Archer) Root người đánh — gate ProjectilePoseLock: beam Excalibur giữ
+        // caster nguyên pose tới khi đánh xong (pattern SuperState/mũi khoan). Null = không gate.
+        private readonly GameObject _attackerRoot;
+        // (Ultimate-trong-UBW) Install-mode để KẾT THÚC khi đòn kết xong ("dùng chiêu là hết nộ luôn",
+        // user chốt). Null (nhân vật không có UBW) = giữ hành vi cũ.
+        private readonly UBWInstallController _install;
 
         private MoveData _move;
         private bool _recoveryDone;
 
-        public UltimateState(ICombatContext ctx, AnimationEventRelay relay, RageModeController rage)
+        public UltimateState(ICombatContext ctx, AnimationEventRelay relay, RageModeController rage,
+                             GameObject attackerRoot = null, UBWInstallController install = null)
         {
             _ctx = ctx;
             _relay = relay;
             _rage = rage;
+            _attackerRoot = attackerRoot;
+            _install = install;
         }
 
         /// <summary>DefenseController set MoveData Ultimate TRƯỚC ChangeState (1 state, data-driven).</summary>
@@ -47,7 +56,13 @@ namespace FA.Specials
             else
                 _ctx.Animator.SetInteger(CoreAnimatorParams.StateId, DefenseStateIds.Ultimate);
 
-            if (_relay != null) _relay.RecoveryEndEvent += OnRecoveryEnd;
+            if (_relay != null)
+            {
+                _relay.RecoveryEndEvent += OnRecoveryEnd;
+                // I-FRAME TOÀN STATE (MUGEN NotHitBy trigger1=1): tắt Hurtbox suốt đòn kết — cinematic
+                // không bị ngắt. Exit() bật lại (fail-safe pattern GroundDodgeState).
+                _relay.HurtboxOff();
+            }
 
             // Miễn nhiễm hitstop suốt Ultimate (animation speed cố định, research §3.5/§4 cạm bẫy 7).
             if (_rage != null) _rage.SetUltimateActive(true);
@@ -56,6 +71,9 @@ namespace FA.Specials
         public void Tick(float dt)
         {
             if (!_recoveryDone) return;
+
+            // GIỮ TƯ THẾ tới khi projectile giữ-pose (beam Excalibur) biến mất — pattern SuperState.
+            if (_attackerRoot != null && ProjectilePoseLock.IsHeld(_attackerRoot)) return;
             if (_ctx.IsGrounded)
             {
                 bool moving = Mathf.Abs(_ctx.MoveX) > MoveDeadzone;
@@ -79,8 +97,21 @@ namespace FA.Specials
 
         public void Exit()
         {
-            if (_relay != null) _relay.RecoveryEndEvent -= OnRecoveryEnd;
+            if (_relay != null)
+            {
+                _relay.RecoveryEndEvent -= OnRecoveryEnd;
+                _relay.HurtboxOn();   // fail-safe: chắc chắn bật lại Hurtbox khi rời state.
+            }
             if (_rage != null) _rage.SetUltimateActive(false); // hết miễn nhiễm hitstop.
+
+            // UBW đang install → kết thúc install (fade đen revert bg/nhạc/aura).
+            if (_install != null && _install.IsInstalled)
+                _install.ForceEnd();
+
+            // MỌI Ultimate: DÙNG XONG = HẾT SẠCH NỘ (user chốt 2026-07-11) — tắt buff không refund +
+            // xóa thanh về 0. Trước đây chỉ nhánh UBW tắt buff và KHÔNG xóa thanh → rage hết hạn
+            // tự nhiên sau ulti vẫn refund 22% / nộ gain sót còn nguyên → exploit nộ liên tục.
+            _rage?.DeactivateAndClear();
         }
 
         private void OnRecoveryEnd() => _recoveryDone = true;

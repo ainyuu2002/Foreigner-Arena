@@ -83,15 +83,26 @@ namespace FA.Specials
 
             Projectile proj = Instantiate(prefab, spawnPos, Quaternion.identity);
 
-            // Lật hướng nhìn chưởng theo facing người bắn (hitbox/visual đúng phía).
-            Vector3 s = proj.transform.localScale;
+            // Độ phóng NGƯỜI BẮN (root ×2.5 — user chốt 2026-07-11): đạn to hơn + bay nhanh hơn +
+            // trọng lực đạn ×k → quỹ đạo phóng to đúng tỉ lệ, TIMING giữ nguyên. .y không đổi dấu facing.
+            float k = Mathf.Abs(transform.lossyScale.y);
+
+            // Lật hướng nhìn chưởng theo facing người bắn (hitbox/visual đúng phía) + nhân k.
+            Vector3 s = proj.transform.localScale * k;
             float mag = Mathf.Abs(s.x);
             s.x = facing > 0 ? mag : -mag;
             proj.transform.localScale = s;
 
             // MOVEMENT Unity-native: set linearVelocity 1 lần. gravityScale prefab quyết bay thẳng/cung.
             var rb = proj.GetComponent<Rigidbody2D>();
-            if (rb != null) rb.linearVelocity = new Vector2(facing * projectileSpeed, rb.linearVelocity.y);
+            if (rb != null)
+            {
+                rb.linearVelocity = new Vector2(facing * projectileSpeed * k, rb.linearVelocity.y);
+                rb.gravityScale *= k;
+            }
+
+            // Cho launcher trên đạn (ProjectileLaunchSetup/Drill) tự nhân k vào tốc độ riêng của nó.
+            proj.BroadcastMessage("SetSpeedScale", k, SendMessageOptions.DontRequireReceiver);
 
             // Gán NGƯỜI BẮN + kênh hit cho HitboxAuthoring con của chưởng (SendMessage → không ref FA.Combat).
             proj.BroadcastMessage("SetAttacker", shooterRoot, SendMessageOptions.DontRequireReceiver);

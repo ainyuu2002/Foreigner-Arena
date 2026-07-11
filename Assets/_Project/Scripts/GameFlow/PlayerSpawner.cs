@@ -41,7 +41,27 @@ namespace FA.GameFlow
             _playerP1 = SpawnOne(charIndexP1, PlayerSlot.P1, mapScene, spawns);
             _playerP2 = SpawnOne(charIndexP2, PlayerSlot.P2, mapScene, spawns);
 
+            WireOpponents(_playerP1, _playerP2);
+            WireOpponents(_playerP2, _playerP1);
+
             RegisterToWinCondition();
+        }
+
+        /// <summary>
+        /// Gán chéo đối thủ sau spawn — FacingController.SetOpponent (auto-face P6) +
+        /// KnockbackController.SetOpponentCollider (pushbox/tumble P7). Hai component nằm ở FA.Combat
+        /// mà GameFlow không ref (§1.3) → gọi qua BroadcastMessage (pattern SetCurrentMove/SetAttacker
+        /// đã dùng trong codebase). Chỉ cần gọi 1 lần/trận: respawn là reposition, không spawn lại.
+        /// </summary>
+        private static void WireOpponents(GameObject self, GameObject other)
+        {
+            if (self == null || other == null) return;
+
+            self.BroadcastMessage("SetOpponent", other.transform, SendMessageOptions.DontRequireReceiver);
+
+            Collider2D body = other.GetComponent<Collider2D>(); // capsule thân trên root prefab
+            if (body != null)
+                self.BroadcastMessage("SetOpponentCollider", body, SendMessageOptions.DontRequireReceiver);
         }
 
         /// <summary>Hủy 2 player (MatchManager gọi trước khi unload map / rematch reload).</summary>

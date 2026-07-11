@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Harness_CharacterRegistry
   m_EditorClassIdentifier: FA.GameFlow::FA.GameFlow.CharacterRegistrySO
   entries:
-  - displayName: Harness Fighter
-    icon: {fileID: 0}
+  - displayName: Emiya Archer
+    icon: {fileID: 21300000, guid: 3b1e0d2841da0b748883939e77195571, type: 3}
     prefabP1: {fileID: 3898550398890612528, guid: e82030a469676e6428780b6c3fb592ec, type: 3}
     prefabP2: {fileID: 1767559637319753129, guid: f8cef16d93ebf5d46aebf8cea4410c08, type: 3}

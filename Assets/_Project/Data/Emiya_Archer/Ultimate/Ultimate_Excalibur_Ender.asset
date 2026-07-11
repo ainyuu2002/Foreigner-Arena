@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4b9168800b97d4eb5191c6042d08ba, type: 3}
+  m_Name: Ultimate_Excalibur_Ender
+  m_EditorClassIdentifier: FA.Core::FA.Core.MoveData
+  moveId: ultimate_excalibur_ender
+  category: 3
+  animatorStateId: 39
+  clip: {fileID: 7400000, guid: 20e2bf1d022a60c42b018dec0e3c1cbc, type: 2}
+  motion: 0
+  button: 7
+  chargeFrames: 0
+  chargedVariant: {fileID: 0}
+  manaCostUnits: 0
+  rageCost: 0
+  requiresRageMode: 0
+  manaGainMultiplier: 0
+  baseDamagePercent: 6
+  launchAngle: 38
+  baseKnockback: 32.5
+  knockbackGrowth: 0.39999998
+  isSpike: 0
+  causesLaunch: 1
+  role: 5
+  onBlockAdvantage: 0
+  onHitAdvantage: 0
+  hitsLow: 1
+  hitsHigh: 1
+  hitstunFrames: 24
+  hitstopFrames: 12
+  motionImpulses: []
+  driftSpeed: 0
+  followUps: []
+  hitEffect: {fileID: 11400000, guid: ebf8a0d719511654581ca6083f08d9dc, type: 2}
+  blockEffect: {fileID: 11400000, guid: 5073379ff77a504429562e26d8e7be78, type: 2}

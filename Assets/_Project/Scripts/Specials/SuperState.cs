@@ -116,6 +116,12 @@ namespace FA.Specials
 
             if (!_recoveryDone) return;
 
+            // (Super 2) GIỮ TƯ THẾ tới khi projectile giữ-pose (mũi khoan) biến mất — người bắn không
+            // được nhảy vào bồi thêm khi địch đang bị khoan (cân bằng, user chốt). Projectile có
+            // lifetime nên khóa luôn tự nhả; bị đánh trúng giữa chừng vẫn vào Hurt bình thường
+            // (Machine đổi state không đi qua đây).
+            if (ProjectilePoseLock.IsHeld(_attackerRoot)) return;
+
             // ĐẤT: về Idle/Walk theo ý định di chuyển (giống AttackState).
             if (_ctx.IsGrounded)
             {
