@@ -59,6 +59,19 @@ namespace FA.Stage
         [Tooltip("Hệ số làm CHẬM vận tốc ngang trong lúc bão (1 = không chậm, 0.7 = còn 70%/giây). CẦN TEST.")]
         [Range(0f, 1f)] public float snowstormSlowFactor = 0.85f;
 
+        [Tooltip("GIÓ CÓ HƯỚNG trong bão: tốc độ gió cộng vào vận tốc ngang mỗi FixedUpdate (motor ghi lại vx " +
+                 "mỗi tick nên hiệu quả: đứng yên bị TRÔI theo gió ~ giá trị này, đi NGƯỢC gió chậm đi, đi " +
+                 "THEO gió nhanh lên). Hướng gió random trái/phải mỗi trận bão. CẦN TEST.")]
+        [Min(0f)] public float snowstormWindSpeed = 2.5f;
+
+        [Tooltip("Trần tốc độ ngang mà gió còn đẩy thêm được (chặn cộng dồn vô hạn khi đang bay knockback). CẦN TEST.")]
+        [Min(1f)] public float snowstormWindMaxCarry = 12f;
+
+        [Header("Chung — Tường bám trên không (ClingWall, cả 3 map)")]
+        [Tooltip("Tốc độ TRƯỢT XUỐNG tối đa khi áp vào tường bám (kẹp vy khi đang rơi). " +
+                 "Nhỏ hơn = bám dính hơn. CẦN TEST.")]
+        [Min(0f)] public float wallClingSlideSpeed = 1.2f;
+
         [Header("Biome Fire — Đứng yên tăng % (FireBiome)")]
         [Tooltip("%/giây cộng cho nhân vật ĐỨNG YÊN trong vùng lửa (đủ răn đe đứng yên, ép di chuyển). " +
                  "Đi qua IPercentReceiver → clamp tại percentCap. CẦN TEST.")]
@@ -76,5 +89,42 @@ namespace FA.Stage
 
         [Tooltip("Chu kỳ nhấp nháy icon cảnh báo (giây/lần bật-tắt). CẦN TEST.")]
         [Min(0.05f)] public float lavaWarningBlinkPeriod = 0.25f;
+
+        [Tooltip("Lava dâng tới đỉnh thì GIỮ bao lâu (giây) trước khi RÚT xuống. CẦN TEST.")]
+        [Min(0f)] public float lavaHoldSeconds = 5f;
+
+        [Tooltip("Tốc độ lava RÚT xuống (world/giây). CẦN TEST.")]
+        [Min(0.01f)] public float lavaRecedeSpeed = 0.5f;
+
+        [Tooltip("Nghỉ bao lâu giữa 2 đợt dâng (giây, random ± jitter bên dưới) — 'dâng núi lửa NGẪU NHIÊN'. CẦN TEST.")]
+        [Min(0f)] public float lavaRestSeconds = 14f;
+
+        [Tooltip("Random ± quanh lavaRestSeconds để đợt dâng không đoán trước được. CẦN TEST.")]
+        [Min(0f)] public float lavaRestJitter = 6f;
+
+        [Tooltip("%/giây cộng cho người ĐỨNG TRÊN Ô ĐẤT DUNG NHAM nóng (LavaFloorZone — khác FireBiome: " +
+                 "tính cả khi đang di chuyển, chỉ cần đứng trong vùng + chạm đất). CẦN TEST.")]
+        [Min(0f)] public float lavaFloorPercentPerSec = 4f;
+
+        [Header("Biome Swamp — Slowness + giảm lực nhảy (SwampBiome)")]
+        [Tooltip("Hệ số nhân vận tốc NGANG mỗi FixedUpdate khi ĐỨNG ĐẤT trong đầm lầy (motor ghi lại vx mỗi " +
+                 "step nên hiệu quả ổn định = walkSpeed × hệ số). 1 = không chậm. GDD: 'slowness thường trực'. CẦN TEST.")]
+        [Range(0.3f, 1f)] public float swampSpeedFactor = 0.8f;
+
+        [Tooltip("Hệ số nhân vận tốc NHẢY (vy) ngay khi phát hiện cú nhảy trong đầm lầy. 0.85 ≈ giảm ~25-28% " +
+                 "chiều cao (GDD: 'lực nhảy suy giảm phẳng 25%'). CẦN TEST.")]
+        [Range(0.5f, 1f)] public float swampJumpScale = 0.85f;
+
+        [Tooltip("Hệ số vận tốc ngang NHÂN THÊM khi đứng trong VŨNG BÙN ĐẶC (MudPitZone — CHỒNG với " +
+                 "swampSpeedFactor: ô bùn ướt lầy RÕ RỆT hơn nền đầm thường). CẦN TEST.")]
+        [Range(0.3f, 1f)] public float mudSpeedFactor = 0.72f;
+
+        [Tooltip("Vận tốc bật lên (vy) khi đáp xuống MŨ NẤM NHÚN (MushroomBouncer — bù trừ giảm lực nhảy, " +
+                 "đường thoát bệ chìm giữa map / lên tầng cao). CẦN TEST.")]
+        [Min(0f)] public float mushroomBounceSpeed = 18f;
+
+        [Tooltip("Ngưỡng vy tăng đột ngột trong 1 FixedUpdate để coi-là cú nhảy (impulse). Nhỏ hơn jumpSpeed " +
+                 "nhân vật (~12) nhưng lớn hơn dao động thường. CẦN TEST.")]
+        [Min(1f)] public float swampJumpImpulseThreshold = 6f;
     }
 }

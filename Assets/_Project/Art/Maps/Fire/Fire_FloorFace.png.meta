@@ -1,0 +1,559 @@
+fileFormatVersion: 2
+guid: a5fccdb1b23aa2249b1eeba314f61709
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1315552050759224698
+    second: Fire_FloorFace_0
+  - first:
+      213: -6816365500695588149
+    second: Fire_FloorFace_1
+  - first:
+      213: 3491130655310483303
+    second: Fire_FloorFace_2
+  - first:
+      213: -5267055766802014257
+    second: Fire_FloorFace_3
+  - first:
+      213: 4660521716037586347
+    second: Fire_FloorFace_4
+  - first:
+      213: -7328388295489805992
+    second: Fire_FloorFace_5
+  - first:
+      213: 1158698377378729342
+    second: Fire_FloorFace_6
+  - first:
+      213: -7123816261746734744
+    second: Fire_FloorFace_7
+  - first:
+      213: 2808069470410786817
+    second: Fire_FloorFace_8
+  - first:
+      213: -460399731363953677
+    second: Fire_FloorFace_9
+  - first:
+      213: -7966612571104813955
+    second: Fire_FloorFace_10
+  - first:
+      213: -321275121946384466
+    second: Fire_FloorFace_11
+  - first:
+      213: -645017501116478165
+    second: Fire_FloorFace_12
+  - first:
+      213: 7209659297522328963
+    second: Fire_FloorFace_13
+  - first:
+      213: -4534787299303243307
+    second: Fire_FloorFace_14
+  - first:
+      213: 9102942284866648640
+    second: Fire_FloorFace_15
+  - first:
+      213: -1016238799399490472
+    second: Fire_FloorFace_16
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Fire_FloorFace_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 33
+        width: 768
+        height: 109
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7d4a0dbe97c14210800000000000000
+      internalID: 1315552050759224698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_1
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 18
+        width: 11
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc2dfc711b76761a0800000000000000
+      internalID: -6816365500695588149
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_2
+      rect:
+        serializedVersion: 2
+        x: 166
+        y: 13
+        width: 11
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 76f024e85dcf27030800000000000000
+      internalID: 3491130655310483303
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_3
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 8
+        width: 15
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcfd797afa8a7e6b0800000000000000
+      internalID: -5267055766802014257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_4
+      rect:
+        serializedVersion: 2
+        x: 364
+        y: 4
+        width: 19
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bad0a68eecf7da040800000000000000
+      internalID: 4660521716037586347
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_5
+      rect:
+        serializedVersion: 2
+        x: 613
+        y: 2
+        width: 24
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85123373ca55c4a90800000000000000
+      internalID: -7328388295489805992
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_6
+      rect:
+        serializedVersion: 2
+        x: 685
+        y: 3
+        width: 29
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7d0b710906841010800000000000000
+      internalID: 1158698377378729342
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_7
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 12
+        width: 11
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8694f618ade132d90800000000000000
+      internalID: -7123816261746734744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_8
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 0
+        width: 15
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10844783e4448f620800000000000000
+      internalID: 2808069470410786817
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_9
+      rect:
+        serializedVersion: 2
+        x: 130
+        y: 6
+        width: 19
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f3cd5532e45c99f0800000000000000
+      internalID: -460399731363953677
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_10
+      rect:
+        serializedVersion: 2
+        x: 264
+        y: 7
+        width: 19
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7cd2245318e07190800000000000000
+      internalID: -7966612571104813955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_11
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 11
+        width: 11
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea727319af99a8bf0800000000000000
+      internalID: -321275121946384466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_12
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 0
+        width: 11
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2dca0c00007c07f0800000000000000
+      internalID: -645017501116478165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_13
+      rect:
+        serializedVersion: 2
+        x: 394
+        y: 15
+        width: 19
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3852964ceeadd0460800000000000000
+      internalID: 7209659297522328963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_14
+      rect:
+        serializedVersion: 2
+        x: 582
+        y: 0
+        width: 28
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d1c3154af23111c0800000000000000
+      internalID: -4534787299303243307
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_15
+      rect:
+        serializedVersion: 2
+        x: 650
+        y: 0
+        width: 15
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04afb5457c5245e70800000000000000
+      internalID: 9102942284866648640
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fire_FloorFace_16
+      rect:
+        serializedVersion: 2
+        x: 670
+        y: 2
+        width: 15
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85ce2da323895e1f0800000000000000
+      internalID: -1016238799399490472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Fire_FloorFace_0: 1315552050759224698
+      Fire_FloorFace_1: -6816365500695588149
+      Fire_FloorFace_10: -7966612571104813955
+      Fire_FloorFace_11: -321275121946384466
+      Fire_FloorFace_12: -645017501116478165
+      Fire_FloorFace_13: 7209659297522328963
+      Fire_FloorFace_14: -4534787299303243307
+      Fire_FloorFace_15: 9102942284866648640
+      Fire_FloorFace_16: -1016238799399490472
+      Fire_FloorFace_2: 3491130655310483303
+      Fire_FloorFace_3: -5267055766802014257
+      Fire_FloorFace_4: 4660521716037586347
+      Fire_FloorFace_5: -7328388295489805992
+      Fire_FloorFace_6: 1158698377378729342
+      Fire_FloorFace_7: -7123816261746734744
+      Fire_FloorFace_8: 2808069470410786817
+      Fire_FloorFace_9: -460399731363953677
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

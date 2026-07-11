@@ -26,6 +26,7 @@ MonoBehaviour:
   snowstormSlowFactor: 0.85
   firePercentPerSec: 2.5
   fireStillSpeedEpsilon: 0.1
-  lavaRiseSpeed: 0.4
-  lavaWarningLead: 2.5
+  lavaRiseSpeed: 0.7
+  lavaWarningLead: 3
   lavaWarningBlinkPeriod: 0.25
+  lavaRecedeSpeed: 0.9
