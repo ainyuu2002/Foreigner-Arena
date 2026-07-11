@@ -122,6 +122,7 @@ GameObject:
   - component: {fileID: 1753472234085593418}
   - component: {fileID: 1435338679004942087}
   - component: {fileID: 5370597810873021979}
+  - component: {fileID: 8185938671784161670}
   m_Layer: 11
   m_Name: Emiya Archer
   m_TagString: Untagged
@@ -1387,6 +1388,21 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 6aaf1943752763e41822ac2f08ca5d1a, type: 3}
   loopFromIndex: 1
   volume: 0.6
+--- !u!114 &8185938671784161670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a47165317568cf640aa7ec1b1ac2be61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Effects::FA.Effects.PaletteSwapper
+  altProfile: {fileID: 11400000, guid: ac8ac95b299ecd3408e950c3f89eda31, type: 2}
+  target: {fileID: 5229451945257038344}
+  bakeShader: {fileID: 4800000, guid: 712594ac32faf434d9b74b08bb094b4f, type: 3}
 --- !u!1 &608847813806676017
 GameObject:
   m_ObjectHideFlags: 0

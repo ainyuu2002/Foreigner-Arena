@@ -24,6 +24,22 @@ namespace FA.EditorTools
         public const string PlayerDiedChannelPath = DataFolder + "/OnPlayerDiedChannel.asset";
         public const string StageRegistryPath = DataFolder + "/GameFlow/Harness_StageRegistry.asset";
         public const string IceMaterialPath = DataFolder + "/Stage/IceSurface.physicsMaterial2D";
+        public const string MushroomMaterialPath = DataFolder + "/Stage/MushroomBounce.physicsMaterial2D";
+
+        /// <summary>Material nảy mũ nấm (nấm nhún v2) — tạo nếu chưa có, đồng bộ bounciness từ StageConfigSO.</summary>
+        public static PhysicsMaterial2D EnsureMushroomMaterial(StageConfigSO cfg)
+        {
+            var mat = AssetDatabase.LoadAssetAtPath<PhysicsMaterial2D>(MushroomMaterialPath);
+            if (mat == null)
+            {
+                mat = new PhysicsMaterial2D("MushroomBounce");
+                AssetDatabase.CreateAsset(mat, MushroomMaterialPath);
+            }
+            mat.friction = 0.2f;
+            mat.bounciness = cfg != null ? cfg.mushroomBounciness : 0.6f;
+            EditorUtility.SetDirty(mat);
+            return mat;
+        }
 
         // ---------- SerializedObject helpers (pattern GameFlowHarnessMapScene) ----------
 
@@ -235,30 +251,35 @@ namespace FA.EditorTools
         }
 
         /// <summary>
-        /// TƯỜNG BÁM lơ lửng (feedback P11, cả 3 map): khối ĐẶC layer Ground (đứng được trên đỉnh,
-        /// chặn di chuyển ngang) + trigger bám ốp rộng hơn 2 mặt bên + ClingWall (áp vào khi rơi →
-        /// trượt xuống chậm). Sprite chuẩn 1×4 unit (32×128 @32); treo CAO — khoảng hở với mặt đất
-        /// gấp đôi bản đầu (feedback).
+        /// TƯỜNG BÁM lơ lửng (chuẩn P3 wall-hang, cả 3 map): khối ĐẶC layer <b>Wall</b> → cơ chế P3
+        /// (WallCheck + WallHangState + WallJump) tự hoạt động: trên không, ép input về phía tường là
+        /// bám/trượt theo wallSlideSpeed của CharacterData, nhảy để wall-jump. Nắp mỏng layer Ground
+        /// trên đỉnh để ĐỨNG được (GroundCheck dùng StandableMask, không chứa Wall). KHÔNG dùng
+        /// ClingWall tự chế (bị loại — đè lên cơ chế P3). Sprite chuẩn 1×4 unit (32×128 @32).
         /// </summary>
         public static GameObject MakeClingWall(string name, string spritePath, Vector2 pos,
                                                StageConfigSO cfg, int order = -2)
         {
             var sr = MakeSpriteGO(name, LoadSprite(spritePath), pos, order, null);
             var go = sr.gameObject;
-            go.layer = GameLayers.Ground;
+            go.layer = GameLayers.Wall;
             var solid = go.AddComponent<BoxCollider2D>();
             solid.size = new Vector2(0.9f, 3.9f); // hụt mép sprite chút — khớp phần vẽ đặc.
 
-            var clingGo = new GameObject("ClingZone");
-            clingGo.transform.SetParent(go.transform, false);
-            var clingCol = clingGo.AddComponent<BoxCollider2D>();
-            clingCol.isTrigger = true;
-            clingCol.size = new Vector2(1.7f, 3.7f); // rộng hơn ~0.4 mỗi bên — chạm mặt bên là bám.
-            var cling = clingGo.AddComponent<ClingWall>();
-            SetObj(cling, "config", cfg);
-            SetObj(cling, "clingArea", clingCol);
-            SetMask(cling, "playerLayers", GameLayers.Player1Mask | GameLayers.Player2Mask);
+            AddWallTopCap(go);
             return go;
+        }
+
+        /// <summary>Nắp Ground mỏng phủ mặt trên khối tường Wall — đứng được trên đỉnh.</summary>
+        public static void AddWallTopCap(GameObject wall)
+        {
+            var capGo = new GameObject("TopCap") { layer = GameLayers.Ground };
+            capGo.transform.SetParent(wall.transform, false);
+            var cap = capGo.AddComponent<BoxCollider2D>();
+            // Hẹp hơn thân 1 chút để mặt BÊN chỉ chạm Wall (không dính Ground khi bám); mặt trên
+            // phẳng cùng cao độ đỉnh khối (thân 0.9×3.9 tâm giữa → đỉnh +1.95).
+            cap.size = new Vector2(0.86f, 0.1f);
+            cap.offset = new Vector2(0f, 1.9f);
         }
 
         // ---------- Death zone / spawn points ----------

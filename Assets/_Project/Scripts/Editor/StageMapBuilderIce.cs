@@ -139,7 +139,8 @@ namespace FA.EditorTools
             Debug.Log("[Phase11] Đã dựng xong Map_Ice.");
         }
 
-        /// <summary>Cụm gai băng: sprite + vùng hazard tăng % khi player đứng/chạm vào (đứng đất trong vùng).</summary>
+        /// <summary>Cụm gai băng v2: sprite + IceSpikeHazard — CHẠM là +% một phát + hất nhẹ + flash
+        /// (redesign feedback test, thay DoT LavaFloorZone vô hình).</summary>
         private static void MakeSpikeHazard(Vector3 pos, Vector3 scale, StageConfigSO cfg)
         {
             var sr = StageSceneKit.MakeSpriteGO("Hazard_Spikes", StageSceneKit.LoadSprite(StageArtIce.Spikes),
@@ -147,13 +148,12 @@ namespace FA.EditorTools
             var go = sr.gameObject;
             var col = go.AddComponent<BoxCollider2D>();
             col.isTrigger = true;
-            col.size = new Vector2(2.6f, 1.7f);   // ôm cụm gai (sprite 3×2 unit, pivot giữa)
+            col.size = new Vector2(1.7f, 1.2f);   // ôm SÁT cụm gai — phải giẫm lên mới dính.
             col.offset = new Vector2(0f, -0.1f);
-            var zone = go.AddComponent<LavaFloorZone>();
+            var zone = go.AddComponent<IceSpikeHazard>();
             StageSceneKit.SetObj(zone, "config", cfg);
-            StageSceneKit.SetObj(zone, "hotArea", col);
+            StageSceneKit.SetObj(zone, "spikeArea", col);
             StageSceneKit.SetMask(zone, "playerLayers", GameLayers.Player1Mask | GameLayers.Player2Mask);
-            StageSceneKit.SetMask(zone, "groundLayers", GameLayers.GroundMask | GameLayers.OneWayPlatformMask);
         }
     }
 }

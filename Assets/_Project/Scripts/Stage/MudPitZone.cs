@@ -11,6 +11,7 @@ namespace FA.Stage
     /// Cùng pattern poll-Overlap như LavaFloorZone. Số ở StageConfigSO.mudSpeedFactor (CẦN TEST).
     /// </summary>
     [DisallowMultipleComponent]
+    [DefaultExecutionOrder(50)] // chạy SAU CharacterMotor (order 0): state ghi vx trước, slow nhân đè sau — nếu không hiệu ứng bị motor nuốt.
     public sealed class MudPitZone : MonoBehaviour
     {
         [Tooltip("StageConfigSO của map Swamp — mudSpeedFactor. BẮT BUỘC.")]
@@ -47,6 +48,8 @@ namespace FA.Stage
             {
                 var rb = c.attachedRigidbody;
                 if (rb == null || !IsGrounded(rb)) continue;
+                var inv = rb.GetComponent<IInvulnerable>(); // bất tử hồi sinh → môi trường bỏ qua.
+                if (inv != null && inv.IsInvulnerable) continue;
                 // Motor ghi lại vx mỗi FixedUpdate → nhân 1 lần/step = tốc độ ổn định walkSpeed × hệ số
                 // (cùng cơ chế SwampBiome — 2 hệ số CHỒNG nhau: bùn ướt lầy hơn hẳn nền đầm thường).
                 var v = rb.linearVelocity;

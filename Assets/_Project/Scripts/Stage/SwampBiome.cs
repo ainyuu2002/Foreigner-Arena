@@ -17,6 +17,7 @@ namespace FA.Stage
     /// SnowstormHazard/FireBiome: config + area trigger + auto-tìm theo playerLayers.
     /// </summary>
     [DisallowMultipleComponent]
+    [DefaultExecutionOrder(50)] // chạy SAU CharacterMotor (order 0): state ghi vx trước, slow nhân đè sau — nếu không hiệu ứng bị motor nuốt.
     public sealed class SwampBiome : MonoBehaviour
     {
         [Header("Config")]
@@ -59,6 +60,8 @@ namespace FA.Stage
             foreach (var rb in ResolveBodies())
             {
                 if (rb == null) continue;
+                var inv = rb.GetComponent<IInvulnerable>(); // bất tử hồi sinh → môi trường bỏ qua.
+                if (inv != null && inv.IsInvulnerable) continue;
                 Vector2 v = rb.linearVelocity;
 
                 // (b) Giảm lực nhảy: vy vọt lên đột ngột so với step trước = cú nhảy → scale 1 lần.
@@ -94,14 +97,16 @@ namespace FA.Stage
             if (swampArea != null)
             {
                 var filter = new ContactFilter2D { useLayerMask = true, layerMask = playerLayers, useTriggers = true };
-                var results = new List<Collider2D>(8);
-                swampArea.Overlap(filter, results);
-                foreach (var c in results)
+                _overlapScratch.Clear(); // list CACHE — new List mỗi FixedUpdate là rác GC → giật định kỳ.
+                swampArea.Overlap(filter, _overlapScratch);
+                foreach (var c in _overlapScratch)
                     if (c.attachedRigidbody != null && !_scratch.Contains(c.attachedRigidbody))
                         _scratch.Add(c.attachedRigidbody);
             }
             foreach (var rb in _scratch) yield return rb;
         }
+
+        private readonly List<Collider2D> _overlapScratch = new List<Collider2D>(8);
 
         private bool InArea(Rigidbody2D rb)
         {

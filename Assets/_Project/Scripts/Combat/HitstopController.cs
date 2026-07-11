@@ -130,5 +130,15 @@ namespace FA.Combat
             }
             if (animator != null) animator.speed = _savedAnimatorSpeed;
         }
+
+        // (P12 fix) RespawnSystem BroadcastMessage("OnRespawn"): chết ĐÚNG giữa hitstop → hủy freeze
+        // nhưng KHÔNG hoàn velocity đã lưu (đó là đà của mạng trước — Motor.OnRespawn vừa zero).
+        private void OnRespawn()
+        {
+            if (_framesLeft <= 0) return;
+            _framesLeft = 0;
+            if (body != null) body.gravityScale = _savedGravityScale;
+            if (animator != null) animator.speed = _savedAnimatorSpeed;
+        }
     }
 }

@@ -26,10 +26,12 @@ namespace FA.EditorTools
         private const string MapScenePath = "Assets/_Project/Scenes/Test_Phase12_Map.unity";
 
         // Giới hạn zoom (ortho half-height): min = zoom-in sát nhất, max = zoom-out xa nhất.
-        // Đồng bộ RIG CAMERA CỦA Test_Phase05 (user chốt "giống phase 5"): OrthoSizeRange (3,10),
-        // FramingSize 0.8, CenterOffset (0,-0.5), Damping 2, lens 5.
-        private const float OrthoMin = 3f;
-        private const float OrthoMax = 10f;
+        // Gốc đồng bộ Test_Phase05 (3,10) — nhưng đó là số TRƯỚC khi scale nhân vật ×2.5; trên 3 map
+        // thật zoom (3,10) quá sát, không thấy map/lava dâng (feedback test 2026-07-11). Nới (7,18):
+        // min ≈ 3×2.5 (không dí sát mặt), max đủ ôm chiều dọc map Fire/Swamp. CẦN TEST — đổi số rồi
+        // chạy lại "Build match camera rig" cho TỪNG map (tool idempotent, ghi đè rig cũ).
+        private const float OrthoMin = 7f;
+        private const float OrthoMax = 18f;
 
         [MenuItem("FA/Stage/Build match camera rig (current scene)")]
         public static void BuildIntoCurrentScene()

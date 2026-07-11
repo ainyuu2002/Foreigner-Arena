@@ -44,6 +44,11 @@ namespace FA.GameFlow
             WireOpponents(_playerP1, _playerP2);
             WireOpponents(_playerP2, _playerP1);
 
+            // (Feedback test) 2 người chọn TRÙNG nhân vật → P2 đổi bộ màu alt (PaletteSwapper —
+            // FA.Effects; gọi qua BroadcastMessage như SetOpponent, không ref chéo §1.3).
+            if (charIndexP1 == charIndexP2 && _playerP2 != null)
+                _playerP2.BroadcastMessage("ApplyAltPalette", SendMessageOptions.DontRequireReceiver);
+
             RegisterToWinCondition();
         }
 

@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1b2c3d4e5f60718293a4b5c6d7e8f90, type: 3}
   m_Name: MatchSettings
   m_EditorClassIdentifier: FA.GameFlow::FA.GameFlow.MatchSettingsSO
-  startingLives: 3
-  matchSeconds: 180
+  startingLives: 5
+  matchSeconds: 600
   resetPercentOnRespawn: 1
-  iFrameEndsOnLanding: 1
-  iFrameMaxSeconds: 3
+  iFrameEndsOnLanding: 0
+  iFrameMaxSeconds: 5
   keepManaOnRespawn: 1
   keepRageOnRespawn: 1
   comboBonusWeight: 2
