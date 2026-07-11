@@ -151,12 +151,15 @@ namespace FA.Resources
             if (!Mathf.Approximately(before, _rage)) RaiseChanged();
         }
 
-        /// <summary>DEBUG/test only — đặt lại nộ về 0. P12 RespawnSystem KHÔNG gọi (giữ qua chết).</summary>
-        public void ResetRage()
+        /// <summary>IRageSpender — xóa SẠCH nộ về 0 (Ultimate dùng xong = hết nộ, user chốt 2026-07-11).</summary>
+        public void ClearRage()
         {
             _rage = 0f;
             RaiseChanged();
         }
+
+        /// <summary>DEBUG/test only — đặt lại nộ về 0. P12 RespawnSystem KHÔNG gọi (giữ qua chết).</summary>
+        public void ResetRage() => ClearRage();
 
         private void RaiseChanged()
         {

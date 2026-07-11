@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb87c24a6d54abc49b065f621d775942, type: 3}
   m_Name: ResourceConfig
   m_EditorClassIdentifier: FA.Resources::FA.Resources.ResourceConfigSO
-  manaPerSegment: 100
+  manaPerSegment: 25
   maxSegments: 4
   startSegments: 1
   manaGainPerDamage: 0.8

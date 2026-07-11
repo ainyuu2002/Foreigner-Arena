@@ -18,10 +18,10 @@ MonoBehaviour:
   burstRageCost: 0.5
   rageModeRageCost: 1
   rageModeRefundFraction: 0.22
-  rcDashSpeed: 14
+  rcDashSpeed: 35
   groundDodgeBackSpeed: 0
-  burstPushbackForce: 16
-  burstPushbackUp: 6
+  burstPushbackForce: 40
+  burstPushbackUp: 15
   rageModeDuration: 12
   rageDamageMult: 1.2
   rageKnockbackMult: 1.2

@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -256,17 +257,46 @@ namespace FA.EditorTools
 
         public static void EnsureCamera()
         {
-            if (Camera.main != null) return;
-            var camGo = new GameObject("UICamera", typeof(Camera)) { tag = "MainCamera" };
-            var cam = camGo.GetComponent<Camera>();
-            cam.orthographic = true; cam.orthographicSize = 8f;
-            cam.transform.position = new Vector3(0f, 1f, -10f);
-            cam.backgroundColor = new Color(0.10f, 0.11f, 0.14f, 1f);
-            // Depth -10: camera map (scene load Additive, depth mặc định 0) LUÔN render SAU → phần world
-            // trong trận tất định là hình từ camera map, không phụ thuộc thứ tự không xác định khi 2 camera
-            // cùng depth. UI trong trận nằm ở canvas Overlay nên không bị camera nào đè.
-            cam.depth = -10f;
-            Undo.RegisterCreatedObjectUndo(camGo, "Create UI Camera");
+            Camera cam = Camera.main;
+            if (cam == null)
+            {
+                var camGo = new GameObject("UICamera", typeof(Camera)) { tag = "MainCamera" };
+                cam = camGo.GetComponent<Camera>();
+                cam.orthographic = true; cam.orthographicSize = 8f;
+                cam.transform.position = new Vector3(0f, 1f, -10f);
+                cam.backgroundColor = new Color(0.10f, 0.11f, 0.14f, 1f);
+                cam.depth = -10f;
+                Undo.RegisterCreatedObjectUndo(camGo, "Create UI Camera");
+            }
+
+            // MỘT camera render DUY NHẤT cho cả menu + trận (chốt user 2026-07-11, phương án A —
+            // trước đây map additive mang camera riêng → 2 camera tranh nhau, Camera.main hên xui):
+            //   • AudioListener — trước đây KHÔNG scene nào có ("There are no audio listeners" —
+            //     mọi SFX/BGM câm dù AudioSource vẫn phát).
+            //   • CinemachineBrain — vcam menu (dưới đây, priority 0) + vcam trận (CM_MatchCamera
+            //     trong scene map, priority 10) tự blend khi map load/unload. CameraCinematicLock
+            //     (P17) tắt Brain tạm trong chant/flash nên cinematic zoom vẫn chạy.
+            if (cam.GetComponent<AudioListener>() == null) cam.gameObject.AddComponent<AudioListener>();
+            if (cam.GetComponent<CinemachineBrain>() == null)
+            {
+                var brain = cam.gameObject.AddComponent<CinemachineBrain>();
+                brain.DefaultBlend = new CinemachineBlendDefinition(
+                    CinemachineBlendDefinition.Styles.EaseInOut, 1f);
+            }
+
+            // Vcam MENU: giữ camera đúng khung menu khi không trong trận; map unload → Brain tự blend
+            // về đây (world FX menu trở lại khung hình).
+            if (GameObject.Find("CM_MenuCamera") == null)
+            {
+                var menuGo = new GameObject("CM_MenuCamera");
+                menuGo.transform.position = cam.transform.position;
+                var vcam = menuGo.AddComponent<CinemachineCamera>();
+                vcam.Priority = 0;
+                var lens = vcam.Lens;
+                lens.OrthographicSize = 8f;
+                vcam.Lens = lens;
+                Undo.RegisterCreatedObjectUndo(menuGo, "Create CM_MenuCamera");
+            }
         }
 
         /// <summary>Canvas Screen-Space-Overlay chuẩn 1920×1080 ScaleWithScreenSize. sortingOrder tách HUD/menu.</summary>

@@ -11,7 +11,8 @@
         "FA.GameFlow",
         "FA.Stage",
         "FA.Movement",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.Cinemachine"
     ],
     "includePlatforms": [
         "Editor"

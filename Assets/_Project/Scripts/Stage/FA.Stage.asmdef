@@ -3,7 +3,8 @@
     "rootNamespace": "FA.Stage",
     "references": [
         "FA.Core",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.Cinemachine"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -19,14 +19,15 @@ MonoBehaviour:
   motion: 0
   button: 4
   chargeFrames: 0
+  chargedVariant: {fileID: 0}
   manaCostUnits: 0
   rageCost: 0
   requiresRageMode: 0
   manaGainMultiplier: 0.5
   baseDamagePercent: 4
   launchAngle: 50
-  baseKnockback: 8
-  knockbackGrowth: 0.1
+  baseKnockback: 20
+  knockbackGrowth: 0.25
   isSpike: 0
   causesLaunch: 1
   role: 1

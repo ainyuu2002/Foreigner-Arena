@@ -104,13 +104,14 @@ namespace FA.Specials
             }
             if (_rage != null) _rage.SetUltimateActive(false); // hết miễn nhiễm hitstop.
 
-            // Đòn kết trong UBW: DÙNG XONG = HẾT NỘ LUÔN (user chốt) — kết thúc install (fade đen
-            // revert bg/nhạc/aura) + tắt buff Rage KHÔNG hoàn nộ. Nhân vật không UBW: _install null.
+            // UBW đang install → kết thúc install (fade đen revert bg/nhạc/aura).
             if (_install != null && _install.IsInstalled)
-            {
                 _install.ForceEnd();
-                _rage?.DeactivateNoRefund();
-            }
+
+            // MỌI Ultimate: DÙNG XONG = HẾT SẠCH NỘ (user chốt 2026-07-11) — tắt buff không refund +
+            // xóa thanh về 0. Trước đây chỉ nhánh UBW tắt buff và KHÔNG xóa thanh → rage hết hạn
+            // tự nhiên sau ulti vẫn refund 22% / nộ gain sót còn nguyên → exploit nộ liên tục.
+            _rage?.DeactivateAndClear();
         }
 
         private void OnRecoveryEnd() => _recoveryDone = true;
