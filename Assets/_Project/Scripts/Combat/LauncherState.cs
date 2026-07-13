@@ -35,6 +35,13 @@ namespace FA.Combat
 
         private bool _hasLeftGround;
         private int _groundedStuckFrames; // failsafe: đếm frame "trên đất + hết đà" khi chưa từng rời đất.
+        private int _lyingFrames;         // trần nằm-trượt: đếm frame chạm đất SAU khi đã đáp.
+        private int _airBlipFrames;       // đếm chuỗi frame rời đất — phân biệt "bay thật" vs blip trượt.
+
+        // Trượt tốc độ cao trên băng làm IsTouchingLayers CHỚP false 1-2 frame (qua mép tile/va li ti)
+        // → nếu reset _lyingFrames mỗi blip thì trần nằm KHÔNG BAO GIỜ đầy (bug "xuôi gió không dậy
+        // nổi"). Chỉ coi là BAY THẬT (juggle/re-launch → reset đồng hồ nằm) khi rời đất đủ lâu.
+        private const int AirBlipToleranceFrames = 6;
 
         public LauncherState(ICombatContext ctx, KnockbackConfigSO config)
         {
@@ -46,6 +53,8 @@ namespace FA.Combat
         {
             _hasLeftGround = false;
             _groundedStuckFrames = 0;
+            _lyingFrames = 0;
+            _airBlipFrames = 0;
             // Cầu nối code↔Animator (§3.1): set StateId → transition Tumble cấu hình TRONG Animator.
             _ctx.Animator.SetInteger(CoreAnimatorParams.StateId, TumbleStateId);
             _ctx.SetHitstun(true); // tumble = đang bị juggle → Air Dodge bị chặn (chỉ Burst thoát).
@@ -62,23 +71,51 @@ namespace FA.Combat
             bool grounded = _ctx.IsGrounded;
 
             // Landing-gate: phải rời đất ≥1 frame rồi mới cho landing-check (tránh đáp ghost).
-            if (!grounded) { _hasLeftGround = true; return; }
+            // Đồng hồ nằm CHỈ reset khi bay thật (rời đất > AirBlipToleranceFrames) — blip trượt bỏ qua.
+            if (!grounded)
+            {
+                _hasLeftGround = true;
+                if (++_airBlipFrames > AirBlipToleranceFrames) _lyingFrames = 0;
+                return;
+            }
+            _airBlipFrames = 0;
 
             float speed = _ctx.Body.linearVelocity.magnitude;
             float endSpeed = _config != null ? _config.tumbleEndSpeed : 1.5f;
+
+            // TRẦN NẰM-TRƯỢT (fix map băng): sàn không ma sát / gió bơm vx → speed có thể KHÔNG BAO GIỜ
+            // tụt dưới tumbleEndSpeed → mọi nhánh "chờ hết đà" dưới đây kẹt vĩnh viễn (trượt khỏi map
+            // chưa dậy). Đếm frame chạm đất liên tục Ở MỌI NHÁNH (kể cả chưa-từng-rời-đất — bị đánh
+            // ngay đầu trận, cú nhấc quá thấp); vượt trần → dậy dù còn đà (Idle/Walk sẽ ghì vx).
+            int maxLying = _config != null ? _config.maxLyingFrames : 45;
+            _lyingFrames++;
+            bool overLyingCap = maxLying > 0 && _lyingFrames >= maxLying;
+
+            // BẬT DẬY SỚM (feedback test): nằm đủ earlyWakeUpFrames → ấn di chuyển là dậy ngay,
+            // victim chủ động cứu mình khỏi trượt (băng/gió) thay vì chờ hết đà.
+            int earlyWake = _config != null ? _config.earlyWakeUpFrames : 10;
+            if (earlyWake > 0 && _lyingFrames >= earlyWake && Mathf.Abs(_ctx.MoveX) > 0.1f)
+                overLyingCap = true;
 
             if (!_hasLeftGround)
             {
                 // FAILSAFE (xem doc class): chưa từng rời đất — còn đà (trượt ngang/sắp bốc lên) thì chờ;
                 // hết đà đủ N frame liên tục → không bao giờ bốc lên nổi nữa → coi như đã đáp.
-                if (speed > endSpeed) { _groundedStuckFrames = 0; return; }
-                _groundedStuckFrames++;
-                int failsafe = _config != null ? _config.groundedFailsafeFrames : 8;
-                if (_groundedStuckFrames < failsafe) return;
+                if (speed > endSpeed)
+                {
+                    _groundedStuckFrames = 0;
+                    if (!overLyingCap) return;
+                }
+                else
+                {
+                    _groundedStuckFrames++;
+                    int failsafe = _config != null ? _config.groundedFailsafeFrames : 8;
+                    if (_groundedStuckFrames < failsafe && !overLyingCap) return;
+                }
             }
-            else if (speed > endSpeed)
+            else if (speed > endSpeed && !overLyingCap)
             {
-                return; // còn trượt/đà → ở lại tumble (Rigidbody2D ma sát giảm dần).
+                return; // còn trượt/đà trong hạn mức → ở lại tumble (ma sát giảm dần).
             }
 
             _ctx.Machine.ChangeState(_ctx.IdleState());

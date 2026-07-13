@@ -27,3 +27,4 @@ MonoBehaviour:
   groundBounciness: 0.4
   tumbleEndSpeed: 3.75
   groundedFailsafeFrames: 8
+  maxLyingFrames: 25

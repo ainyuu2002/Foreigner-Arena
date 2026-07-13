@@ -13,9 +13,6 @@ MonoBehaviour:
   m_Name: Harness_StageRegistry
   m_EditorClassIdentifier: FA.GameFlow::FA.GameFlow.StageRegistrySO
   entries:
-  - displayName: Harness Stage
-    icon: {fileID: 0}
-    sceneName: Test_Phase12_Map
   - displayName: "R\u1EEBng S\u01B0\u01A1ng \u0110\u1ED9c (\u0110\u1EA7m L\u1EA7y)"
     icon: {fileID: 21300000, guid: ebe11a32429344b4b8d3443cebfbb5ef, type: 3}
     sceneName: Map_Swamp

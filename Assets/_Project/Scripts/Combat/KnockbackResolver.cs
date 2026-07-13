@@ -122,6 +122,10 @@ namespace FA.Combat
         /// <summary>(P10 — IKnockbackCanceler) Hủy MỌI knockback đang chờ trên victim này. BurstState gọi
         /// khi thoát combo bằng burst (research §4 cạm bẫy 3). CHỈ reset cờ pending/lịch (idempotent) —
         /// KHÔNG đụng logic resolve. (P16: không còn dùng cho suppress-by-continue; văng do KnockbackPoint.)</summary>
+        // (P12 fix) RespawnSystem BroadcastMessage("OnRespawn"): hủy knockback đang chờ/đang lên lịch —
+        // không thì respawn xong vẫn bị áp cú văng của mạng trước (feedback test).
+        private void OnRespawn() => CancelPending();
+
         public void CancelPending()
         {
             _hasPending = false;

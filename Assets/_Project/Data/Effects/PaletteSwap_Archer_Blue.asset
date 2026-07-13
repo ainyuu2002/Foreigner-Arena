@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb5d14bd789709b45adf932f77ac3721, type: 3}
+  m_Name: PaletteSwap_Archer_Blue
+  m_EditorClassIdentifier: FA.Effects::FA.Effects.PaletteSwapProfileSO
+  swaps:
+  - from: {r: 0.60002196, g: 0.15294941, b: 0.1960908, a: 1}
+    to: {r: 0.1960908, g: 0.15294941, b: 0.60002196, a: 1}
+  - from: {r: 0.26265, g: 0.020879524, b: 0.14690012, a: 1}
+    to: {r: 0.14690012, g: 0.020879524, b: 0.26265, a: 1}
+  - from: {r: 0.36470678, g: 0.058822706, b: 0.16470702, a: 1}
+    to: {r: 0.16470702, g: 0.058822706, b: 0.36470678, a: 1}
+  - from: {r: 0.4862722, g: 0.31372672, b: 0.28235418, a: 1}
+    to: {r: 0.28235418, g: 0.31372672, b: 0.4862722, a: 1}
+  - from: {r: 0.3490201, g: 0.13725512, b: 0.09803949, a: 1}
+    to: {r: 0.09803949, g: 0.13725512, b: 0.3490201, a: 1}
+  - from: {r: 0.16470598, g: 0, b: 0.08627456, a: 1}
+    to: {r: 0.08627456, g: 0, b: 0.16470598, a: 1}
+  - from: {r: 0.2000003, g: 0.054902047, b: 0.027451023, a: 1}
+    to: {r: 0.027451023, g: 0.054902047, b: 0.2000003, a: 1}
+  - from: {r: 0.5254902, g: 0.19215687, b: 0.2509804, a: 1}
+    to: {r: 0.2509804, g: 0.19215687, b: 0.5254902, a: 1}
+  tolerance: 0.08

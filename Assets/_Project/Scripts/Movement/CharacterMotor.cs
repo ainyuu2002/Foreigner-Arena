@@ -22,7 +22,7 @@ namespace FA.Movement
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(Animator))]
-    public sealed class CharacterMotor : MonoBehaviour, ICharacterContext, IMoveInput, ICombatContext
+    public sealed class CharacterMotor : MonoBehaviour, ICharacterContext, IMoveInput, ICombatContext, IJumpIntent
     {
         [Header("Tham chiếu")]
         [Tooltip("Số liệu nhân vật (walkSpeed, mass, gravityScale, nhảy...). BẮT BUỘC gán asset CharacterData.")]
@@ -133,6 +133,17 @@ namespace FA.Movement
         public CommandParser Parser => _parser;
         int ICombatContext.EdgeWindow => EdgeWindow;
 
+        // (P11 nấm nhún v2) IJumpIntent — môi trường (FA.Stage) hỏi "vừa bấm Jump?" để boost bật
+        // đúng nhịp, qua interface Core (§1.3). CONSUME để DoubleJump không ăn lại cùng cú bấm
+        // (nó sẽ ghi đè vy = jumpSpeed ngay sau boost).
+        public bool TryConsumeRecentJumpPress(int withinFrames)
+        {
+            if (_parser == null || !_parser.WasPressedWithin(InputButton.Jump, withinFrames))
+                return false;
+            _parser.ConsumePress(InputButton.Jump, withinFrames);
+            return true;
+        }
+
         // Cờ "đang bị đánh/juggle" do hurt-state (FA.Combat) set qua SetHitstun — chỉ là CỜ TRẠNG THÁI,
         // KHÔNG đụng logic di chuyển. DefenseController (FA.Specials) đọc để chặn Air Dodge khi bị juggle.
         private bool _inHitstun;
@@ -164,9 +175,37 @@ namespace FA.Movement
             _parser?.ConsumePress(InputButton.Dash, EdgeWindow);
         }
 
+        // (P12 fix) RespawnSystem BroadcastMessage("OnRespawn") — reset TOÀN BỘ trạng thái điều khiển
+        // về neutral (feedback test: chết giữa knockback → respawn vẫn dính tumble, "teleport về rồi
+        // knockback tiếp"). ChangeState(_idle) Exit state cũ tử tế (tumble tự SetHitstun(false)).
+        private void OnRespawn()
+        {
+            if (body != null) body.linearVelocity = Vector2.zero;
+            ResetGravity();
+            ResetAirJumps();
+            RefreshAirDash();
+            SetHitstun(false);
+            _machine.ChangeState(_idle);
+        }
+
         public void ResetAirJumps()
         {
-            _airJumpsRemaining = data != null ? data.maxAirJumps : 0;
+            // (P11 nấm nhún v2) Trong cửa sổ suppress: KHÔNG phục hồi. Chặn "landing giả" 1-2 frame
+            // khi lướt qua mặt nấm (cap thuộc StandableMask → Unity coi là đáp) xóa mất suppress.
+            _airJumpsRemaining = Time.time < _airJumpSuppressUntil
+                ? 0
+                : (data != null ? data.maxAirJumps : 0);
+        }
+
+        // (P11 nấm nhún v2) IJumpIntent.SuppressAirJumps — nấm gọi sau mỗi cú bật: J giữa chuỗi nhún
+        // không bị nuốt thành double-jump (đứt chuỗi). Đáp đất thật (sau cửa sổ) → ResetAirJumps phục hồi.
+        private const float AirJumpSuppressWindow = 0.3f; // đủ che landing-giả trên mặt nấm. CẦN TEST.
+        private float _airJumpSuppressUntil;
+
+        public void SuppressAirJumps()
+        {
+            _airJumpsRemaining = 0;
+            _airJumpSuppressUntil = Time.time + AirJumpSuppressWindow;
         }
 
         public void RefreshAirDash()

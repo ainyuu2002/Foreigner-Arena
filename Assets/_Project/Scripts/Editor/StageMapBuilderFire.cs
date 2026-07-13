@@ -94,6 +94,7 @@ namespace FA.EditorTools
             var warnSr = warnGo.AddComponent<SpriteRenderer>();
             warnSr.sprite = StageSceneKit.LoadSprite(StageArtFire.WarnIcon);
             warnSr.sortingOrder = 60;
+            warnGo.AddComponent<CameraEdgeAnchor>(); // feedback test: cảnh báo đi theo màn hình, không kẹt đáy map.
 
             // (Đã BỎ lớp váng sáng LavaShine rời — art lava mới tự có viền crest trắng-nóng;
             // lớp rời đặt lệch trông như 1 vạch trôi lơ lửng — feedback "dung nham bị lệch".)

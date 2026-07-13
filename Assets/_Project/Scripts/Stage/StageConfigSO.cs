@@ -67,6 +67,10 @@ namespace FA.Stage
         [Tooltip("Trần tốc độ ngang mà gió còn đẩy thêm được (chặn cộng dồn vô hạn khi đang bay knockback). CẦN TEST.")]
         [Min(1f)] public float snowstormWindMaxCarry = 12f;
 
+        [Tooltip("Hệ số gió khi victim ĐANG BỊ KNOCKBACK/hitstun (feedback test: knock trong bão = gió " +
+                 "thổi trượt chết chắc). 0 = gió bỏ qua người đang dính đòn, 1 = thổi đủ lực như thường. CẦN TEST.")]
+        [Range(0f, 1f)] public float snowstormWindKnockedFactor = 0.25f;
+
         [Header("Chung — Tường bám trên không (ClingWall, cả 3 map)")]
         [Tooltip("Tốc độ TRƯỢT XUỐNG tối đa khi áp vào tường bám (kẹp vy khi đang rơi). " +
                  "Nhỏ hơn = bám dính hơn. CẦN TEST.")]
@@ -106,6 +110,27 @@ namespace FA.Stage
                  "tính cả khi đang di chuyển, chỉ cần đứng trong vùng + chạm đất). CẦN TEST.")]
         [Min(0f)] public float lavaFloorPercentPerSec = 4f;
 
+        [Header("Feedback hazard môi trường (LavaFloorZone tick + IceSpikeHazard)")]
+        [Tooltip("DoT môi trường cộng theo TICK rời rạc thay vì mượt-vô-hình (feedback test: 'không có gì " +
+                 "báo hiệu mất máu'): mỗi tick = 1 nhịp flash màu nhân vật. %/tick = perSec × giá trị này. CẦN TEST.")]
+        [Min(0.1f)] public float hazardTickSeconds = 0.35f;
+
+        [Tooltip("Thời lượng flash màu nhân vật mỗi lần dính hazard (giây).")]
+        [Min(0.02f)] public float hazardFlashSeconds = 0.12f;
+
+        [Header("Gai băng (IceSpikeHazard) — chạm là đau 1 phát (redesign, thay DoT)")]
+        [Tooltip("+% MỖI LẦN chạm gai (một phát, không phải /giây). CẦN TEST.")]
+        [Min(0f)] public float spikeTouchPercent = 2.5f;
+
+        [Tooltip("Vận tốc hất LÊN khi chạm gai (cú nảy 'ui da' — feedback tự thân). CẦN TEST.")]
+        [Min(0f)] public float spikeKnockUpSpeed = 14f;
+
+        [Tooltip("Vận tốc hất NGANG ra xa tâm gai. CẦN TEST.")]
+        [Min(0f)] public float spikeKnockSideSpeed = 8f;
+
+        [Tooltip("Miễn nhiễm với GAI sau mỗi lần dính (giây) — chống tick liên tục khi nằm đè lên gai. CẦN TEST.")]
+        [Min(0.1f)] public float spikeImmunitySeconds = 0.7f;
+
         [Header("Biome Swamp — Slowness + giảm lực nhảy (SwampBiome)")]
         [Tooltip("Hệ số nhân vận tốc NGANG mỗi FixedUpdate khi ĐỨNG ĐẤT trong đầm lầy (motor ghi lại vx mỗi " +
                  "step nên hiệu quả ổn định = walkSpeed × hệ số). 1 = không chậm. GDD: 'slowness thường trực'. CẦN TEST.")]
@@ -119,12 +144,34 @@ namespace FA.Stage
                  "swampSpeedFactor: ô bùn ướt lầy RÕ RỆT hơn nền đầm thường). CẦN TEST.")]
         [Range(0.3f, 1f)] public float mudSpeedFactor = 0.72f;
 
-        [Tooltip("Vận tốc bật lên (vy) khi đáp xuống MŨ NẤM NHÚN (MushroomBouncer — bù trừ giảm lực nhảy, " +
-                 "đường thoát bệ chìm giữa map / lên tầng cao). CẦN TEST.")]
-        [Min(0f)] public float mushroomBounceSpeed = 18f;
-
         [Tooltip("Ngưỡng vy tăng đột ngột trong 1 FixedUpdate để coi-là cú nhảy (impulse). Nhỏ hơn jumpSpeed " +
                  "nhân vật (~12) nhưng lớn hơn dao động thường. CẦN TEST.")]
         [Min(1f)] public float swampJumpImpulseThreshold = 6f;
+
+        [Header("Nấm nhún v2 (MushroomBouncer) — mền nhảy, redesign theo feedback test")]
+        [Tooltip("Bounciness PhysicsMaterial2D mũ nấm (0..1): lực bật TỈ LỆ tốc độ rơi xuống mũ — rơi càng " +
+                 "cao bật càng mạnh, victim bị đánh văng trúng mũ phản xạ theo lực/góc va (Unity vật lý lo " +
+                 "§1.1). Tool build ghi giá trị này vào asset MushroomBounce.physicsMaterial2D. CẦN TEST.")]
+        [Range(0f, 1f)] public float mushroomBounciness = 0.6f;
+
+        [Tooltip("Sàn nảy TỐI THIỂU (vy): đi bộ/bước nhẹ vào mũ nấm cũng nhún nhẹ. CẦN TEST.")]
+        [Min(0f)] public float mushroomMinBounceSpeed = 12f;
+
+        [Tooltip("Lực CỘNG THÊM khi bấm Jump đúng nhịp lúc chạm mũ (trong cửa sổ frame dưới). CẦN TEST.")]
+        [Min(0f)] public float mushroomTimedBoostSpeed = 10f;
+
+        [Tooltip("Cửa sổ 'đúng nhịp' (fixed-frame, tính NGƯỢC từ lúc chạm mũ — bấm sớm trong khoảng này " +
+                 "vẫn tính; cú bấm bị TIÊU THỤ để không kích double-jump đè mất boost). CẦN TEST.")]
+        [Min(1)] public int mushroomTimedWindowFrames = 9;
+
+        [Tooltip("Mỗi lần đúng nhịp LIÊN TIẾP cộng dồn thêm chừng này (như mền nhảy — càng nhún càng cao). " +
+                 "Hụt nhịp 1 lần = mất chuỗi. CẦN TEST.")]
+        [Min(0f)] public float mushroomStackBoostStep = 5f;
+
+        [Tooltip("Quá lâu không nhún tiếp → chuỗi cộng dồn nguội về 0 (giây). CẦN TEST.")]
+        [Min(0.5f)] public float mushroomStackResetSeconds = 3f;
+
+        [Tooltip("TRẦN vận tốc bật (chặn cộng dồn vô hạn bay khỏi map). CẦN TEST.")]
+        [Min(1f)] public float mushroomMaxBounceSpeed = 50f;
     }
 }

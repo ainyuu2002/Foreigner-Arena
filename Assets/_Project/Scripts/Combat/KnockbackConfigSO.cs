@@ -82,6 +82,17 @@ namespace FA.Combat
                  "coi như đã đáp. CẦN TEST.")]
         [Min(1)] public int groundedFailsafeFrames = 8;
 
+        [Tooltip("TRẦN thời gian nằm-trượt trên đất (fixed-step) sau khi đã đáp: mặt sàn không ma sát " +
+                 "(băng) / gió bão bơm vx liên tục có thể giữ tốc độ > tumbleEndSpeed vô hạn → victim " +
+                 "nằm trượt mãi. Đủ N step chạm đất liên tục → dậy dù còn đà (Idle sẽ ghì vx). " +
+                 "0 = tắt (hành vi cũ). CẦN TEST.")]
+        [Min(0)] public int maxLyingFrames = 45;
+
+        [Tooltip("BẬT DẬY SỚM (feedback test map băng): nằm đủ N fixed-step thì ẤN DI CHUYỂN là dậy ngay " +
+                 "(không chờ hết đà / hết maxLyingFrames — victim chủ động cứu mình khỏi trượt). " +
+                 "0 = tắt (chỉ dậy tự động). CẦN TEST.")]
+        [Min(0)] public int earlyWakeUpFrames = 10;
+
         /// <summary>+1%/hit milestone (khớp ComboCounter) — KnockbackPercent gọi để cộng đúng GDD.</summary>
         public int MilestoneBonus(int comboCount)
         {

@@ -14,6 +14,7 @@ namespace FA.Stage
     /// Rigidbody2D (Unity) tìm theo Layer Player (GameLayers — Core). Số liệu ở StageConfigSO (CẦN TEST).
     /// </summary>
     [DisallowMultipleComponent]
+    [DefaultExecutionOrder(50)] // chạy SAU CharacterMotor (order 0): state ghi vx trước, gió cộng đè sau — nếu không gió bị motor nuốt ở state thường.
     public sealed class SnowstormHazard : MonoBehaviour
     {
         [Header("Config")]
@@ -73,9 +74,30 @@ namespace FA.Stage
             foreach (var rb in ResolveBodies())
             {
                 if (rb == null) continue;
+
+                // BẤT TỬ hồi sinh (IInvulnerable — Core §1.3): môi trường bỏ qua hoàn toàn (feedback
+                // test: vừa hồi sinh đã bị gió đẩy).
+                var inv = rb.GetComponent<IInvulnerable>();
+                if (inv != null && inv.IsInvulnerable) continue;
+
+                // Victim đang bị knockback/hitstun (Hurt/tumble/splat đều set cờ này qua ICombatContext
+                // — interface Core, không ref FA.Combat §1.3): gió nương tay theo KnockedFactor.
+                // Feedback test: knock trong bão mà gió full lực = trượt thẳng khỏi map, chết chắc.
+                float windScale = 1f;
+                var ctx = rb.GetComponent<ICombatContext>();
+                if (ctx != null && ctx.IsInHitstun)
+                {
+                    // ĐANG NẰM/TRƯỢT TRÊN ĐẤT (|vy| ~ 0): gió BỎ QUA hẳn — nếu không, gió giữ tốc độ
+                    // trượt > tumbleEndSpeed khiến victim không bao giờ "hết đà" → thời gian nằm bị
+                    // kéo dài tới trần thay vì dậy ngay như lúc lặng gió (feedback test).
+                    if (Mathf.Abs(rb.linearVelocity.y) < 1f) continue;
+                    windScale = config.snowstormWindKnockedFactor; // đang BAY: gió còn KnockedFactor.
+                    if (windScale <= 0f) continue;
+                }
+
                 Vector2 v = rb.linearVelocity;
                 if (_windDir * v.x < config.snowstormWindMaxCarry)
-                    v.x += _windDir * config.snowstormWindSpeed;
+                    v.x += _windDir * config.snowstormWindSpeed * windScale;
                 rb.linearVelocity = v;
             }
         }
@@ -123,14 +145,16 @@ namespace FA.Stage
             if (stormArea != null)
             {
                 var filter = new ContactFilter2D { useLayerMask = true, layerMask = playerLayers, useTriggers = true };
-                var results = new List<Collider2D>(8);
-                stormArea.Overlap(filter, results);
-                foreach (var c in results)
+                _overlapScratch.Clear(); // list CACHE — new List mỗi FixedUpdate là rác GC → giật định kỳ.
+                stormArea.Overlap(filter, _overlapScratch);
+                foreach (var c in _overlapScratch)
                     if (c.attachedRigidbody != null && !_scratch.Contains(c.attachedRigidbody))
                         _scratch.Add(c.attachedRigidbody);
             }
             foreach (var rb in _scratch) yield return rb;
         }
+
+        private readonly List<Collider2D> _overlapScratch = new List<Collider2D>(8);
 
         private bool InArea(Rigidbody2D rb)
         {

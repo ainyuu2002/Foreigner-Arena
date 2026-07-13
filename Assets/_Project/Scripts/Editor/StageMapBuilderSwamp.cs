@@ -99,15 +99,22 @@ namespace FA.EditorTools
             // ---- NẤM NHÚN (cơ chế mới, deterministic — GDD: swamp KHÔNG thiên tai): đáp xuống mũ →
             // bật tung lên. Bù trừ giảm lực nhảy 25%; con GIỮA map là ĐƯỜNG THOÁT khỏi bệ chìm. ----
             var bounceSprite = StageSceneKit.LoadSprite(StageArtSwamp.BounceShroom);
+            var bounceMat = StageSceneKit.EnsureMushroomMaterial(cfg);
             void MakeBouncer(Vector2 at, float scale)
             {
                 var bSr = StageSceneKit.MakeSpriteGO("BounceShroom", bounceSprite,
                     new Vector3(at.x, at.y, 0f), -2, null, new Vector3(scale, scale, 1f));
                 var bGo = bSr.gameObject;
+                bGo.layer = GameLayers.OneWayPlatform;
                 var cap = bGo.AddComponent<BoxCollider2D>();
-                cap.isTrigger = true;
+                cap.isTrigger = false;                 // v2: mũ ĐẶC + bounciness (bật theo lực rơi).
                 cap.size = new Vector2(1.9f, 0.32f);   // dải mỏng trên ĐỈNH mũ (local — tự scale theo GO).
                 cap.offset = new Vector2(0f, 0.72f);
+                cap.sharedMaterial = bounceMat;
+                cap.usedByEffector = true;
+                var eff = bGo.AddComponent<PlatformEffector2D>(); // one-way: nhảy xuyên từ dưới lên.
+                eff.useOneWay = true;
+                eff.surfaceArc = 180f;
                 var bouncer = bGo.AddComponent<MushroomBouncer>();
                 StageSceneKit.SetObj(bouncer, "config", cfg);
                 StageSceneKit.SetObj(bouncer, "capArea", cap);

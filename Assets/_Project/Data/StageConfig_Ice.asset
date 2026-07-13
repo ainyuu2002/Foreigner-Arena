@@ -24,8 +24,21 @@ MonoBehaviour:
   snowstormNudgeInterval: 0.4
   snowstormPushForce: 3
   snowstormSlowFactor: 0.85
+  snowstormWindSpeed: 2.5
+  snowstormWindMaxCarry: 6
+  wallClingSlideSpeed: 1.2
   firePercentPerSec: 2.5
   fireStillSpeedEpsilon: 0.1
   lavaRiseSpeed: 0.4
   lavaWarningLead: 2.5
   lavaWarningBlinkPeriod: 0.25
+  lavaHoldSeconds: 5
+  lavaRecedeSpeed: 0.5
+  lavaRestSeconds: 14
+  lavaRestJitter: 6
+  lavaFloorPercentPerSec: 4
+  swampSpeedFactor: 0.8
+  swampJumpScale: 0.85
+  mudSpeedFactor: 0.72
+  mushroomBounceSpeed: 18
+  swampJumpImpulseThreshold: 6
