@@ -1,0 +1,199 @@
+TEN-PAGER DOCUMENT: FOREIGNER ARENA V3
+PART 1 — ENGLISH VERSION
+Page 1 — Title, Promise, World, Role, Stakes, Constraints
+Title: Foreigner Arena
+Tagline: “Master the Combo. Rule the Arena” | “Fight with Technique. Win with Chaos” | “The Further You Fall, The Harder You Hit Back.”
+Game Promise: A fast-paced 2D fighting game hybrid that seamlessly bridges the technical execution, frame data, and directional motion inputs of traditional fighting games with the high-octane chaos and multi-platform layouts of arena fighters. Traditional health bars are eliminated and replaced by a kinetic physics-based knockback scaling system driven by accumulated percentage metrics.
+World Promise: Dynamic, multi-tiered airborne fighting maps established upon extreme environmental biomes (Ice/Snow, Swamp, and Lava). The terrain conditions are not visual decorations; they function as core systemic physics modifiers that manipulate friction, gravitational weight, and passive status parameters to reshape the combat meta in real-time.
+Player Role: A high-execution mechanical combatant who must maintain flawless mastery over complex directional combos, cancel strings, and strict frame advantage windows while dynamically navigating and exploiting hazardous, rapidly evolving environmental terrain threats.
+Stakes: Defeat means being violently blasted out of the arena's four-sided boundaries into the absolute Death Zones. Survival and victory hinge on split-second directional influence (DI) recovery choices, calculated resource management, and high-risk mechanical conversions under intense environmental pressure.
+Constraints: Engineered strictly as a PC Standalone application optimized primarily for localized 2-player competitive versus play. Control layout supports a shared keyboard model and external gamepads, developed within a tight academic scope constraint of 4 to 6 weeks.
+Page 2 — Emotional Intent, Pillars, Non-Negotiables, Validation Targets
+Emotional Intent (North Star):
+High Tension (Tense): The endless compounding of the Resistance % meter means that pressure escalates with every single land. The thin margin between a clutch comeback recovery and immediate blast-zone elimination triggers severe psychological stakes.
+Flow Mastery (Cool / Flow): Linking complicated frame strings, canceling movement recoveries with absolute precision, and executing a frame-perfect Burst Breaker to escape execution strings delivers high-satisfaction highlight clip moments.
+Experience Pillars:
+Technical Meets Chaotic: Victory requires mixing precise traditional execution metrics (directional inputs, active hitboxes, high/low blocking) with adaptive tactical answers to random arena item spawns and map hazards.
+Resource Tension: Forcing players to actively manage tight, non-regenerating resource systems. Mana must be aggressively spent on motion specials and Roman Cancel (RC) Dashes, while Rage must be optimized for clutch burst escapes or decisive Ultimate attacks.
+Dynamic Environmental Adaptation: Extreme biome conditions continuously redefine spatial movement values, turning environmental awareness into a primary offensive and defensive requirement.
+Non-Negotiables:
+Input Latency: The input buffer processing pipeline must evaluate commands and trigger responses within an unnoticeable latency threshold of less than 3 frames (< 50ms).
+Hitstop Framework: Every clean physical hitbox contact must trigger a dedicated freeze-frame pause of 4 to 8 frames to instantly communicate tactile impact weight.
+Data-Driven Unity Architecture: No hard-coded character properties or move parameters are permitted. All content must utilize ScriptableObjects to decouple data from logic and eliminate Git scene merge conflicts.
+Validation Targets:
+Roster Selection Equilibrium: Roster character and biome selection rates across playtests must achieve a balanced profile where no single entity exceeds a 50% dominance rate.
+HUD Climax Recognition: At least 80% of uninstructed blind playtesters must naturally comprehend and identify match-climax threat thresholds based solely on dynamic HUD color warning transitions.
+Page 3 — Core Loop, Match Structure, Time Budget, Win/Lose
+Core Loop Functional Flow:
+Select Character & Biome Map → Engage in Local 2-Player Combat → Execute Combos to Accumulate Opponent's Resistance % → Scramble for Randomized Item Spawns & Adapt to Biome Physics → Blast Enemy into the Death Zone to Deplete Stock Life → Match End Screen Statistics Evaluation → Repeat.
+Match Structure:
+Combat is continuous and stock-based (3 to 5 lives per player) running across a single persistent scene managed by a Match Rules Director framework. It rejects round-based interruptions.
+When a stock is lost via a Death Zone blast vector, the eliminated character immediately triggers a mid-stage respawn sequence at a centralized node, receiving temporary invincibility frames to execute a safe landing choice.
+Time Budget Model:
+Baseline Match Clock: 10 Minutes (600 seconds) total maximum runtime allocation.
+Neutral Traversal Segment: 20–30s blocks of spatial play and approach vectors.
+Clash Engagement (Spike): 10–15s bursts of highly concentrated combo strings and defense checks.
+Recovery/Release State: 8–12s blocks following a heavy knockback or a map hazard transition.
+Win / Lose Conditions:
+Win: Successfully force the opponent's stock life completely to 0, or maintain a superior remaining stock allocation when the 10-minute master clock counts down to zero.
+Lose: Suffer total depletion of stock life allocations, or possess an inferior tie-breaker performance points calculation (Formula: Total Damage Dealt + Longest Combo String Count) if stocks are equal at the time-out.
+Page 4 — Identity Systems: Signature Mechanics & Data Architecture
+Signature Mechanics Specifications:
+Resistance % Knockback Scaling: Standard hit points do not exist. Incoming attacks add to a target's Resistance percentage value. As this percentage scales upward, the physical knockback forces applied to the character multiply exponentially, making them highly susceptible to being blasted off-screen by finishing launcher moves.
+Pushback Block System: Executing defensive blocks does not cost resources and protects against direct launch damage. However, blocking consecutive strikes generates intensive pushback force vectors, gradually shoving the defensive player backward toward the fatal outer edge platforms.
+The Legendary Rage Core: Spawns a single time per match across a random timeline point. The item flies across the screen space using erratic, bouncing physics trajectories. Both players must strike the core to deplete a shared 15-hit structural counter. The player who successfully inputs the 15th hit shatters the core and instantly receives a 100% full Rage bar allocation to trigger an immediate block-breaking Ultimate attack.
+Data-Driven Architecture Config:
+Page 5 — Player Kit + Feel / Controls Specification
+Movement Kit (Character Finite State Machine):
+The custom Character Controller runs an explicit FSM handling: Idle, Walk/Run, Crouch, Jump, Double Jump, Short Hop (tap jump input), Fast Fall (input Down during airborne descent), Dash, Wall Hang (grab vertical walls with slow slide decay), and Wall Jump.
+Combat Action Verbs:
+Normals: Light, Medium, and Heavy attacks mapped independently across grounded and aerial states.
+Specials & Supers: Motion inputs (e.g., Quarter-Circle Forward) trigger character Specials. Dedicated buttons activate Super Move 1 (50% Mana cost) and Super Move 2 (75% Mana cost).
+Advanced Mechanics: Roman Cancel Dash (instantly cancels active recovery frames at a flat Mana cost to prolong combos). Ground Dodge and Air Dodge grant brief invincibility frames at a Mana cost. Burst Breaker breaks active hitstun by spending 50% Rage. Ultimate attacks execute an unblockable cinematic strike when triggered at 100% Rage.
+Feel Spec Constants:
+Input Buffer Command Storage: 10 frames (~166ms) to ensure seamless combo inputs.
+Coyote Time Window: 150ms structural allowance for jumps triggered off ledge borders.
+Hitstop Impact Duration: 4 frames for light hits, scaling up to 8 frames for heavy finishers.
+Page 6 — Core Systems Economy + Custom Physics Framework
+Resource State Variables Tuning Model:
+Custom Physics Engine:
+The game bypasses Unity's standard Rigidbody2D forces to achieve high frame-level fighting game precision. Knockback logic runs via precise direct velocity injection formulas:
+KnockbackVelocity = BaseKnockback + ((Resistance% * KnockbackGrowth * MoveDamage) / Weight)
+The character's Weight variable serves as the key denominator, granting heavy archetypes structural immunity against explosive launch forces, whereas light characters fly significantly further at identical percentages.
+Page 7 — Encounter Grammar, Combo Logic, Telegraph System
+Combo Logic & Interaction Grammar:
+The active Combo Counter evaluates consecutive unblocked hits. The milestone calculation window checks tracking frames; any interruption resets the counter sequence cleanly.
+Milestone Bonus Scaling: Executing a continuous sequence up to 10 or 20 hits triggers an automated bonus multiplier adding +1% extra Resistance accumulation per hit.
+Knockback Delay Rule: To enable extended combo strings, high knockback forces are suppressed throughout active ground/air combo chains. The cumulative velocity vector is locked and applies only when struck by a dedicated Launcher or Combo Finisher.
+Environmental Collisions: Characters struck into geometry trigger Wall Splat (brief stun window), Wall Bounce (velocity reflection vector based on mass), or Ground Bounce.
+Telegraph & Indicator Language:
+Rage Cap Aura: Reaching 100% Rage activates a blazing sprite shader aura on the character and triggers high-frequency HUD bar flashing animations.
+Climax Alert Interface: When a player falls to their final stock life, the peripheral HUD framework switches to a dark warning color scheme to emphasize match climax.
+Biome Disaster Warning: Sudden map physics transitions (e.g., Lava Surge or Blizzard bursts) deploy intense screen shake vectors and flashing warning indicators 3 seconds prior to hazard activation.
+Page 8 — Implementation Roadmap, Git Standards, Engineering Guardrails
+Detailed 4-Week Development Roadmap:
+Week 0 — Project Core Architecture Setup: Unified Unity version configuration; configure global repository .gitignore, Force Text serialization, and UnityYAMLMerge. Define project namespaces and ScriptableObject schemas.
+Week 1–2 — Milestone IMP1 (Core Gameplay Systems): Execute foundational Character State Machine mechanics, basic moveset hitboxes, velocity calculation formulas, keyboard/gamepad input tracking, and a flat test stage map.
+Definition of Done (DoD) IMP1: Two characters can fight locally, execute clean knockback mechanics, suffer stock loss via boundary limits, and deliver tactile impact feel via preliminary hitstop hooks.
+Week 3 — Milestone IMP2 (Complete Feature & Content Freeze): Integrate complete movesets for the 4 characters, activate 3 environmental biome map systems, integrate the random item spawner with 3-tier level properties, and fully hook the HUD interface via C# events.
+Definition of Done (DoD) IMP2: A complete match loop is fully playable across all 4 characters and 3 maps. All systems are functional. Feature freeze is enforced; no new mechanics can be introduced beyond this milestone.
+Week 4 — Milestone IMP3 (Polish, Balance & Shipping): Polish UI/UX layout animations, implement custom audio assets, run comprehensive balance tuning sessions on ScriptableObjects, eliminate bugs, and compile the optimized standalone PC execution build.
+Definition of Done (DoD) IMP3: Stable build running seamlessly on clean external hardware, completely free of block-breaking bugs, with verified balance data and comprehensive GDD documentation.
+Git Collaboration Standards & Decoupling Guardrails:
+*Scene Ownership Rule:* To avoid destructive branch merge conflicts, scene asset modification rights are assigned strictly to individual owners. The UI engineer owns the Menu/Select scenes; the Core Engineer owns the Match scene. All other developers must build logic completely encapsulated within isolated individual Prefab files.
+*Decoupling Constraint:* UI scripts are strictly barred from directly querying core combat logic state variables. Giga-systems communicate exclusively using event subscriptions (`OnRageChanged`, `OnResistanceChanged`, `OnStockLost`).
+*Script Size Cap:* No single script file can exceed a hard ceiling of 500 lines of code. Sub-systems must follow Single Responsibility principles.
+Page 9 — Biome Bible + Item Spawner Specifications
+The Biome Database Directory:
+Item Spawner Specifications:
+*Cap Threshold:* A strict maximum ceiling of 5 active items can exist simultaneously on the stage. Spawning stops at cap and re-evaluates when item count drops.
+*Acquisition Input:* Players collect items by actively executing a Crouch input (↓ button) while standing directly over the item asset. Items activate immediately on pickup.
+*3-Tier Scaling Parameters:* Restorative items (Resistance reduction/Mana recovery) and Damage Buff items scale across three tiers mapped to visual sprite sizes: Small (5% alteration), Medium (10% alteration), and Large (20% alteration). Buff items overwrite previous instances and refresh the active duration timer rather than stacking modifiers.
+Page 10 — Vertical Slice Summary, Acceptance Criteria, Telemetry Blueprint
+Vertical Slice Core Scenario:
+A competitive match runs on the Lava Biome stage utilizing the 4-character ScriptableObject configurations. Within the first 60 seconds, Player 1 traps Player 2 in an intensive 12-hit grounded combo sequence, inflating Player 2's Resistance meter to 85%. At the 3-minute mark, the Lava Surge environment event triggers, forcing both players to execute precise Wall Jumps to ascend onto airborne platforms. Concurrently, the Legendary Rage Core spawns, flying across the vertical axis. Both players abandon active player-versus-player combat to strike the core. Player 1 successfully logs the 15th hit breaker, enters Rage Mode with full visual aura indicators, and converts into an unblockable Ultimate attack. The impact triggers full frame-freeze Hitstop effects, generating massive velocity vectors that smash Player 2 through a breakable wall asset directly into the horizontal Death Zone boundary, deducting 1 Stock life flawlessly.
+Academic Course Ship Acceptance Criteria:
+Zero critical input ghosting lock occurrences when testing maximum speed simultaneous inputs on split-keyboard hardware layout configurations.
+The post-match HUD statistics screen successfully aggregates and displays: Total Damage Dealt, Longest Combo, KO Count, and Final Peak Resistance %.
+Minimum Telemetry Pack Logs Requirements:
+log_frame_latency: Evaluates input buffer response timing profiles across combo execution sequences.
+track_knockback_vector: Records raw velocity calculations output by custom physics equations to optimize data balancing parameters.
+PART 2 — BẢN TIẾNG VIỆT 
+Trang 1 — Tổng Quan, Lời Hứa Dự Án, Bối Cảnh, Vai Trò & Ràng Buộc
+Tiêu đề dự án: Foreigner Arena
+Slogan đặc trưng: “Master the Combo. Rule the Arena” | “Fight with Technique. Win with Chaos” | “The Further You Fall, The Harder You Hit Back.”
+Lời hứa Trò chơi: Một tựa game đối kháng 2D tốc độ cao giao thoa hoàn hảo giữa hệ thống combo, nhập lệnh xoay phím chuẩn xác của dòng game Fighting truyền thống và tính hỗn loạn sôi động cùng sàn đấu đa tầng của thể loại Arena Battle. Thay vì cấu trúc trừ máu gục ngã thông thường, người chơi tích lũy chuỗi đòn đánh nhằm gia tăng chỉ số Resistance % của đối thủ, đẩy mạnh lực tác động cơ học để trực tiếp thổi bay kẻ địch ra khỏi 4 phía của vùng tử địa (Death Zone).
+Lời hứa Thế giới: Sàn đấu đa tầng lơ lửng trên không trung được thiết lập dựa trên các điều kiện môi trường Biome cực đoan (Băng/Tuyết, Đầm lầy, Dung nham). Địa hình không phải để trang trí; chúng hoạt động như những bộ sửa đổi vật lý cốt lõi, thay đổi lực ma sát, trọng lượng trọng lực và các chỉ số thụ động để định hình lại meta trận đấu theo thời gian thực.
+Vai trò Người chơi: Đấu thủ võ thuật kỹ thuật thượng thừa, đòi hỏi duy trì khả năng làm chủ tuyệt đối các chuỗi tổ hợp combo khắt khe, hủy chiêu chuẩn khung hình, đồng thời linh hoạt tận dụng hoặc khắc chế hiểm họa địa hình biến động liên tục.
+Hệ quả trận đấu: Thất bại đồng nghĩa với việc bị đánh văng thô bạo ra khỏi ranh giới bản đồ vào vùng Death Zone tử địa. Khả năng sinh tồn lội ngược dòng phụ thuộc hoàn toàn vào quyết định bẻ góc va chạm (Directional Influence) trong tích tắc, quản lý tài nguyên khôn ngoan dưới áp lực môi trường khắc nghiệt.
+Ràng buộc dự án: Vận hành trên nền tảng PC Standalone, tối ưu hóa cho trải nghiệm chơi cục bộ 2 người (Local Versus) thông qua phương án kết hợp bàn phím và kết nối tay cầm ngoại vi, hoàn thiện trong khung thời gian học trình từ 4 đến 6 tuần.
+Trang 2 — Ý Đồ Cảm Xúc, Cột Trụ Trải Nghiệm & Mục Tiêu Kiểm Thử
+Ý đồ Cảm xúc Cốt lõi (North Star):
+Kịch tính dâng trào (Tense): Chỉ số % Resistance liên tục tăng lũy tiến khiến áp lực tâm lý dâng cao theo từng giây; ranh giới giữa việc lội ngược dòng ngoạn mục và bị loại bỏ vĩnh viễn chỉ cách nhau bằng một cú bẻ góc va chạm cứu nguy trong phần mười giây.
+Làm chủ tiết tấu (Cool / Flow): Các chuỗi liên hoàn chiêu thức không bị ngắt quãng, sự can thiệp chuẩn xác của cơ chế Burst Breaker giải cứu tình huống hiểm nghèo mang lại những pha highlight mãn nhãn.
+Ba Lĩnh vực Trải nghiệm Cốt lõi (Pillars):
+Kỹ thuật giao thoa Hỗn loạn: Người chơi vừa phải làm quen với hệ thống Frame Data và Motion Input khắt khe, vừa phải xử lý nhanh nhạy những biến số ngẫu nhiên từ vật phẩm rơi và cạm bẫy bản đồ.
+Cân não quản lý tài nguyên: Mọi hành động từ né đòn, lướt nhanh hủy chiêu (RC Dash) đều tiêu tốn nguồn Mana hữu hạn không tự hồi phục, trong khi thanh Nộ phải được tích lũy chuẩn xác cho các pha thoát combo hoặc tung chiêu Ultimate quyết định.
+Thích ứng địa hình biến động: Hiệu ứng thời tiết khắc nghiệt từ các Map Biome trực tiếp định hình và tái giới hạn lối di chuyển, biến tư duy không gian thành điều kiện tiên quyết để chiến thắng.
+Nguyên tắc Không thỏa hiệp (Non-Negotiables):
+Độ trễ Nhập lệnh: Bộ đệm lệnh Input Buffer bắt buộc phải xử lý tổ hợp phím và thực thi hành động của nhân vật trong mốc độ trễ lý tưởng dưới 3 khung hình (< 50ms).
+Cơ chế Khựng hình (Hitstop): Mọi cú đánh trúng đích hợp lệ phải làm đóng băng hoạt động trong 4 đến 8 khung hình để mang lại phản hồi lực cơ học rõ nét, tạo cảm giác đấm đá có lực thực thụ.
+Kiến trúc Hướng dữ liệu Unity: Tuyệt đối không hard-code chỉ số nhân vật hay moveset chiêu thức. Mọi dữ liệu phải cấu hình qua Scriptable Objects để cô lập logic, triệt tiêu hoàn toàn xung đột Git khi merge scene.
+Mục tiêu Kiểm thử:
+Tỷ lệ phân bổ lựa chọn nhân vật và bản đồ trong các đợt playtest mù đạt trạng thái cân bằng tương đối, không có thực thể nào chiếm tỷ lệ chọn áp đảo vượt ngưỡng 50%.
+Tối thiểu 80% người chơi thử nghiệm nhận diện được ngay trạng thái nguy kịch cao trào sắp kết thúc trận đấu dựa hoàn toàn vào biến đổi màu sắc cảnh báo trên HUD.
+Trang 3 — Vòng Lặp Cốt Lõi, Cấu Trúc Trận Đấu & Điều Kiện Thắng/Thua
+Sơ đồ Vòng lặp Cốt lõi:
+Lựa chọn Nhân vật & Bản đồ Biome → Vào trận đấu Local Versus 2 người → Tấn công dồn Combo tích lũy Resistance % cho đối thủ → Tranh giành Item ngẫu nhiên & Thích ứng địa hình Biome → Tung đòn hất văng thổi bay kẻ địch vào Death Zone để hạ Stock mạng → Xem thống kê kết quả → Lặp lại.
+Cấu trúc Trận đấu:
+Trận đấu diễn ra liên tục dựa trên số lượng mạng sống giới hạn (Stock từ 3 đến 5 mạng) trong một Scene duy nhất quản lý bởi hệ thống Luật trận đấu (Match Rules), loại bỏ cấu trúc chia hiệp đấu (Round-based) ngắt quãng.
+Khi mất mạng do rơi vào Death Zone 4 phía, nhân vật lập tức hồi sinh tại điểm Spawn Point cố định ở trung tâm map, nhận khung hình bất tử tạm thời để chọn điểm đáp đất an toàn.
+Phân bổ Thời gian Trận đấu:
+Thời gian giới hạn tối đa trận đấu: 10 Phút (600 giây).
+Giai đoạn di chuyển di chuyển và neutral: Các khối thời gian từ 20–30 giây thăm dò không gian.
+Giao tranh đột biến cao trào (Spike): Các chuỗi bùng nổ combo và đỡ đòn căng thẳng kéo dài 10–15 giây.
+Trạng thái khôi phục (Release): Khối 8–12 giây sau va chạm mạnh hoặc chuyển dịch cạm bẫy môi trường.
+Điều kiện Thắng / Thua:
+Thắng: Triệt hạ toàn bộ Stock mạng sống của đối phương về 0 trước, hoặc sở hữu số Stock mạng/Điểm số cao hơn khi đồng hồ 10 phút đếm ngược về mốc không.
+Thua: Cạn kiệt toàn bộ số mạng sống được cấp, hoặc thua thiệt về Điểm số tổng hợp (Công thức: Tổng sát thương gây ra + Chuỗi Combo dài nhất) trong tình huống hòa Stock mạng khi hết giờ.
+Trang 4 — Cơ Chế Đặc Trưng & Kiến Trúc Dữ Liệu
+Đặc tả Cơ chế Đặc trưng:
+Hệ thống Tính Lực Đẩy Knockback theo % Resistance: Không có thanh máu truyền thống. Càng nhận nhiều đòn đánh, % Resistance càng cao. Khi kết thúc combo bằng một đòn launcher mạnh, phản lực vật lý cơ học sẽ bắn nhân vật bay xa tương ứng, khiến người chơi dễ bị thổi bay khỏi map khi chỉ số này dâng cao.
+Cơ chế Giữ Khối và Đẩy Rìa (Pushback Block): Đỡ đòn không tốn tài nguyên và bảo vệ nhân vật khỏi sát thương hất văng gốc. Tuy nhiên, nếu lạm dụng đỡ liên tục, lực phản chấn cơ học tích lũy sẽ đẩy lùi người chơi dịch chuyển dần ra mép vực tử địa nguy hiểm.
+Viên Hồi Nộ Truyền Thuyết (Rage Core): Xuất hiện một lần duy nhất giữa trận tại mốc thời gian ngẫu nhiên. Viên lõi bay liên tục khắp màn hình theo quỹ đạo bất định. Cả hai đấu thủ phải cùng tham gia tấn công dồn đủ 15 hit để bẻ gãy lõi bảo vệ; ai tung đòn quyết định thứ 15 (Frame-based Tie break) sẽ lập tức hồi đầy 100% nộ để tung Ultimate phá block tức thì.
+Cấu hình Kiến trúc Hướng Dữ liệu:
+Trang 5 — Bộ Hành Động Nhân Vật & Đặc Tả Cảm Giác Điều Khiển
+Bộ Di chuyển (Mô hình Trạng thái FSM của Nhân vật):
+Hệ thống Custom Character Controller vận hành máy trạng thái FSM đồng bộ chặt chẽ các hành động: Idle, Di chuyển (Walk/Run), Ngồi (Crouch), Nhảy, Nhảy đôi (Double Jump), Nhảy thấp (Short Hop - tap phím), Rơi nhanh (Fast Fall - nhấn phím xuống khi trên không), Lướt (Dash), Bám tường (Wall Hang - tụt chậm trên vách đứng) và Nhảy tường (Wall Jump).
+Bộ Kỹ năng Chiến đấu:
+Đòn đánh thường: Tấn công Nhẹ, Vừa, Nặng phân tách riêng biệt giữa trạng thái đứng dưới đất và trên không.
+Chiêu thức & Tuyệt kỹ: Nhập lệnh xoay phím (Motion input) để ra chiêu Special. Các phím bấm độc lập kích hoạt Super Move 1 (tốn 50% Mana) và Super Move 2 (tốn 75% Mana).
+Cơ chế Nâng cao: Roman Cancel (RC) Dash (tiêu tốn Mana phẳng để ngắt ngay lập tức các khung hình hoạt ảnh phục hồi nhằm kéo dài combo). Né đất và Né không (Air Dodge) tiêu tốn Mana để lấy khung hình bất tử. Cơ chế Burst Breaker nổ tung tiêu hao 50% Nộ để giải thoát khỏi trạng thái đơ đòn (hitstun). Chiêu Ultimate tung ra đòn kết liễu điện ảnh phá vỡ hoàn toàn thế đỡ khi đầy 100% Nộ.
+Thông số Cấu hình Cảm giác Điều khiển:
+Bộ đệm lưu lệnh Input Buffer: 10 khung hình (~166ms) bảo đảm nhận diện chuỗi combo mượt mà không bị lỡ phím.
+Khung Coyote Time: 150ms dung sai cho phép người chơi thực hiện lệnh nhảy khi vừa chạy khỏi rìa vực phẳng.
+Thời gian Khựng hình Hitstop: 4 khung hình cho đòn đánh nhẹ, tịnh tiến lên 8 khung hình cho các đòn nặng dứt điểm.
+Trang 6 — Kinh Tế Tài Nguyên Hệ Thống & Khung Vật Lý Lực Đẩy
+Mô hình Quản lý Biến số Tài nguyên:
+Hệ thống Custom Physics Vật lý Tự chọn:
+Tựa game bỏ qua lực AddForce mặc định của Rigidbody2D Unity nhằm đạt độ chính xác tối cao của dòng game đối kháng. Logic lực đẩy vận hành qua thuật toán nạp vận tốc trực tiếp:
+KnockbackVelocity = BaseKnockback + ((Resistance% * Knockback Growth * MoveDamage) / Weight)
+Biến số khối lượng Weight của nhân vật đóng vai trò mẫu số triệt tiêu lực; các tướng nặng cân có khả năng kháng cự lực đẩy hất văng cực tốt, trong khi các tướng nhẹ cân sẽ bị bắn bay rất xa ở cùng một mức phần trăm.
+Trang 7 — Ngữ Pháp Giao Tranh, Logic Liên Hoàn & Hệ Thống Chỉ Báo
+Quy tắc Liên hoàn Combo & Va chạm:
+Bộ đếm Combo Counter chỉ ghi nhận các chuỗi đòn đánh trúng đích liên tiếp không bị chặn đứng bởi Block. Mọi sự đứt quãng về khung hình thời gian sẽ reset chuỗi đếm lập tức.
+Thưởng Cột mốc Combo: Đạt chuỗi liên hoàn liên tục chạm mốc 10 hoặc 20 hits sẽ kích hoạt tỷ lệ nhân bonus, cộng thêm +1% tích lũy sát thương Resistance cho các đòn đánh kế sau.
+Quy tắc Trì hoãn Lực đẩy (Knockback Delay): Để duy trì khả năng nối dài chuỗi combo đất đối không, lực hất văng cực đại bị kìm hãm trong suốt chuỗi liên hoàn; vector vận tốc tổng hợp chỉ phát nổ khi mục tiêu dính đòn Launcher hoặc chiêu dứt điểm Finisher chỉ định.
+Va chạm Hình học: Đối thủ bị đánh văng va quệt vào địa hình sẽ kích hoạt trạng thái Wall Splat (khựng đơ người ngắn trên vách), Wall Bounce (bật nẩy phản lực vách đá) hoặc Ground Bounce (nẩy đất).
+Hệ thống Ngôn ngữ Chỉ báo Trực quan:
+Hào quang Đầy Nộ: Đạt mốc 100% Nộ kích hoạt shader hào quang rực lửa bao phủ quanh sprite nhân vật, đi kèm hoạt ảnh viền thanh HUD nhấp nháy tần suất cao.
+Giao diện Báo động Cao trào: Khi người chơi rơi vào sinh mạng mạng sống (Stock) cuối cùng, toàn bộ khung viền HUD tự động chuyển đổi sang sắc màu tối đậm cảnh báo để nhấn mạnh tính cao trào trận đấu.
+Cảnh báo Thiên tai Biome: Sự biến đổi trạng thái vật lý của bản đồ (như Dung nham dâng hay Bão tuyết bùng phát) sẽ triển khai hiệu ứng rung lắc màn hình dữ dội và nhấp nháy icon cảnh báo trước 3 giây khi hiểm họa chính thức kích hoạt.
+Trang 8 — Lộ Trình Phát Triển Chi Tiết, Tiêu Chuẩn Git & Hàng Rào Lập Trình
+Lộ trình Thực thi Phát triển Chi tiết 4 Tuần:
+Tuần 0 — Setup Kiến trúc Cốt lõi: Đồng bộ phiên bản Unity; thiết lập cấu hình file .gitignore, ép định dạng Force Text và thiết lập UnityYAMLMerge. Quy chuẩn hóa các namespace hệ thống và cấu trúc dữ liệu ScriptableObject trống.
+Tuần 1–2 — Mốc mốc imp1 ( gameplay Cốt lõi): Hoàn thiện máy trạng thái FSM nhân vật, hitbox đòn đánh thường cơ bản, thuật toán tính lực hất văng, cấu hình phím bấm bàn phím/tay cầm và dựng map thử nghiệm phẳng.
+Definition of Done (DoD) mốc imp1: Hai người chơi có thể ngồi giao tranh cục bộ, thực thi cơ chế tính lực đẩy khiến nhân vật văng rìa mất mạng, cảm nhận phản hồi lực rõ nét qua các hook khựng hình hitstop sơ bộ.
+Tuần 3 — Mốc mốc imp2 (Đóng băng Tính năng & Nội dung): Nạp đầy đủ moveset hoạt ảnh cho 4 nhân vật, kích hoạt tính năng vật lý môi trường của 3 bản đồ Biome, triển khai bộ Spawner rơi vật phẩm ngẫu nhiên định tiến 3 cấp độ, nối thông dữ liệu HUD hoàn chỉnh qua hệ thống event C#.
+Definition of Done (DoD) mốc imp2: Chơi trọn vẹn được một vòng lặp trận đấu thực tế giữa 4 tướng và 3 map. Mọi hệ thống vận hành trơn tru. Áp dụng quy tắc đóng băng tính năng; tuyệt đối không code thêm cơ chế mới sau mốc này để dồn lực sửa lỗi.
+Tuần 4 — Mốc mốc imp3 (Đánh bóng, Cân bằng & Ship): Đánh bóng hoạt ảnh giao diện UI/UX, tích hợp các asset âm thanh SFX và nhạc nền độc lập cho từng biome, cân bằng chỉ số số học trực tiếp trên Scriptable Objects, bash lỗi triệt để và đóng gói bản build PC Standalone ổn định.
+Definition of Done (DoD) mốc imp3: Bản dựng chạy mượt mà trên thiết bị phần cứng sạch bên ngoài, hoàn toàn không dính lỗi crash game phá vỡ trải nghiệm, đi kèm dữ liệu cân bằng chuẩn hóa và tài liệu GDD đầy đủ.
+Tiêu chuẩn Cộng tác Git Đội ngũ & Hàng rào Kiến trúc:
+*Quy tắc Sở hữu Cảnh:* Để loại trừ hoàn toàn các xung đột merge branch hủy hoại scene, quyền chỉnh sửa file cảnh được phân chia độc quyền cho từng chủ sở hữu. Thành viên UI sở hữu cảnh `Menu/Select`; Lập trình viên Game Flow giữ độc quyền cảnh chiến đấu `Match`. Mọi thành viên khác bắt buộc phải đóng gói logic cô lập bên trong các file Prefab độc lập.
+*Ngắt quãng Giao diện hiển thị:* Các script UI tuyệt đối không được phép truy vấn trực tiếp trạng thái dữ liệu của tầng logic chiến đấu cốt lõi. Giao tiếp giữa hai đại hệ thống bắt buộc phải đi qua cơ chế đăng ký và lắng nghe sự kiện (`OnPageChanged`, `On Resistance Changed`, `OnStockLost`).
+*Giới hạn Độ dài Code:* Quy định trần nghiêm ngặt không một file mã nguồn đơn lẻ nào được phép viết vượt quá giới hạn 500 dòng code nhằm bảo đảm tính đơn chức năng (Single Responsibility) và dễ bảo trì.
+Trang 9 — Cẩm Nang Bản Đồ Biome & Đặc Tả Spawner Vật Phẩm
+Mục lục Cơ sở Dữ liệu Bản đồ Biome:
+Đặc tả Thuật toán Spawner Vật phẩm:
+*Giới hạn Số lượng Tối đa (Cap):* Quy định trần nghiêm ngặt tối đa chỉ có 5 vật phẩm chủ động tồn tại đồng thời trên map. Bộ Spawner sẽ tạm dừng rơi và chỉ tái kích hoạt khi số lượng vật phẩm dưới đất được nhặt bớt.
+*Thao tác Thu hoạch:* Người chơi thu nhặt vật phẩm bằng cách đứng trực tiếp lên box collider vật thể và nhấn phím Ngồi (↓). Vật phẩm kích hoạt hiệu năng lập tức khi nhặt, loại bỏ ô chứa đồ lưu trữ.
+*Tham số Cường hóa Định tiến 3 Cấp:* Bình hồi phục Resistance, bình hồi Mana và bình Buff tăng DMG phân cấp hiệu năng dựa theo kích thước sprite đồ họa hiển thị: Bình Nhỏ (tác động 5%), Bình Vừa (tác động 10%), Bình Lớn (tác động 20%). Bình ăn sau sẽ đè lên hiệu ứng cũ và làm mới thời gian duy trì chứ không cộng dồn chỉ số buff.
+Trang 10 — Thiết Kế Bản Cắt Dọc, Tiêu Chí Nghiệm Thu & Cấu Trúc Nhật Ký Theo Dõi
+Kịch bản Mô phỏng Bản cắt Dọc (Vertical Slice):
+Một trận đấu tranh chấp thực tế khởi chạy trực tiếp trên Bản đồ Dung Nham tích hợp cấu hình dữ liệu 4 nhân vật từ ScriptableObjects. Trong 60 giây đầu tiên, Người chơi 1 khóa chặt Người chơi 2 bằng một chuỗi liên hoàn 12 hits liên tục dưới mặt đất, đẩy chỉ số Resistance của Người chơi 2 chạm mốc cảnh báo đỏ 85%. Đến phút thứ 3 của trận đấu, biến cố địa hình Dung Nham Dâng chính thức kích hoạt, ép buộc cả hai đấu thủ phải thi triển kỹ thuật Nhảy tường bám vách để leo lên các đảo bay lơ lửng phía trên. Cùng lúc này, Viên Hồi Nộ Truyền Thuyết xuất hiện bay bất định xuyên suốt màn hình. Cả hai đấu thủ lập tức đình chiến player-versus-player, chuyển mục tiêu sang tấn công dồn dập vào viên lõi bay. Người chơi 1 tung đòn chạm quyết định thứ 15, phá vỡ lõi nhận đầy 100% thanh Nộ, kích hoạt trạng thái Rage Mode phát ra luồng hào quang rực rỡ và thi triển đòn kết liễu tối thượng Ultimate phá nát block. Đòn đánh chạm mục tiêu tạo hiệu ứng khựng hình Hitstop cực mạnh, sinh ra vector xung lực khổng lồ bắn văng Người chơi 2 đập nát bức tường biên, thổi bay thẳng vào Vùng Tử Địa bên ngoài, chính thức tước đoạt 1 mạng sống (Stock) của kẻ địch một cách hoàn hảo.
+Tiêu chí Nghiệm thu Tối hậu của Sản phẩm:
+Triệt tiêu hoàn toàn hiện tượng kẹt phím phần cứng (Ghosting lock) khi hai người chơi cùng thao tác gõ tổ hợp phím tốc độ cao trên thiết bị bàn phím chia đôi điều khiển.
+Màn hình giao diện HUD kết thúc trận đấu hiển thị trơn tru, tổng hợp chuẩn xác các trường dữ liệu: Tổng sát thương gây ra, Chuỗi liên hoàn dài nhất, Số mạng hạ gục và Chỉ số kháng đòn đỉnh điểm.
+Yêu cầu Trường Dữ liệu tối thiểu của Telemetry Pack:
+log frame latency: Thu thập và đánh giá độ trễ phản hồi của bộ đệm lệnh trong suốt chuỗi liên hoàn combo chiêu thức.
+track knockback vector: Ghi lại các giá trị vận tốc cơ học thô sinh ra từ thuật toán Custom Physics nhằm phục vụ trực tiếp cho công tác chỉnh sửa cân bằng chỉ số.

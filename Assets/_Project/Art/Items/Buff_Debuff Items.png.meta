@@ -1,0 +1,4173 @@
+fileFormatVersion: 2
+guid: a87afb569607dc3468f6fe2d38e7517f
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1848169893352058049
+    second: Mobile - Idle Skilling - Apothecary - Potions_0
+  - first:
+      213: 397459615485894646
+    second: Mobile - Idle Skilling - Apothecary - Potions_1
+  - first:
+      213: -4783133014045058148
+    second: Mobile - Idle Skilling - Apothecary - Potions_2
+  - first:
+      213: -4635724728493705241
+    second: Mobile - Idle Skilling - Apothecary - Potions_3
+  - first:
+      213: 1672545660547403518
+    second: Mobile - Idle Skilling - Apothecary - Potions_4
+  - first:
+      213: 800427288631939036
+    second: Mobile - Idle Skilling - Apothecary - Potions_5
+  - first:
+      213: 4234627416515022766
+    second: Mobile - Idle Skilling - Apothecary - Potions_6
+  - first:
+      213: -9127249421719838775
+    second: Mobile - Idle Skilling - Apothecary - Potions_7
+  - first:
+      213: -3355216724609539569
+    second: Mobile - Idle Skilling - Apothecary - Potions_8
+  - first:
+      213: -8120298212558739268
+    second: Mobile - Idle Skilling - Apothecary - Potions_9
+  - first:
+      213: -7878718650673093578
+    second: Mobile - Idle Skilling - Apothecary - Potions_10
+  - first:
+      213: 5191451691283192564
+    second: Mobile - Idle Skilling - Apothecary - Potions_11
+  - first:
+      213: 8025917266160092981
+    second: Mobile - Idle Skilling - Apothecary - Potions_12
+  - first:
+      213: -6067548189931621302
+    second: Mobile - Idle Skilling - Apothecary - Potions_13
+  - first:
+      213: 6600405056792154724
+    second: Mobile - Idle Skilling - Apothecary - Potions_14
+  - first:
+      213: 6581372215469823782
+    second: Mobile - Idle Skilling - Apothecary - Potions_15
+  - first:
+      213: -4808701427242279235
+    second: Mobile - Idle Skilling - Apothecary - Potions_16
+  - first:
+      213: -4076771461243253860
+    second: Mobile - Idle Skilling - Apothecary - Potions_17
+  - first:
+      213: -6193247342850803873
+    second: Mobile - Idle Skilling - Apothecary - Potions_18
+  - first:
+      213: 4797456398694256043
+    second: Mobile - Idle Skilling - Apothecary - Potions_19
+  - first:
+      213: 2212900563798748471
+    second: Mobile - Idle Skilling - Apothecary - Potions_20
+  - first:
+      213: 8371704837132962205
+    second: Mobile - Idle Skilling - Apothecary - Potions_21
+  - first:
+      213: 3754536278250200958
+    second: Mobile - Idle Skilling - Apothecary - Potions_22
+  - first:
+      213: -2821513186868261528
+    second: Mobile - Idle Skilling - Apothecary - Potions_23
+  - first:
+      213: 4215377961618196712
+    second: Mobile - Idle Skilling - Apothecary - Potions_24
+  - first:
+      213: -2784225665493336273
+    second: Mobile - Idle Skilling - Apothecary - Potions_25
+  - first:
+      213: -8472023531019992011
+    second: Mobile - Idle Skilling - Apothecary - Potions_26
+  - first:
+      213: -3510599917021354251
+    second: Mobile - Idle Skilling - Apothecary - Potions_27
+  - first:
+      213: 6619891774490104592
+    second: Mobile - Idle Skilling - Apothecary - Potions_28
+  - first:
+      213: -3670703044309537825
+    second: Mobile - Idle Skilling - Apothecary - Potions_29
+  - first:
+      213: -3244381307894544473
+    second: Mobile - Idle Skilling - Apothecary - Potions_30
+  - first:
+      213: -1645939703922721241
+    second: Mobile - Idle Skilling - Apothecary - Potions_31
+  - first:
+      213: 8546368578167541201
+    second: Mobile - Idle Skilling - Apothecary - Potions_32
+  - first:
+      213: -1821624575447811097
+    second: Mobile - Idle Skilling - Apothecary - Potions_33
+  - first:
+      213: -7596448311633567936
+    second: Mobile - Idle Skilling - Apothecary - Potions_34
+  - first:
+      213: -1295656542135031562
+    second: Mobile - Idle Skilling - Apothecary - Potions_35
+  - first:
+      213: -5714313168613107431
+    second: Mobile - Idle Skilling - Apothecary - Potions_36
+  - first:
+      213: -4554050708173727373
+    second: Mobile - Idle Skilling - Apothecary - Potions_37
+  - first:
+      213: 1542987305562657687
+    second: Mobile - Idle Skilling - Apothecary - Potions_38
+  - first:
+      213: 5370700504197088496
+    second: Mobile - Idle Skilling - Apothecary - Potions_39
+  - first:
+      213: 6561263815674258424
+    second: Mobile - Idle Skilling - Apothecary - Potions_40
+  - first:
+      213: 3482763823337466845
+    second: Mobile - Idle Skilling - Apothecary - Potions_41
+  - first:
+      213: 5837763685538879000
+    second: Mobile - Idle Skilling - Apothecary - Potions_42
+  - first:
+      213: 8807055576448356083
+    second: Mobile - Idle Skilling - Apothecary - Potions_43
+  - first:
+      213: 5103876319383498819
+    second: Mobile - Idle Skilling - Apothecary - Potions_44
+  - first:
+      213: 3366650565884735479
+    second: Mobile - Idle Skilling - Apothecary - Potions_45
+  - first:
+      213: 170642273831894974
+    second: Mobile - Idle Skilling - Apothecary - Potions_46
+  - first:
+      213: -2660184267950864453
+    second: Mobile - Idle Skilling - Apothecary - Potions_47
+  - first:
+      213: -8579314268939998235
+    second: Mobile - Idle Skilling - Apothecary - Potions_48
+  - first:
+      213: -9128617936404916825
+    second: Mobile - Idle Skilling - Apothecary - Potions_49
+  - first:
+      213: -1761771834954690813
+    second: Mobile - Idle Skilling - Apothecary - Potions_50
+  - first:
+      213: -1908409969852743277
+    second: Mobile - Idle Skilling - Apothecary - Potions_51
+  - first:
+      213: -3429062660559998817
+    second: Mobile - Idle Skilling - Apothecary - Potions_52
+  - first:
+      213: -6113318809329992166
+    second: Mobile - Idle Skilling - Apothecary - Potions_53
+  - first:
+      213: 20535353546443508
+    second: Mobile - Idle Skilling - Apothecary - Potions_54
+  - first:
+      213: -8056819931353011810
+    second: Mobile - Idle Skilling - Apothecary - Potions_55
+  - first:
+      213: -571056308919965756
+    second: Mobile - Idle Skilling - Apothecary - Potions_56
+  - first:
+      213: -7941937289905822961
+    second: Mobile - Idle Skilling - Apothecary - Potions_57
+  - first:
+      213: 2018376923038493391
+    second: Mobile - Idle Skilling - Apothecary - Potions_58
+  - first:
+      213: 4921198407767314777
+    second: Mobile - Idle Skilling - Apothecary - Potions_59
+  - first:
+      213: 8748803609672943454
+    second: Mobile - Idle Skilling - Apothecary - Potions_60
+  - first:
+      213: -5790460354325375938
+    second: Mobile - Idle Skilling - Apothecary - Potions_61
+  - first:
+      213: -7996966612018686486
+    second: Mobile - Idle Skilling - Apothecary - Potions_62
+  - first:
+      213: 5690302193426329276
+    second: Mobile - Idle Skilling - Apothecary - Potions_63
+  - first:
+      213: -7439705314943286945
+    second: Mobile - Idle Skilling - Apothecary - Potions_64
+  - first:
+      213: -8740152901089755318
+    second: Mobile - Idle Skilling - Apothecary - Potions_65
+  - first:
+      213: -2808039081354991065
+    second: Mobile - Idle Skilling - Apothecary - Potions_66
+  - first:
+      213: -6733312840940656534
+    second: Mobile - Idle Skilling - Apothecary - Potions_67
+  - first:
+      213: 9074320340379010525
+    second: Mobile - Idle Skilling - Apothecary - Potions_68
+  - first:
+      213: 3469440692508342845
+    second: Mobile - Idle Skilling - Apothecary - Potions_69
+  - first:
+      213: -1979781962819815844
+    second: Mobile - Idle Skilling - Apothecary - Potions_70
+  - first:
+      213: 4969430635195409869
+    second: Mobile - Idle Skilling - Apothecary - Potions_71
+  - first:
+      213: -1098718889457364356
+    second: Mobile - Idle Skilling - Apothecary - Potions_72
+  - first:
+      213: 45092858462926575
+    second: Mobile - Idle Skilling - Apothecary - Potions_73
+  - first:
+      213: 5268013008076049782
+    second: Mobile - Idle Skilling - Apothecary - Potions_74
+  - first:
+      213: 2407970712413871281
+    second: Mobile - Idle Skilling - Apothecary - Potions_75
+  - first:
+      213: -6714872383438614626
+    second: Mobile - Idle Skilling - Apothecary - Potions_76
+  - first:
+      213: 5952800296118944215
+    second: Mobile - Idle Skilling - Apothecary - Potions_77
+  - first:
+      213: 8257507874636141425
+    second: Mobile - Idle Skilling - Apothecary - Potions_78
+  - first:
+      213: 4476805542353265623
+    second: Mobile - Idle Skilling - Apothecary - Potions_79
+  - first:
+      213: -4035624876227484575
+    second: Mobile - Idle Skilling - Apothecary - Potions_80
+  - first:
+      213: -9017066530832919395
+    second: Mobile - Idle Skilling - Apothecary - Potions_81
+  - first:
+      213: -7871011396581823781
+    second: Mobile - Idle Skilling - Apothecary - Potions_82
+  - first:
+      213: -8734374748000630085
+    second: Mobile - Idle Skilling - Apothecary - Potions_83
+  - first:
+      213: 3390223869550360006
+    second: Mobile - Idle Skilling - Apothecary - Potions_84
+  - first:
+      213: 6514655045224580196
+    second: Mobile - Idle Skilling - Apothecary - Potions_85
+  - first:
+      213: 7702180933252571551
+    second: Mobile - Idle Skilling - Apothecary - Potions_86
+  - first:
+      213: 5190726862627711642
+    second: Mobile - Idle Skilling - Apothecary - Potions_87
+  - first:
+      213: 7604414532726810173
+    second: Mobile - Idle Skilling - Apothecary - Potions_88
+  - first:
+      213: 4231645679417279777
+    second: Mobile - Idle Skilling - Apothecary - Potions_89
+  - first:
+      213: -3147740223898876373
+    second: Mobile - Idle Skilling - Apothecary - Potions_90
+  - first:
+      213: -5672827893129672381
+    second: Mobile - Idle Skilling - Apothecary - Potions_91
+  - first:
+      213: -5962303598214644599
+    second: Mobile - Idle Skilling - Apothecary - Potions_92
+  - first:
+      213: -4267979517436279615
+    second: Mobile - Idle Skilling - Apothecary - Potions_93
+  - first:
+      213: 7966975883799287725
+    second: Mobile - Idle Skilling - Apothecary - Potions_94
+  - first:
+      213: -2891039632476393946
+    second: Mobile - Idle Skilling - Apothecary - Potions_95
+  - first:
+      213: 3134455695450477714
+    second: Mobile - Idle Skilling - Apothecary - Potions_96
+  - first:
+      213: -398052030849575157
+    second: Mobile - Idle Skilling - Apothecary - Potions_97
+  - first:
+      213: 543483267807275050
+    second: Mobile - Idle Skilling - Apothecary - Potions_98
+  - first:
+      213: -6730206529921234925
+    second: Mobile - Idle Skilling - Apothecary - Potions_99
+  - first:
+      213: -518552331835345249
+    second: Mobile - Idle Skilling - Apothecary - Potions_100
+  - first:
+      213: 1667624247232611114
+    second: Mobile - Idle Skilling - Apothecary - Potions_101
+  - first:
+      213: -4835299026163421380
+    second: Mobile - Idle Skilling - Apothecary - Potions_102
+  - first:
+      213: -3330155760261045316
+    second: Mobile - Idle Skilling - Apothecary - Potions_103
+  - first:
+      213: -1111440869167084804
+    second: Mobile - Idle Skilling - Apothecary - Potions_104
+  - first:
+      213: -7206447669128212337
+    second: Mobile - Idle Skilling - Apothecary - Potions_105
+  - first:
+      213: -1504884110209278839
+    second: Mobile - Idle Skilling - Apothecary - Potions_106
+  - first:
+      213: 6335566039877797633
+    second: Mobile - Idle Skilling - Apothecary - Potions_107
+  - first:
+      213: 2191579514879255056
+    second: Mobile - Idle Skilling - Apothecary - Potions_108
+  - first:
+      213: 597676669124517782
+    second: Mobile - Idle Skilling - Apothecary - Potions_109
+  - first:
+      213: 1636828802151593786
+    second: Mobile - Idle Skilling - Apothecary - Potions_110
+  - first:
+      213: -6902202214251666753
+    second: Mobile - Idle Skilling - Apothecary - Potions_111
+  - first:
+      213: -4407068876228925603
+    second: Mobile - Idle Skilling - Apothecary - Potions_112
+  - first:
+      213: -1801068670680715923
+    second: Mobile - Idle Skilling - Apothecary - Potions_113
+  - first:
+      213: 4799710659673485394
+    second: Mobile - Idle Skilling - Apothecary - Potions_114
+  - first:
+      213: 5812763868043664900
+    second: Mobile - Idle Skilling - Apothecary - Potions_115
+  - first:
+      213: -4726724073448150941
+    second: Mobile - Idle Skilling - Apothecary - Potions_116
+  - first:
+      213: 4906994849334173935
+    second: Mobile - Idle Skilling - Apothecary - Potions_117
+  - first:
+      213: 7883734463705007951
+    second: Mobile - Idle Skilling - Apothecary - Potions_118
+  - first:
+      213: 4308091057477695120
+    second: Mobile - Idle Skilling - Apothecary - Potions_119
+  - first:
+      213: -8253145717544876100
+    second: Mobile - Idle Skilling - Apothecary - Potions_120
+  - first:
+      213: -8559707436230028149
+    second: Mobile - Idle Skilling - Apothecary - Potions_121
+  - first:
+      213: 6765903578185909187
+    second: Mobile - Idle Skilling - Apothecary - Potions_122
+  - first:
+      213: -6966570273456960252
+    second: Mobile - Idle Skilling - Apothecary - Potions_123
+  - first:
+      213: -7278154574486110414
+    second: Mobile - Idle Skilling - Apothecary - Potions_124
+  - first:
+      213: -528383156031180186
+    second: Mobile - Idle Skilling - Apothecary - Potions_125
+  - first:
+      213: 1359567287050682024
+    second: Mobile - Idle Skilling - Apothecary - Potions_126
+  - first:
+      213: -6175181322901498902
+    second: Mobile - Idle Skilling - Apothecary - Potions_127
+  - first:
+      213: 5655138595800992070
+    second: Mobile - Idle Skilling - Apothecary - Potions_128
+  - first:
+      213: 4365402027795806870
+    second: Mobile - Idle Skilling - Apothecary - Potions_129
+  - first:
+      213: 2929718584274605490
+    second: Mobile - Idle Skilling - Apothecary - Potions_130
+  - first:
+      213: -184747812031269268
+    second: Mobile - Idle Skilling - Apothecary - Potions_131
+  - first:
+      213: 6924232909252125503
+    second: Mobile - Idle Skilling - Apothecary - Potions_132
+  - first:
+      213: 7608213316517139171
+    second: Mobile - Idle Skilling - Apothecary - Potions_133
+  - first:
+      213: 7303100342293631955
+    second: Mobile - Idle Skilling - Apothecary - Potions_134
+  - first:
+      213: -2354733486539187223
+    second: Mobile - Idle Skilling - Apothecary - Potions_135
+  - first:
+      213: -1537587006182754429
+    second: Mobile - Idle Skilling - Apothecary - Potions_136
+  - first:
+      213: -2130925627028611437
+    second: Mobile - Idle Skilling - Apothecary - Potions_137
+  - first:
+      213: 6294750122584009669
+    second: Mobile - Idle Skilling - Apothecary - Potions_138
+  - first:
+      213: 542812914672462973
+    second: Mobile - Idle Skilling - Apothecary - Potions_139
+  - first:
+      213: -5662895756685936541
+    second: Mobile - Idle Skilling - Apothecary - Potions_140
+  - first:
+      213: 3604077405370229614
+    second: Mobile - Idle Skilling - Apothecary - Potions_141
+  - first:
+      213: 5733034711352177288
+    second: Mobile - Idle Skilling - Apothecary - Potions_142
+  - first:
+      213: 8056213267233388654
+    second: Mobile - Idle Skilling - Apothecary - Potions_143
+  - first:
+      213: 1680138560473000118
+    second: Mobile - Idle Skilling - Apothecary - Potions_144
+  - first:
+      213: -8758667531660830793
+    second: Mobile - Idle Skilling - Apothecary - Potions_145
+  - first:
+      213: -4785590851690891070
+    second: Mobile - Idle Skilling - Apothecary - Potions_146
+  - first:
+      213: -1150293194687259960
+    second: Mobile - Idle Skilling - Apothecary - Potions_147
+  - first:
+      213: 2841783352274602781
+    second: Mobile - Idle Skilling - Apothecary - Potions_148
+  - first:
+      213: -4477355843256979769
+    second: Mobile - Idle Skilling - Apothecary - Potions_149
+  - first:
+      213: 735595653176022953
+    second: Mobile - Idle Skilling - Apothecary - Potions_150
+  - first:
+      213: -1041249545706069530
+    second: Mobile - Idle Skilling - Apothecary - Potions_151
+  - first:
+      213: 3310225639333931104
+    second: Mobile - Idle Skilling - Apothecary - Potions_152
+  - first:
+      213: -8964022305714055942
+    second: Mobile - Idle Skilling - Apothecary - Potions_153
+  - first:
+      213: -773100284255939277
+    second: Mobile - Idle Skilling - Apothecary - Potions_154
+  - first:
+      213: 7271406648329474339
+    second: Mobile - Idle Skilling - Apothecary - Potions_155
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_0
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 449
+        width: 26
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1cc22d9d9b406a910800000000000000
+      internalID: 1848169893352058049
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_1
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 448
+        width: 25
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ff99991a6f048500800000000000000
+      internalID: 397459615485894646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_2
+      rect:
+        serializedVersion: 2
+        x: 78
+        y: 448
+        width: 29
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9b9668add5ee9db0800000000000000
+      internalID: -4783133014045058148
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_3
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 447
+        width: 30
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e773a9abe89aafb0800000000000000
+      internalID: -4635724728493705241
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_4
+      rect:
+        serializedVersion: 2
+        x: 153
+        y: 446
+        width: 27
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efe8c8faa63163710800000000000000
+      internalID: 1672545660547403518
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_5
+      rect:
+        serializedVersion: 2
+        x: 188
+        y: 446
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cdf8f6fc060bb1b00800000000000000
+      internalID: 800427288631939036
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_6
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 446
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eaf0285033b64ca30800000000000000
+      internalID: 4234627416515022766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_7
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 445
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9cfdff9520f755180800000000000000
+      internalID: -9127249421719838775
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_8
+      rect:
+        serializedVersion: 2
+        x: 301
+        y: 449
+        width: 26
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f02e2396a20ef61d0800000000000000
+      internalID: -3355216724609539569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_9
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 448
+        width: 25
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb862328cc7ee4f80800000000000000
+      internalID: -8120298212558739268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_10
+      rect:
+        serializedVersion: 2
+        x: 374
+        y: 448
+        width: 29
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 634a265612b29a290800000000000000
+      internalID: -7878718650673093578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_11
+      rect:
+        serializedVersion: 2
+        x: 411
+        y: 448
+        width: 29
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4fa1987cecdbb0840800000000000000
+      internalID: 5191451691283192564
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_12
+      rect:
+        serializedVersion: 2
+        x: 449
+        y: 446
+        width: 27
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 537852efa39c16f60800000000000000
+      internalID: 8025917266160092981
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_13
+      rect:
+        serializedVersion: 2
+        x: 483
+        y: 445
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a44bf89811dbbcba0800000000000000
+      internalID: -6067548189931621302
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_14
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 409
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 462d9cfbd69599b50800000000000000
+      internalID: 6600405056792154724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_15
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 409
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62754bd092bb55b50800000000000000
+      internalID: 6581372215469823782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_16
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 408
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dbe5f4e878f044db0800000000000000
+      internalID: -4808701427242279235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_17
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 409
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9b4526a4f56c67c0800000000000000
+      internalID: -4076771461243253860
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_18
+      rect:
+        serializedVersion: 2
+        x: 154
+        y: 412
+        width: 26
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f57fe3bda5a2d0aa0800000000000000
+      internalID: -6193247342850803873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_19
+      rect:
+        serializedVersion: 2
+        x: 191
+        y: 411
+        width: 25
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bad88953d2df39240800000000000000
+      internalID: 4797456398694256043
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_20
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 410
+        width: 29
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73d6c7c965dc5be10800000000000000
+      internalID: 2212900563798748471
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_21
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 410
+        width: 30
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d99cab5b1354e2470800000000000000
+      internalID: 8371704837132962205
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_22
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 410
+        width: 29
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7f9b694adaca1430800000000000000
+      internalID: 3754536278250200958
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_23
+      rect:
+        serializedVersion: 2
+        x: 338
+        y: 409
+        width: 27
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86d03af94b8f7d8d0800000000000000
+      internalID: -2821513186868261528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_24
+      rect:
+        serializedVersion: 2
+        x: 372
+        y: 408
+        width: 34
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e8434c0ce7008a30800000000000000
+      internalID: 4215377961618196712
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_25
+      rect:
+        serializedVersion: 2
+        x: 409
+        y: 408
+        width: 33
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2f7eb932817c59d0800000000000000
+      internalID: -2784225665493336273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_26
+      rect:
+        serializedVersion: 2
+        x: 446
+        y: 408
+        width: 34
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5348dc83c735d6a80800000000000000
+      internalID: -8472023531019992011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_27
+      rect:
+        serializedVersion: 2
+        x: 482
+        y: 407
+        width: 35
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f62d65b9f7d74fc0800000000000000
+      internalID: -3510599917021354251
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_28
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 371
+        width: 34
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0135306ce749edb50800000000000000
+      internalID: 6619891774490104592
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_29
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 371
+        width: 34
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fdb2cf7870b0f0dc0800000000000000
+      internalID: -3670703044309537825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_30
+      rect:
+        serializedVersion: 2
+        x: 80
+        y: 374
+        width: 28
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a74703d364a9f2d0800000000000000
+      internalID: -3244381307894544473
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_31
+      rect:
+        serializedVersion: 2
+        x: 115
+        y: 374
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72e79f15f827829e0800000000000000
+      internalID: -1645939703922721241
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_32
+      rect:
+        serializedVersion: 2
+        x: 151
+        y: 374
+        width: 30
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1dd8c35f0fcca9670800000000000000
+      internalID: 8546368578167541201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_33
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 373
+        width: 29
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ebbf4a991a48b6e0800000000000000
+      internalID: -1821624575447811097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_34
+      rect:
+        serializedVersion: 2
+        x: 225
+        y: 373
+        width: 31
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04f177e128ef39690800000000000000
+      internalID: -7596448311633567936
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_35
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 372
+        width: 28
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f861275d37e40ee0800000000000000
+      internalID: -1295656542135031562
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_36
+      rect:
+        serializedVersion: 2
+        x: 297
+        y: 371
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9199a79e27ea2b0b0800000000000000
+      internalID: -5714313168613107431
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_37
+      rect:
+        serializedVersion: 2
+        x: 335
+        y: 372
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37950326203ccc0c0800000000000000
+      internalID: -4554050708173727373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_38
+      rect:
+        serializedVersion: 2
+        x: 371
+        y: 371
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 793dff087cac96510800000000000000
+      internalID: 1542987305562657687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_39
+      rect:
+        serializedVersion: 2
+        x: 407
+        y: 370
+        width: 37
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f4cda347af888a40800000000000000
+      internalID: 5370700504197088496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_40
+      rect:
+        serializedVersion: 2
+        x: 445
+        y: 371
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f363e26daa4e0b50800000000000000
+      internalID: 6561263815674258424
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_41
+      rect:
+        serializedVersion: 2
+        x: 482
+        y: 370
+        width: 36
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ddb6c9eae33455030800000000000000
+      internalID: 3482763823337466845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_42
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 333
+        width: 37
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81658376427e30150800000000000000
+      internalID: 5837763685538879000
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_43
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 336
+        width: 28
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3fec35f8262f83a70800000000000000
+      internalID: 8807055576448356083
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_44
+      rect:
+        serializedVersion: 2
+        x: 80
+        y: 336
+        width: 28
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 340b162987c94d640800000000000000
+      internalID: 5103876319383498819
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_45
+      rect:
+        serializedVersion: 2
+        x: 115
+        y: 336
+        width: 30
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ff6d663adeb8be20800000000000000
+      internalID: 3366650565884735479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_46
+      rect:
+        serializedVersion: 2
+        x: 152
+        y: 337
+        width: 29
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ebf3a637e3e3e5200800000000000000
+      internalID: 170642273831894974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_47
+      rect:
+        serializedVersion: 2
+        x: 188
+        y: 336
+        width: 31
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb7c4b7a080251bd0800000000000000
+      internalID: -2660184267950864453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_48
+      rect:
+        serializedVersion: 2
+        x: 227
+        y: 335
+        width: 28
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5eb2467a02720f880800000000000000
+      internalID: -8579314268939998235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_49
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 334
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a553523a52a05180800000000000000
+      internalID: -9128617936404916825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_50
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 335
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30fcc32b9ddec87e0800000000000000
+      internalID: -1761771834954690813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_51
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 334
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3910d1d5e37f385e0800000000000000
+      internalID: -1908409969852743277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_52
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 333
+        width: 37
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f90f3cc9da58960d0800000000000000
+      internalID: -3429062660559998817
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_53
+      rect:
+        serializedVersion: 2
+        x: 408
+        y: 334
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1efb23cee0292ba0800000000000000
+      internalID: -6113318809329992166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_54
+      rect:
+        serializedVersion: 2
+        x: 445
+        y: 333
+        width: 36
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4fa09759bc4f84000800000000000000
+      internalID: 20535353546443508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_55
+      rect:
+        serializedVersion: 2
+        x: 481
+        y: 333
+        width: 37
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e99aa6495fc603090800000000000000
+      internalID: -8056819931353011810
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_56
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 299
+        width: 28
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c7641800533318f0800000000000000
+      internalID: -571056308919965756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_57
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 299
+        width: 28
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f032cbeec1298c190800000000000000
+      internalID: -7941937289905822961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_58
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 298
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fca2e802e17b20c10800000000000000
+      internalID: 2018376923038493391
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_59
+      rect:
+        serializedVersion: 2
+        x: 115
+        y: 299
+        width: 29
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9515034d0eb9b4440800000000000000
+      internalID: 4921198407767314777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_60
+      rect:
+        serializedVersion: 2
+        x: 151
+        y: 298
+        width: 31
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e570634a78ef96970800000000000000
+      internalID: 8748803609672943454
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_61
+      rect:
+        serializedVersion: 2
+        x: 190
+        y: 297
+        width: 28
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e341476acf624afa0800000000000000
+      internalID: -5790460354325375938
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_62
+      rect:
+        serializedVersion: 2
+        x: 223
+        y: 296
+        width: 35
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae597f17c31150190800000000000000
+      internalID: -7996966612018686486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_63
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 297
+        width: 33
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbe6dc742b308fe40800000000000000
+      internalID: 5690302193426329276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_64
+      rect:
+        serializedVersion: 2
+        x: 297
+        y: 296
+        width: 35
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f51483dee6bd0c890800000000000000
+      internalID: -7439705314943286945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_65
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 295
+        width: 37
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4ff1f76e3db4b680800000000000000
+      internalID: -8740152901089755318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_66
+      rect:
+        serializedVersion: 2
+        x: 371
+        y: 296
+        width: 35
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72aeb684557d709d0800000000000000
+      internalID: -2808039081354991065
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_67
+      rect:
+        serializedVersion: 2
+        x: 408
+        y: 295
+        width: 36
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a68e72255a77e82a0800000000000000
+      internalID: -6733312840940656534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_68
+      rect:
+        serializedVersion: 2
+        x: 444
+        y: 295
+        width: 37
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd5846295467eed70800000000000000
+      internalID: 9074320340379010525
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_69
+      rect:
+        serializedVersion: 2
+        x: 486
+        y: 298
+        width: 29
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3abe3e8dede52030800000000000000
+      internalID: 3469440692508342845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_70
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 261
+        width: 28
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c56366d4bc66684e0800000000000000
+      internalID: -1979781962819815844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_71
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 261
+        width: 31
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc524c265d6f6f440800000000000000
+      internalID: 4969430635195409869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_72
+      rect:
+        serializedVersion: 2
+        x: 78
+        y: 260
+        width: 31
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c72d1e5cdf090c0f0800000000000000
+      internalID: -1098718889457364356
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_73
+      rect:
+        serializedVersion: 2
+        x: 115
+        y: 260
+        width: 30
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe6f69247b330a000800000000000000
+      internalID: 45092858462926575
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_74
+      rect:
+        serializedVersion: 2
+        x: 152
+        y: 259
+        width: 29
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 67d82827bedbb1940800000000000000
+      internalID: 5268013008076049782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_75
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 259
+        width: 36
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1bc19feda94da6120800000000000000
+      internalID: 2407970712413871281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_76
+      rect:
+        serializedVersion: 2
+        x: 223
+        y: 259
+        width: 36
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e9f8f09e42bffc2a0800000000000000
+      internalID: -6714872383438614626
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_77
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 259
+        width: 36
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d1820d74589c9250800000000000000
+      internalID: 5952800296118944215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_78
+      rect:
+        serializedVersion: 2
+        x: 296
+        y: 258
+        width: 37
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1739dad69af889270800000000000000
+      internalID: 8257507874636141425
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_79
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 259
+        width: 36
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d36770fbeec02e30800000000000000
+      internalID: 4476805542353265623
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_80
+      rect:
+        serializedVersion: 2
+        x: 372
+        y: 259
+        width: 34
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1642bb58e849ef7c0800000000000000
+      internalID: -4035624876227484575
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_81
+      rect:
+        serializedVersion: 2
+        x: 409
+        y: 260
+        width: 34
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d94d3a1c3c1fcd280800000000000000
+      internalID: -9017066530832919395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_82
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 264
+        width: 26
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bda60b356dc84c290800000000000000
+      internalID: -7871011396581823781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_83
+      rect:
+        serializedVersion: 2
+        x: 487
+        y: 263
+        width: 25
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bbac742817449c680800000000000000
+      internalID: -8734374748000630085
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_84
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 226
+        width: 30
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c5799da5ae7c0f20800000000000000
+      internalID: 3390223869550360006
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_85
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 225
+        width: 30
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46441dc5f34b86a50800000000000000
+      internalID: 6514655045224580196
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_86
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 226
+        width: 31
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f916e4a30c4a3ea60800000000000000
+      internalID: 7702180933252571551
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_87
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 224
+        width: 28
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9aa005749a290840800000000000000
+      internalID: 5190726862627711642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_88
+      rect:
+        serializedVersion: 2
+        x: 149
+        y: 223
+        width: 35
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d36eff34abe488960800000000000000
+      internalID: 7604414532726810173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_89
+      rect:
+        serializedVersion: 2
+        x: 187
+        y: 224
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 125cbf04353d9ba30800000000000000
+      internalID: 4231645679417279777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_90
+      rect:
+        serializedVersion: 2
+        x: 223
+        y: 223
+        width: 35
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b268c4d91faf054d0800000000000000
+      internalID: -3147740223898876373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_91
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 223
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 349041e46111641b0800000000000000
+      internalID: -5672827893129672381
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_92
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 221
+        width: 34
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98cf1619774a14da0800000000000000
+      internalID: -5962303598214644599
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_93
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 223
+        width: 36
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c4419add3715c4c0800000000000000
+      internalID: -4267979517436279615
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_94
+      rect:
+        serializedVersion: 2
+        x: 372
+        y: 224
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da7d5fffa52609e60800000000000000
+      internalID: 7966975883799287725
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_95
+      rect:
+        serializedVersion: 2
+        x: 413
+        y: 227
+        width: 26
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62e2baa85c6f0e7d0800000000000000
+      internalID: -2891039632476393946
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_96
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 226
+        width: 25
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 294968319d2df7b20800000000000000
+      internalID: 3134455695450477714
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_97
+      rect:
+        serializedVersion: 2
+        x: 484
+        y: 226
+        width: 30
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b07961379c5d97af0800000000000000
+      internalID: -398052030849575157
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_98
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 188
+        width: 30
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a28650f0727da8700800000000000000
+      internalID: 543483267807275050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_99
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 189
+        width: 31
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 318c707b1d08992a0800000000000000
+      internalID: -6730206529921234925
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_100
+      rect:
+        serializedVersion: 2
+        x: 79
+        y: 187
+        width: 28
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f96f08fc66bbdc8f0800000000000000
+      internalID: -518552331835345249
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_101
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 186
+        width: 35
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a23c02bda67942710800000000000000
+      internalID: 1667624247232611114
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_102
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 187
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c3facba772195ecb0800000000000000
+      internalID: -4835299026163421380
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_103
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 186
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb36beedaf8e8c1d0800000000000000
+      internalID: -3330155760261045316
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_104
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 184
+        width: 34
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cfac17c0b6e5390f0800000000000000
+      internalID: -1111440869167084804
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_105
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 187
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f80db2db60e8dfb90800000000000000
+      internalID: -7206447669128212337
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_106
+      rect:
+        serializedVersion: 2
+        x: 296
+        y: 149
+        width: 37
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98c98deffd39d1be0800000000000000
+      internalID: -1504884110209278839
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_107
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 155
+        width: 26
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 107c1f9feb37ce750800000000000000
+      internalID: 6335566039877797633
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_108
+      rect:
+        serializedVersion: 2
+        x: 375
+        y: 153
+        width: 29
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 012a66115fd0a6e10800000000000000
+      internalID: 2191579514879255056
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_109
+      rect:
+        serializedVersion: 2
+        x: 412
+        y: 154
+        width: 27
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69f94b193cf5b4800800000000000000
+      internalID: 597676669124517782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_110
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 150
+        width: 27
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a37bf5e8f1f27b610800000000000000
+      internalID: 1636828802151593786
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_111
+      rect:
+        serializedVersion: 2
+        x: 482
+        y: 149
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb26d93d7a37630a0800000000000000
+      internalID: -6902202214251666753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_112
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 113
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d57e1bbe432f6d2c0800000000000000
+      internalID: -4407068876228925603
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_113
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 113
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6dadf326915107e0800000000000000
+      internalID: -1801068670680715923
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_114
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 114
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2507e7e3a6ffb9240800000000000000
+      internalID: 4799710659673485394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_115
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 113
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40ed7fdc0f51ba050800000000000000
+      internalID: 5812763868043664900
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_116
+      rect:
+        serializedVersion: 2
+        x: 149
+        y: 112
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 368e5da9f7d476eb0800000000000000
+      internalID: -4726724073448150941
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_117
+      rect:
+        serializedVersion: 2
+        x: 187
+        y: 113
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe02c3d21d5291440800000000000000
+      internalID: 4906994849334173935
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_118
+      rect:
+        serializedVersion: 2
+        x: 223
+        y: 112
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4744a499b6a86d60800000000000000
+      internalID: 7883734463705007951
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_119
+      rect:
+        serializedVersion: 2
+        x: 265
+        y: 115
+        width: 26
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 096bef4ddf969cb30800000000000000
+      internalID: 4308091057477695120
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_120
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 115
+        width: 29
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb7833a62bfe67d80800000000000000
+      internalID: -8253145717544876100
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_121
+      rect:
+        serializedVersion: 2
+        x: 337
+        y: 117
+        width: 28
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b845d32207fc53980800000000000000
+      internalID: -8559707436230028149
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_122
+      rect:
+        serializedVersion: 2
+        x: 376
+        y: 113
+        width: 27
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c3c052057155ed50800000000000000
+      internalID: 6765903578185909187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_123
+      rect:
+        serializedVersion: 2
+        x: 408
+        y: 112
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40d4dcb2f35c15f90800000000000000
+      internalID: -6966570273456960252
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_124
+      rect:
+        serializedVersion: 2
+        x: 446
+        y: 113
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23ffe5fc9fccefa90800000000000000
+      internalID: -7278154574486110414
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_125
+      rect:
+        serializedVersion: 2
+        x: 483
+        y: 112
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 662367fa15ecaa8f0800000000000000
+      internalID: -528383156031180186
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_126
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 77
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8aeb5e88e372ed210800000000000000
+      internalID: 1359567287050682024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_127
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 76
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae354d8ed495d4aa0800000000000000
+      internalID: -6175181322901498902
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_128
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 75
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 649c15637961b7e40800000000000000
+      internalID: 5655138595800992070
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_129
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 76
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69af980f306059c30800000000000000
+      internalID: 4365402027795806870
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_130
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 76
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b55c83b78378a820800000000000000
+      internalID: 2929718584274605490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_131
+      rect:
+        serializedVersion: 2
+        x: 191
+        y: 81
+        width: 28
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6678d208d4af6df0800000000000000
+      internalID: -184747812031269268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_132
+      rect:
+        serializedVersion: 2
+        x: 227
+        y: 79
+        width: 31
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f33ea021521d71060800000000000000
+      internalID: 6924232909252125503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_133
+      rect:
+        serializedVersion: 2
+        x: 264
+        y: 80
+        width: 29
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e2966a83bdc59960800000000000000
+      internalID: 7608213316517139171
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_134
+      rect:
+        serializedVersion: 2
+        x: 302
+        y: 76
+        width: 29
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d3127d5113d95560800000000000000
+      internalID: 7303100342293631955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_135
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 75
+        width: 36
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9eb5d12be5e425fd0800000000000000
+      internalID: -2354733486539187223
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_136
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 76
+        width: 34
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 387783da3c469aae0800000000000000
+      internalID: -1537587006182754429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_137
+      rect:
+        serializedVersion: 2
+        x: 409
+        y: 76
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39ede2eae6e6d62e0800000000000000
+      internalID: -2130925627028611437
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_138
+      rect:
+        serializedVersion: 2
+        x: 447
+        y: 77
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5cb677ea2e17b5750800000000000000
+      internalID: 6294750122584009669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_139
+      rect:
+        serializedVersion: 2
+        x: 483
+        y: 76
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7ceb8e4875788700800000000000000
+      internalID: 542812914672462973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_140
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 38
+        width: 36
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 368faa6005a5961b0800000000000000
+      internalID: -5662895756685936541
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_141
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 39
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e63aa121e41440230800000000000000
+      internalID: 3604077405370229614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_142
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 37
+        width: 36
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 882712fe1b4df8f40800000000000000
+      internalID: 5733034711352177288
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_143
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 39
+        width: 39
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e683c3c684b6dcf60800000000000000
+      internalID: 8056213267233388654
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_144
+      rect:
+        serializedVersion: 2
+        x: 153
+        y: 42
+        width: 31
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b8ed667e1d015710800000000000000
+      internalID: 1680138560473000118
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_145
+      rect:
+        serializedVersion: 2
+        x: 190
+        y: 43
+        width: 29
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b7db9d0946f27680800000000000000
+      internalID: -8758667531660830793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_146
+      rect:
+        serializedVersion: 2
+        x: 228
+        y: 39
+        width: 29
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c8fa9cb97a269db0800000000000000
+      internalID: -4785590851690891070
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_147
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 38
+        width: 36
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8cadd171f665900f0800000000000000
+      internalID: -1150293194687259960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_148
+      rect:
+        serializedVersion: 2
+        x: 299
+        y: 39
+        width: 34
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d1b42f807ea007720800000000000000
+      internalID: 2841783352274602781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_149
+      rect:
+        serializedVersion: 2
+        x: 335
+        y: 39
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7cee5a5259c3dd1c0800000000000000
+      internalID: -4477355843256979769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_150
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 40
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a7d0e5695c553a00800000000000000
+      internalID: 735595653176022953
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_151
+      rect:
+        serializedVersion: 2
+        x: 409
+        y: 39
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e127a11e0dbc81f0800000000000000
+      internalID: -1041249545706069530
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_152
+      rect:
+        serializedVersion: 2
+        x: 445
+        y: 38
+        width: 36
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 068a3ee3ea840fd20800000000000000
+      internalID: 3310225639333931104
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_153
+      rect:
+        serializedVersion: 2
+        x: 483
+        y: 39
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af45c35d435699380800000000000000
+      internalID: -8964022305714055942
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_154
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1
+        width: 36
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 335db2533656545f0800000000000000
+      internalID: -773100284255939277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mobile - Idle Skilling - Apothecary - Potions_155
+      rect:
+        serializedVersion: 2
+        x: 444
+        y: 1
+        width: 37
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 321971332d939e460800000000000000
+      internalID: 7271406648329474339
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Mobile - Idle Skilling - Apothecary - Potions_0: 1848169893352058049
+      Mobile - Idle Skilling - Apothecary - Potions_1: 397459615485894646
+      Mobile - Idle Skilling - Apothecary - Potions_10: -7878718650673093578
+      Mobile - Idle Skilling - Apothecary - Potions_100: -518552331835345249
+      Mobile - Idle Skilling - Apothecary - Potions_101: 1667624247232611114
+      Mobile - Idle Skilling - Apothecary - Potions_102: -4835299026163421380
+      Mobile - Idle Skilling - Apothecary - Potions_103: -3330155760261045316
+      Mobile - Idle Skilling - Apothecary - Potions_104: -1111440869167084804
+      Mobile - Idle Skilling - Apothecary - Potions_105: -7206447669128212337
+      Mobile - Idle Skilling - Apothecary - Potions_106: -1504884110209278839
+      Mobile - Idle Skilling - Apothecary - Potions_107: 6335566039877797633
+      Mobile - Idle Skilling - Apothecary - Potions_108: 2191579514879255056
+      Mobile - Idle Skilling - Apothecary - Potions_109: 597676669124517782
+      Mobile - Idle Skilling - Apothecary - Potions_11: 5191451691283192564
+      Mobile - Idle Skilling - Apothecary - Potions_110: 1636828802151593786
+      Mobile - Idle Skilling - Apothecary - Potions_111: -6902202214251666753
+      Mobile - Idle Skilling - Apothecary - Potions_112: -4407068876228925603
+      Mobile - Idle Skilling - Apothecary - Potions_113: -1801068670680715923
+      Mobile - Idle Skilling - Apothecary - Potions_114: 4799710659673485394
+      Mobile - Idle Skilling - Apothecary - Potions_115: 5812763868043664900
+      Mobile - Idle Skilling - Apothecary - Potions_116: -4726724073448150941
+      Mobile - Idle Skilling - Apothecary - Potions_117: 4906994849334173935
+      Mobile - Idle Skilling - Apothecary - Potions_118: 7883734463705007951
+      Mobile - Idle Skilling - Apothecary - Potions_119: 4308091057477695120
+      Mobile - Idle Skilling - Apothecary - Potions_12: 8025917266160092981
+      Mobile - Idle Skilling - Apothecary - Potions_120: -8253145717544876100
+      Mobile - Idle Skilling - Apothecary - Potions_121: -8559707436230028149
+      Mobile - Idle Skilling - Apothecary - Potions_122: 6765903578185909187
+      Mobile - Idle Skilling - Apothecary - Potions_123: -6966570273456960252
+      Mobile - Idle Skilling - Apothecary - Potions_124: -7278154574486110414
+      Mobile - Idle Skilling - Apothecary - Potions_125: -528383156031180186
+      Mobile - Idle Skilling - Apothecary - Potions_126: 1359567287050682024
+      Mobile - Idle Skilling - Apothecary - Potions_127: -6175181322901498902
+      Mobile - Idle Skilling - Apothecary - Potions_128: 5655138595800992070
+      Mobile - Idle Skilling - Apothecary - Potions_129: 4365402027795806870
+      Mobile - Idle Skilling - Apothecary - Potions_13: -6067548189931621302
+      Mobile - Idle Skilling - Apothecary - Potions_130: 2929718584274605490
+      Mobile - Idle Skilling - Apothecary - Potions_131: -184747812031269268
+      Mobile - Idle Skilling - Apothecary - Potions_132: 6924232909252125503
+      Mobile - Idle Skilling - Apothecary - Potions_133: 7608213316517139171
+      Mobile - Idle Skilling - Apothecary - Potions_134: 7303100342293631955
+      Mobile - Idle Skilling - Apothecary - Potions_135: -2354733486539187223
+      Mobile - Idle Skilling - Apothecary - Potions_136: -1537587006182754429
+      Mobile - Idle Skilling - Apothecary - Potions_137: -2130925627028611437
+      Mobile - Idle Skilling - Apothecary - Potions_138: 6294750122584009669
+      Mobile - Idle Skilling - Apothecary - Potions_139: 542812914672462973
+      Mobile - Idle Skilling - Apothecary - Potions_14: 6600405056792154724
+      Mobile - Idle Skilling - Apothecary - Potions_140: -5662895756685936541
+      Mobile - Idle Skilling - Apothecary - Potions_141: 3604077405370229614
+      Mobile - Idle Skilling - Apothecary - Potions_142: 5733034711352177288
+      Mobile - Idle Skilling - Apothecary - Potions_143: 8056213267233388654
+      Mobile - Idle Skilling - Apothecary - Potions_144: 1680138560473000118
+      Mobile - Idle Skilling - Apothecary - Potions_145: -8758667531660830793
+      Mobile - Idle Skilling - Apothecary - Potions_146: -4785590851690891070
+      Mobile - Idle Skilling - Apothecary - Potions_147: -1150293194687259960
+      Mobile - Idle Skilling - Apothecary - Potions_148: 2841783352274602781
+      Mobile - Idle Skilling - Apothecary - Potions_149: -4477355843256979769
+      Mobile - Idle Skilling - Apothecary - Potions_15: 6581372215469823782
+      Mobile - Idle Skilling - Apothecary - Potions_150: 735595653176022953
+      Mobile - Idle Skilling - Apothecary - Potions_151: -1041249545706069530
+      Mobile - Idle Skilling - Apothecary - Potions_152: 3310225639333931104
+      Mobile - Idle Skilling - Apothecary - Potions_153: -8964022305714055942
+      Mobile - Idle Skilling - Apothecary - Potions_154: -773100284255939277
+      Mobile - Idle Skilling - Apothecary - Potions_155: 7271406648329474339
+      Mobile - Idle Skilling - Apothecary - Potions_16: -4808701427242279235
+      Mobile - Idle Skilling - Apothecary - Potions_17: -4076771461243253860
+      Mobile - Idle Skilling - Apothecary - Potions_18: -6193247342850803873
+      Mobile - Idle Skilling - Apothecary - Potions_19: 4797456398694256043
+      Mobile - Idle Skilling - Apothecary - Potions_2: -4783133014045058148
+      Mobile - Idle Skilling - Apothecary - Potions_20: 2212900563798748471
+      Mobile - Idle Skilling - Apothecary - Potions_21: 8371704837132962205
+      Mobile - Idle Skilling - Apothecary - Potions_22: 3754536278250200958
+      Mobile - Idle Skilling - Apothecary - Potions_23: -2821513186868261528
+      Mobile - Idle Skilling - Apothecary - Potions_24: 4215377961618196712
+      Mobile - Idle Skilling - Apothecary - Potions_25: -2784225665493336273
+      Mobile - Idle Skilling - Apothecary - Potions_26: -8472023531019992011
+      Mobile - Idle Skilling - Apothecary - Potions_27: -3510599917021354251
+      Mobile - Idle Skilling - Apothecary - Potions_28: 6619891774490104592
+      Mobile - Idle Skilling - Apothecary - Potions_29: -3670703044309537825
+      Mobile - Idle Skilling - Apothecary - Potions_3: -4635724728493705241
+      Mobile - Idle Skilling - Apothecary - Potions_30: -3244381307894544473
+      Mobile - Idle Skilling - Apothecary - Potions_31: -1645939703922721241
+      Mobile - Idle Skilling - Apothecary - Potions_32: 8546368578167541201
+      Mobile - Idle Skilling - Apothecary - Potions_33: -1821624575447811097
+      Mobile - Idle Skilling - Apothecary - Potions_34: -7596448311633567936
+      Mobile - Idle Skilling - Apothecary - Potions_35: -1295656542135031562
+      Mobile - Idle Skilling - Apothecary - Potions_36: -5714313168613107431
+      Mobile - Idle Skilling - Apothecary - Potions_37: -4554050708173727373
+      Mobile - Idle Skilling - Apothecary - Potions_38: 1542987305562657687
+      Mobile - Idle Skilling - Apothecary - Potions_39: 5370700504197088496
+      Mobile - Idle Skilling - Apothecary - Potions_4: 1672545660547403518
+      Mobile - Idle Skilling - Apothecary - Potions_40: 6561263815674258424
+      Mobile - Idle Skilling - Apothecary - Potions_41: 3482763823337466845
+      Mobile - Idle Skilling - Apothecary - Potions_42: 5837763685538879000
+      Mobile - Idle Skilling - Apothecary - Potions_43: 8807055576448356083
+      Mobile - Idle Skilling - Apothecary - Potions_44: 5103876319383498819
+      Mobile - Idle Skilling - Apothecary - Potions_45: 3366650565884735479
+      Mobile - Idle Skilling - Apothecary - Potions_46: 170642273831894974
+      Mobile - Idle Skilling - Apothecary - Potions_47: -2660184267950864453
+      Mobile - Idle Skilling - Apothecary - Potions_48: -8579314268939998235
+      Mobile - Idle Skilling - Apothecary - Potions_49: -9128617936404916825
+      Mobile - Idle Skilling - Apothecary - Potions_5: 800427288631939036
+      Mobile - Idle Skilling - Apothecary - Potions_50: -1761771834954690813
+      Mobile - Idle Skilling - Apothecary - Potions_51: -1908409969852743277
+      Mobile - Idle Skilling - Apothecary - Potions_52: -3429062660559998817
+      Mobile - Idle Skilling - Apothecary - Potions_53: -6113318809329992166
+      Mobile - Idle Skilling - Apothecary - Potions_54: 20535353546443508
+      Mobile - Idle Skilling - Apothecary - Potions_55: -8056819931353011810
+      Mobile - Idle Skilling - Apothecary - Potions_56: -571056308919965756
+      Mobile - Idle Skilling - Apothecary - Potions_57: -7941937289905822961
+      Mobile - Idle Skilling - Apothecary - Potions_58: 2018376923038493391
+      Mobile - Idle Skilling - Apothecary - Potions_59: 4921198407767314777
+      Mobile - Idle Skilling - Apothecary - Potions_6: 4234627416515022766
+      Mobile - Idle Skilling - Apothecary - Potions_60: 8748803609672943454
+      Mobile - Idle Skilling - Apothecary - Potions_61: -5790460354325375938
+      Mobile - Idle Skilling - Apothecary - Potions_62: -7996966612018686486
+      Mobile - Idle Skilling - Apothecary - Potions_63: 5690302193426329276
+      Mobile - Idle Skilling - Apothecary - Potions_64: -7439705314943286945
+      Mobile - Idle Skilling - Apothecary - Potions_65: -8740152901089755318
+      Mobile - Idle Skilling - Apothecary - Potions_66: -2808039081354991065
+      Mobile - Idle Skilling - Apothecary - Potions_67: -6733312840940656534
+      Mobile - Idle Skilling - Apothecary - Potions_68: 9074320340379010525
+      Mobile - Idle Skilling - Apothecary - Potions_69: 3469440692508342845
+      Mobile - Idle Skilling - Apothecary - Potions_7: -9127249421719838775
+      Mobile - Idle Skilling - Apothecary - Potions_70: -1979781962819815844
+      Mobile - Idle Skilling - Apothecary - Potions_71: 4969430635195409869
+      Mobile - Idle Skilling - Apothecary - Potions_72: -1098718889457364356
+      Mobile - Idle Skilling - Apothecary - Potions_73: 45092858462926575
+      Mobile - Idle Skilling - Apothecary - Potions_74: 5268013008076049782
+      Mobile - Idle Skilling - Apothecary - Potions_75: 2407970712413871281
+      Mobile - Idle Skilling - Apothecary - Potions_76: -6714872383438614626
+      Mobile - Idle Skilling - Apothecary - Potions_77: 5952800296118944215
+      Mobile - Idle Skilling - Apothecary - Potions_78: 8257507874636141425
+      Mobile - Idle Skilling - Apothecary - Potions_79: 4476805542353265623
+      Mobile - Idle Skilling - Apothecary - Potions_8: -3355216724609539569
+      Mobile - Idle Skilling - Apothecary - Potions_80: -4035624876227484575
+      Mobile - Idle Skilling - Apothecary - Potions_81: -9017066530832919395
+      Mobile - Idle Skilling - Apothecary - Potions_82: -7871011396581823781
+      Mobile - Idle Skilling - Apothecary - Potions_83: -8734374748000630085
+      Mobile - Idle Skilling - Apothecary - Potions_84: 3390223869550360006
+      Mobile - Idle Skilling - Apothecary - Potions_85: 6514655045224580196
+      Mobile - Idle Skilling - Apothecary - Potions_86: 7702180933252571551
+      Mobile - Idle Skilling - Apothecary - Potions_87: 5190726862627711642
+      Mobile - Idle Skilling - Apothecary - Potions_88: 7604414532726810173
+      Mobile - Idle Skilling - Apothecary - Potions_89: 4231645679417279777
+      Mobile - Idle Skilling - Apothecary - Potions_9: -8120298212558739268
+      Mobile - Idle Skilling - Apothecary - Potions_90: -3147740223898876373
+      Mobile - Idle Skilling - Apothecary - Potions_91: -5672827893129672381
+      Mobile - Idle Skilling - Apothecary - Potions_92: -5962303598214644599
+      Mobile - Idle Skilling - Apothecary - Potions_93: -4267979517436279615
+      Mobile - Idle Skilling - Apothecary - Potions_94: 7966975883799287725
+      Mobile - Idle Skilling - Apothecary - Potions_95: -2891039632476393946
+      Mobile - Idle Skilling - Apothecary - Potions_96: 3134455695450477714
+      Mobile - Idle Skilling - Apothecary - Potions_97: -398052030849575157
+      Mobile - Idle Skilling - Apothecary - Potions_98: 543483267807275050
+      Mobile - Idle Skilling - Apothecary - Potions_99: -6730206529921234925
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,74 @@
+ENGLISH VERSION
+DETAILED PROJECT PLAN (4 WEEKS) — FIGHTING X ARENA BATTLE HYBRID
+Compressed project plan for the Unity 2D course assignment. A team of 5 members working within a shortened 4-week timeline.
+1. PROJECT OVERVIEW & MVP OBJECTIVES
+This project aims to develop a unique 2D fighting game that combines the deep mechanics of traditional fighting games with the chaotic, wide arena-style combat of arena battles. The core focus is to eliminate opponents by increasing their Resistance % to knock them into the surrounding Death Zone. Due to the compressed 4-week timeline instead of the originally planned 5–6 weeks, the project scope will strictly focus on the core Minimum Viable Product (MVP) features to ensure a high-quality, polished gameplay feel.
+2. DEVELOPMENT TEAM AND ROLE ASSIGNMENT (5 MEMBERS)
+To optimize productivity and minimize Git conflicts on Scenes/Prefabs, the team's system ownership is divided as follows:
+3. COMPRESSED 4-WEEK ROADMAP
+WEEK 1 (24/6-30/6): Infrastructure Setup & Core Gameplay Implementation (IMP 1 CORES)
+General Setup: Agree on the Unity 2D version, configure the standard .gitignore file.
+P1 (Core Code): Complete the character base Finite State Machine (FSM) structure. Build the Custom Physics engine for walking, jumping, double jumping, and dashing. Implement a custom Hitbox/Hurtbox system independent of Unity's default colliders.
+P2 (Character Content): Collect, slice, and synchronize Sprite Sheets for the first prototype character. Integrate this data into the basic Animator structure built by P1.
+P3 (Maps & Weather): Set up a baseline Test Map featuring one main stage and small floating platforms. Implement a camera script with auto-zoom and position tracking for both players.
+P4 (Items & Spawner): Research the cumulative % knockback force formula and collaborate with P1 to program the velocity and collision handling math.
+P5 (UI/Flow & Git): Configure the new Input System for split-keyboard local 2-player controls. Create a basic HUD prototype that listens to logic data via event-driven architecture.
+Definition of Done (DoD IMP 1): Two characters can display clearly on a test map, move around, and execute normal attacks on each other. Successful hits must trigger an escalating knockback effect that correctly updates the HUD percentages smoothly.
+WEEK 2 (1/7-7/7): Combat Mechanics Refinement & Content Expansion (IMP 2)
+P1 (Core Code): Integrate advanced stats and manage the 3 core resource bars: Rage (0%–100%), Mana (100% decaying), and Resistance %. Program the logic for Special Moves, Super Moves, and the activation framework for Rage Mode and Ultimate attacks.
+P2 (Character Content): Expand the character roster to a minimum of 3–4 characters. Define detailed movesets for each character using ScriptableObjects to allow easy data-driven balancing.
+P3 (Maps & Weather): Build out the 4-sided Death Zones and program the life/stock deduction logic when a player is blasted out of bounds. Implement the first Map Biome: Snow Map (introducing slippery ice terrain physics and a minor run speed debuff).
+P4 (Items & Spawner): Develop the item spawning controller to automatically drop items over time. Program the logic for 2 basic item types (Resistance % recovery and temporary damage buff) across 3 distinct size tiers.
+P5 (UI/Flow & Git): Finalize the lobby user interface including the Main Menu, Character Selection Screen, and Map Selection Screen. Connect selection data to ensure smooth scene transitions into the live match.
+WEEK 3 (8/7-14/7): System Content Freeze & Integration (IMP 2 Finalization)
+P1 + P2: Freeze all character code expansion. Focus on polishing game feel by linking special combat states like hitstop/hitlag, ground/wall bounces, and the Burst Breaker mechanism to break out of combos at the cost of 50% rage.
+P3 (Maps & Weather): Complete the remaining 2 Map Biomes: Swamp Map (introducing a slowness effect and restricted jump height) and the Lava Map (standing still continuously reduces resistance, accompanied by a random rising lava event).
+P4 (Items & Spawner): Integrate the remaining planned items: Mana recovery items and the legendary Rage Core item. The Rage Core will fly around randomly and require 15 shared hits from players to break, granting an instant 100% rage to the player who delivers the final hit.
+P5 (UI/Flow & Git): Deliver a fully functional match HUD that tracks stock lives (3–5 stocks), a 10-minute countdown timer, and automated score calculations to determine the winner upon timeout.
+Definition of Done (DoD IMP 2): Players can seamlessly cycle from character/map selection to a live match and complete it. All 4 characters, 3 biome maps, and item systems must be fully functional and interact correctly without crashes.
+WEEK 4 (15/7-21/7): Juice Integration, Balancing & Final Delivery (IMP 3 Polish)
+All Members: Stop all new feature development (Strict Content Freeze). Conduct mandatory daily cross-playtesting sessions within the team to hunt for edge-case bugs.
+P1 + P2: Fine-tune combat balancing entirely through ScriptableObject parameters, adjusting base knockback, character weight, mana costs, and rage accumulation values.
+P3 + P4: Add "juice" mechanics to enhance action feedback, including screen shake on heavy impacts, particle effects on wall/ground bounces, and optimized item spawn rates.
+P5 (UI/Flow & Git): Integrate the complete audio system including looping background music tracks for each map and combat SFX. Generate and export the final standalone PC executable build.
+Definition of Done (DoD IMP 3): The game runs perfectly as a standalone PC executable on machines without Unity installed. It must be free of major bugs, feature polished UI and audio, and be packaged alongside the GDD and source code repository for final submission.
+4. KEY RISK MANAGEMENT IN A 4-WEEK TIMELINE
+Stiff and Unsatisfying Combat Feel: Without microscopic game feel adjustments, a physics-based fighting game will feel unresponsive. Mitigation: P1 must prioritize implementing a robust Hitstop/Hitlag system (freezing both characters for 4–8 frames upon impact) by Week 2 to ensure attacks feel heavy and impactful.
+Scope Creep: Attempting to implement advanced features found in commercial titles within 4 weeks will cause project failure. Mitigation: Strictly adhere to the MoSCoW rules mapped out in the plan. Online multiplayer netcode, massive character rosters (10+ characters), and single-player story modes are strictly excluded from this project.
+BẢN TIẾNG VIỆT
+KẾ HOẠCH DỰ ÁN CHI TIẾT (4 TUẦN) — FIGHTING X ARENA BATTLE HYBRID
+Tài liệu kế hoạch nén cho đồ án môn học Unity 2D. Đội ngũ gồm 5 thành viên hành động trong khung thời gian rút gọn 4 tuần.
+1. TỔNG QUAN DỰ ÁN & MỤC TIÊU MVP
+Dự án hướng tới việc phát triển một tựa game đối kháng 2D độc đáo, kết hợp giữa cơ chế kỹ thuật sâu của Fighting truyền thống và tính hỗn loạn, không gian rộng lớn của Arena Battle. Trọng tâm cốt lõi là hạ gục đối thủ bằng cách gia tăng chỉ số Resistance % để thổi bay đối phương vào vùng tử địa (Death Zone) xung quanh bản đồ. Do thời gian rút ngắn còn 4 tuần thay vì 5-6 tuần như dự kiến ban đầu, phạm vi dự án sẽ tập trung nghiêm ngặt vào các tiêu chí cốt lõi (MVP) nhằm bảo đảm chất lượng chơi mượt mà nhất.
+2. ĐỘI NGŨ PHÁT TRIỂN VÀ PHÂN VAI TRÒ (5 THÀNH VIÊN)
+Để tối ưu hóa năng suất và giảm thiểu xung đột Git trên Scene/Prefab, đội ngũ phân chia quyền sở hữu hệ thống rõ ràng như sau:
+3. LỘ TRÌNH PHÁT TRIỂN RÚT GỌN TRONG 4 TUẦN
+TUẦN 1 (24/6-30/6): Thiết Lập Cơ Sở Hạ Tầng & Triển Khai Mốc IMP 1 CORES
+Hành động chung: Thống nhất phiên bản Unity 2D; Cấu hình file .gitignore chuẩn.
+P1: Hoàn thành cấu trúc FSM (State Machine) nhân vật nền tảng. Xây dựng Custom Physics để di chuyển, nhảy, double jump và dash ổn định. Triển khai hệ thống Hitbox/Hurtbox độc lập với collider mặc định của Unity.
+P2: Thu thập, cắt nhỏ và đồng bộ hóa thông số Sprite Sheets của nhân vật nguyên mẫu đầu tiên. Ghép bộ dữ liệu này vào cấu trúc Animator cơ bản mà P1 xây dựng.
+P3: Thiết lập Bản đồ thử nghiệm cơ sở (Sàn đấu chính cùng một vài nền tảng bay nhỏ) kèm logic Camera tự động di chuyển và co giãn khoảng cách theo vị trí 2 người chơi.
+P4: Nghiên cứu công thức toán lực đẩy Knockback theo % tích lũy, phối hợp cùng P1 để viết hàm xử lý vận tốc và gia tốc va chạm.
+P5: Cấu hình Input System mới cho keyboard + tay cầm (có hỗ trợ 2 tay cầm) cho 2 người chơi. Tạo dựng mẫu HUD phác thảo thu thập dữ liệu trực tiếp từ code thông qua kiến trúc hướng sự kiện (Events).
+Tiêu chí hoàn thành (DoD IMP 1): Hai nhân vật hiển thị rõ nét trên bản đồ thử nghiệm, có khả năng di chuyển và tung đòn đánh thường trúng nhau. Cuộc tấn công thành công phải kích hoạt hiệu ứng đẩy lùi tăng tiến theo tỷ lệ phần trăm hiển thị trên thanh HUD chạy mượt.
+TUẦN 2 (1/7-7/7): Hoàn Thiện Cơ Chế Chiến Đấu & Bắt Đầu Triển Khai Nội Dung (Mở RỘNG IMP 2)
+P1: Thiết lập các chỉ số nâng cao: Hệ thống kiểm soát 3 thanh tài nguyên gồm Nộ (0% - 100%), Mana (100% giảm dần) và Resistance %. Lập trình logic cho các đòn Special Move, Super Move và cơ chế kích hoạt Trạng thái Cuồng Nộ (Rage Mode) kèm Ultimate.
+P2: Mở rộng quy mô nhân vật lên con số tối thiểu là 3-4 nhân vật. Thiết lập chi tiết danh sách Moveset riêng biệt cho từng tướng bằng cấu trúc ScriptableObject nhằm thuận tiện cân bằng số liệu.
+P3: Xây dựng các vùng tử địa (Death Zone) xung quanh bản đồ và cơ chế trừ mạng khi rơi ra ngoài. Triển khai Map Biome thứ nhất: Map Tuyết (gây hiệu ứng trơn trượt địa hình và làm chậm nhẹ tốc độ chạy).
+P4: Xây dựng bộ điều phối Spawner tạo Item tự động theo thời gian thực. Lập trình logic vận hành cho 2 loại item cơ bản (Bình hồi phục % Resistance và Bình gia tăng sát thương tạm thời) với đầy đủ 3 cấp độ hiệu ứng từ nhỏ đến lớn.
+P5: Hoàn tất thiết kế Giao diện phòng chờ: Màn hình chính (Main Menu), Màn hình lựa chọn Nhân vật và Màn hình lựa chọn Bản đồ. Kết nối dữ liệu lựa chọn để chuẩn bị chuyển cảnh mượt mà vào trận đấu thực tế.
+TUẦN 3 (8/7-14/7): Đóng Băng Nội Dung Hệ Thống (CONTENT FREEZE & HOÀN THIỆN IMP 2)
+P1 + P2: Khóa toàn bộ các tính năng code mở rộng cho nhân vật. Tập trung liên kết các trạng thái đặc biệt như Khựng đòn (Hitstop/Hitlag), Bounce mặt đất/tường và trạng thái phá thế bị combo (Burst Breaker) tiêu tốn 50% thanh nộ.
+P3: Hoàn tất 2 Map Biome còn lại: Map Đầm Lầy (Gây hiệu ứng Slowness và hạn chế chiều cao nhảy) và Map Lava (Đứng im trên nền sẽ liên tục bị giảm chỉ số kháng cự, kích hoạt sự kiện dung nham dâng cao ngẫu nhiên).
+P4: Tích hợp đầy đủ các loại Item còn lại theo thiết kế (Bình hồi mana, Viên Hồi Nộ truyền thuyết bay tự do yêu cầu người chơi phải tấn công đủ 15 hit chung để tranh chấp đoạt quyền sở hữu).
+P5: Hoàn thiện HUD toàn diện hiển thị thông số chính xác bao gồm: Mạng sống (Stock 3-5 mạng), Đồng hồ đếm ngược 10 phút, Hệ thống ghi nhận điểm số tự động để phân định thắng thua khi kết thúc thời gian.
+Tiêu chí hoàn thành (DoD IMP 2): Trận đấu có thể vận hành trọn vẹn từ khâu chọn tướng/bản đồ đến khi kết thúc trận đấu. Tất cả 4 nhân vật, 3 loại bản đồ biome cùng hệ thống item hoạt động ổn định và tương tác bổ trợ lẫn nhau chuẩn xác.
+TUẦN 4 (15/7-21/7): Đánh Bóng Trải Nghiệm, Cân Bằng Số Liệu & Đóng Gói Sản Phẩm (IMP 3)
+Cả nhóm: Ngừng hoàn toàn việc bổ sung mã nguồn hay tính năng mới (Strict Content Freeze). Tiến hành tổ chức các phiên chơi thử nghiệm chéo hàng ngày để tìm kiếm lỗi tiềm ẩn.
+P1 + P2: Điều chỉnh cân bằng thông số chiến đấu trực tiếp thông qua các asset ScriptableObject (Sửa đổi lực đẩy cơ bản, trọng lượng nhân vật, lượng mana tiêu hao, lượng nộ tích lũy khi nhận sát thương).
+P3 + P4: Tích hợp các hiệu ứng phụ trợ gia tăng cảm giác hành động (Juice) như Rung lắc màn hình khi trúng đòn nặng, hiệu ứng hạt bụi vỡ khi va chạm địa hình, tinh chỉnh tần suất rơi vật phẩm hợp lý.
+P5: Tích hợp hệ thống âm thanh toàn diện (Nhạc nền vòng lặp cho từng bản đồ, Hiệu ứng âm thanh khi tung chiêu/trúng đòn). Xuất bản file cài đặt hoàn chỉnh (Build PC Standalone executable).
+Tiêu chí hoàn thành (DoD IMP 3): Game chạy độc lập mượt mà trên các thiết bị máy tính khác nhau mà không cần cài đặt môi trường Unity, không phát sinh lỗi nghiêm trọng, giao diện chỉn chu, tài liệu GDD và mã nguồn được đóng gói gọn gàng sẵn sàng bàn giao đồ án.
+4. QUẢN TRỊ RỦI RO LỚN TRONG KHUNG 4 TUẦN
+Trải nghiệm chiến đấu bị thô cứng, thiếu lực (Combat Feel): Nếu chỉ áp dụng lực đẩy thông thường mà thiếu các hiệu ứng bổ trợ, game đối kháng sẽ mất đi 80% độ hay. Biện pháp khắc phục: P1 bắt buộc phải hoàn thiện mã nguồn cho cơ chế Khựng hình khi trúng đòn (Hitstop/Hitlag từ 4-8 khung hình) ngay trong Tuần 2 nhằm tạo cảm giác đòn đánh có trọng lượng chân thực.
+Mất kiểm soát phạm vi dự án (Scope Creep): Việc cố gắng đưa quá nhiều ý tưởng độc lạ từ các game nổi tiếng vào sẽ khiến dự án vỡ trận trong 4 tuần. Biện pháp khắc phục: Tuân thủ nghiêm ngặt mô hình MoSCoW. Toàn bộ các ý tưởng như chơi trực tuyến (Online Netcode), số lượng nhân vật từ 10 trở lên, hay cốt truyện chơi đơn sẽ bị loại bỏ hoàn toàn khỏi kế hoạch này.

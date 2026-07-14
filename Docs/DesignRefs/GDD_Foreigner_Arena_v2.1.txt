@@ -1,0 +1,265 @@
+GAME DESIGN DOCUMENT
+Foreigner Arena
+Unity 2D
+Version 2.1  |  2026
+1. OVERVIEW
+A 2D fighting game that combines two genres:
+Traditional Fighting (Street Fighter): combo system, frame data, motion input, block/counter mechanics
+Arena Battle (Super Smash Bros.): knockback % system, 4-sided death zone, platform map, wall bounce
+Goal: create an experience that has both the technical depth of a traditional fighting game and the chaos and large combat space of an arena battle.
+2. RESOURCE SYSTEM
+2.1 Knockback % Bar
+Accumulates with each hit taken. The higher it is, the farther the character is launched when a combo ends.
+2.2 Mana Bar
+Used to perform special actions. Recovered by dealing damage to the opponent.
+Mana Costs:
+2.3 Rage Bar
+Accumulates through combat. Unlocks Burst Breaker (50%) and Rage Mode (100%).
+Rage diagram:
+0% ------------ 50% ------------ 100%
+                 ^                  ^
+          Burst Breaker         Rage Mode
+3. COMBAT MECHANICS
+3.1 Block System
+Blocking does not fully negate damage - takes reduced damage and reduced knockback
+Blocking costs no mana and no rage - completely free
+Continuous blocking -> gradually pushed toward the edge of the map (knockback accumulates even when reduced)
+Very little rage is recovered when blocking
+3.2 Burst Breaker
+Escape a combo by spending 50% rage. Pushes the opponent away and creates breathing room.
+3.3 Dodge
+3.4 Roman Cancel (RC) Dash
+3.5 Rage Mode & Ultimate
+Activated when reaching 100% rage. Enters a special state with comprehensive buffs.
+Ultimate: block is completely nullified - only dodge/dash/jump can escape (and it is very hard)
+Ultimate landing at low %: pushes far + adds a lot of %. At high %: instant kill
+Getting hit during the Ultimate animation: knockback + ultimate cancelled (unlikely to happen)
+Rage Mode: clear visual indicator (animation + aura)
+3.6 Combo System
+4. INPUT SYSTEM
+4.1 Overall Layout
+Primary: Controller. Test: Keyboard.
+4.2 Special & Super Move Framework
+Special classification by role (not all required, depends on character):
+Projectile: distance control, zone control
+Reversal: escape a pinned situation (may have invincibility frames)
+Mobility: move quickly, close in or escape
+Mix-up: overhead or low, breaks block
+Anti-air: stops jump-in attacks
+Block break: a dedicated special move - this is the hard counter to blocking
+5. MOVEMENT & PHYSICS
+5.1 Movement
+5.2 Physics
+5.3 Gravity - Needs Consultation
+Two design directions:
+6. AERIAL SYSTEM
+6.1 Aerial Attacks
+6.2 Juggle & Air Combat
+7. MAP SYSTEM
+7.1 Map Structure
+7.2 Breakable Wall Mechanics
+7.3 Biome Mechanics
+Biome mechanics apply to both players
+The snowstorm randomly breaking combos is intended - it adds an element of surprise
+Rising lava: the map must be tall enough that it does not touch players immediately when it first rises
+Biome + knockback interaction: getting hit on ice -> extra sliding after knockback
+8. LIVES & RESPAWN SYSTEM
+8.1 Lives Mechanics
+8.2 Respawn
+9. WIN CONDITION & SCORING
+9.1 Win Condition
+9.2 End-of-Match Stats
+Displayed after each match for reference / flexing - does not affect the normal win condition:
+Total Damage Dealt
+Longest Combo
+Total Combo Count
+KO Count (number of times the opponent was pushed into the death zone)
+End-of-match Knockback %
+10. GAME LOOP & SCOPE
+10.1 Basic Screens
+Character Select - choose a character
+Stage Select - choose a map
+Match - the main battle
+End Screen - results + stats
+Rematch - play again immediately
+10.2 Project Scope
+11. TECHNICAL REQUIREMENTS
+11.1 Core Architecture (5 Required Patterns)
+11.2 State Machine - State List
+11.3 Code Standards
+One file no longer than 500 lines
+Each file does exactly one job (file name = function)
+Build the Core System first - all later code extends from it
+Design to be extensible by design from the start
+12. ITEM SYSTEM
+12.1 Spawn & Existence
+12.2 Pickup Mechanics
+12.3 Item List
+12.4 DMG Buff - Details
+12.5 Rage Orb - Special Mechanic
+The only item with a contest mechanic. It appears once per match, flies randomly, and must be hit enough times to be collected.
+12.6 Turtle Shell - Out of Scope (Note for Later)
+13. NOTES - DECISIONS FOR LATER
+13.1 Need Sprites Before Deciding
+Aerial attacks: exact count, whether animations exist
+Launcher move: whether it is in the sprite
+Air special: depends on character
+Special move roles: defined after reviewing each character's sprite
+Aerial -> ground combo transition animation
+Special crouching attacks: depends on character
+Wall crack visuals: depends on whether a sprite exists
+Colors to distinguish each potion item type
+Sprite effect for buff visuals (or use a simple color tint)
+13.2 Decisions During Coding
+DI: digital or analog, and how many degrees of influence
+SDI: yes or no (advanced mechanic)
+Air Dodge landing lag
+Frame advantage/disadvantage after block - who acts first
+Hitlag/Hitstop: specific frame count (usually 4-8 frames)
+Whether walls recover: depends on map - defined during map design
+Scoring formula for ties
+Gravity baseline + per-character multiplier
+Default number of lives (1-5, test to choose)
+Exact knockback % cap (200% or 300% - test to determine)
+Specific mana cost for each action
+Rage Mode duration (X seconds)
+Rage recovery rate (dealing damage vs taking damage vs blocking)
+13.3 Decisions During Testing & Balancing
+Specific spawn rate for each item type
+Auto-disappear time for regular items
+Counter decay rate for the Rage Orb (drops after X seconds without a hit)
+Min/max flight speed of the Rage Orb
+DMG Buff: % increase and duration (all 3 tiers)
+Time for items to auto-disappear when not picked up
+GDD v2.1 - Core Systems + Item System complete
+Bản Tiếng Việt
+1. TỔNG QUAN
+Game đối kháng 2D kết hợp hai thể loại:
+Traditional Fighting (Street Fighter): combo system, frame data, motion input, block/counter mechanics
+Arena Battle (Super Smash Bros.): knockback % system, death zone 4 phía, platform map, wall bounce
+Mục tiêu: tạo ra trải nghiệm vừa có chiều sâu kỹ thuật của fighting game truyền thống, vừa có tính chaos và không gian chiến đấu rộng của arena battle.
+2. HỆ THỐNG RESOURCE
+2.1 Thanh % Knockback
+Tích lũy theo từng hit nhận vào. Càng cao, nhân vật bị bật ra càng xa khi kết thúc combo.
+2.2 Thanh Mana
+Dùng để thực hiện các action đặc biệt. Hồi bằng cách gây sát thương cho địch.
+Chi phí Mana:
+2.3 Thanh Nộ
+Tích lũy qua chiến đấu. Mở khoá Burst Breaker (50%) và Rage Mode (100%).
+Sơ đồ nộ:
+0% ──────────── 50% ──────────── 100%
+                 ↑                  ↑
+          Burst Breaker         Rage Mode
+3. CƠ CHẾ CHIẾN ĐẤU
+3.1 Block System
+Block không chặn dmg hoàn toàn — nhận reduced dmg và reduced knockback
+Block không tốn mana, không tốn nộ — hoàn toàn free
+Bị block liên tục → bị đẩy dần ra rìa map (knockback tích lũy dù giảm)
+Hồi nộ rất ít khi block
+3.2 Burst Breaker
+Thoát thế bị combo bằng cách tiêu 50% nộ. Đẩy địch ra xa và tạo breathing room.
+3.3 Né (Dodge)
+3.4 Roman Cancel (RC) Dash
+3.5 Rage Mode & Ultimate
+Kích hoạt khi đạt 100% nộ. Vào trạng thái đặc biệt với buff toàn diện.
+Ultimate: block bị huỷ hoàn toàn — chỉ né/dash/jump thoát được (và rất khó)
+Ultimate trúng ở % thấp: đẩy xa + tăng % nhiều. Ở % cao: kill ngay
+Bị đánh trong animation Ultimate: bị knockback + huỷ ulti (khó xảy ra)
+Rage Mode: visual indicator rõ ràng (animation + hào quang)
+3.6 Combo System
+4. HỆ THỐNG INPUT
+4.1 Layout Tổng Thể
+Primary: Controller. Test: Keyboard.
+4.2 Special & Super Move Framework
+Phân loại Special theo role (không cần đủ tất cả, tuỳ nhân vật):
+Projectile: kiểm soát khoảng cách, zone control
+Reversal: thoát thế bí (có thể có invincibility frames)
+Mobility: di chuyển nhanh, áp sát hoặc thoát
+Mix-up: overhead hoặc low, phá block
+Anti-air: chặn đòn nhảy
+Phá block: 1 special move đặc biệt — đây là hard counter cho block
+5. MOVEMENT & PHYSICS
+5.1 Movement
+5.2 Physics
+5.3 Gravity — Cần Tư Vấn
+Hai hướng thiết kế:
+6. AERIAL SYSTEM
+6.1 Aerial Attacks
+6.2 Juggle & Air Combat
+7. HỆ THỐNG MAP
+7.1 Cấu Trúc Map
+7.2 Cơ Chế Tường Phá
+7.3 Biome Mechanics
+Biome mechanics áp dụng cho cả 2 người chơi
+Bão tuyết random phá combo là intended — thêm yếu tố bất ngờ
+Dung nham dâng: map phải đủ cao để khi mới dâng không chạm người chơi ngay
+Tương tác biome + knockback: bị đánh trên băng → trượt thêm sau knockback
+8. HỆ THỐNG MẠNG & HỒI SINH
+8.1 Cơ Chế Mạng
+8.2 Hồi Sinh
+9. WIN CONDITION & SCORING
+9.1 Win Condition
+9.2 End-of-Match Stats
+Hiển thị sau mỗi trận để tham khảo / flex — không ảnh hưởng win condition thông thường:
+Total Damage Dealt
+Longest Combo
+Total Combo Count
+KO Count (số lần đẩy địch ra death zone)
+% Knockback cuối trận
+10. GAME LOOP & SCOPE
+10.1 Màn Hình Cơ Bản
+Character Select — chọn nhân vật
+Stage Select — chọn map
+Match — trận đấu chính
+End Screen — kết quả + stats
+Rematch — chơi lại ngay
+10.2 Scope Dự Án
+11. YÊU CẦU KỸ THUẬT
+11.1 Core Architecture (5 Patterns Bắt Buộc)
+11.2 State Machine — Danh Sách Trạng Thái
+11.3 Code Standards
+1 file không quá 500 dòng
+Mỗi file chỉ làm đúng 1 chức năng (tên file = chức năng)
+Build Core System trước — toàn bộ code sau extend từ đó
+Thiết kế extensible by design từ đầu
+12. HỆ THỐNG ITEM
+12.1 Spawn & Tồn Tại
+12.2 Cơ Chế Nhặt
+12.3 Danh Sách Item
+12.4 Buff DMG — Chi Tiết
+12.5 Viên Hồi Nộ — Cơ Chế Đặc Biệt
+Item duy nhất có cơ chế tranh giành. Xuất hiện 1 lần/trận, bay ngẫu nhiên, cần đánh đủ lần để nhặt.
+12.6 Mai Rùa — Out Scope (Note Để Làm Sau)
+13. NOTES — QUYẾT ĐỊNH SAU
+13.1 Cần Sprite Trước Khi Quyết Định
+Aerial attacks: số lượng chính xác, animation có hay không
+Launcher move: có trong sprite không
+Air special: tùy nhân vật
+Special move roles: define sau khi xem sprite từng nhân vật
+Aerial → ground combo transition animation
+Đòn ngồi đặc thù: tùy nhân vật
+Visual crack tường: tùy có sprite không
+Màu sắc phân biệt từng loại bình item
+Sprite effect cho buff visual (hoặc dùng color tint đơn giản)
+13.2 Quyết Định Khi Code
+DI: digital hay analog, bao nhiêu độ ảnh hưởng
+SDI: có hay không (advanced mechanic)
+Landing lag của Air Dodge
+Frame advantage/disadvantage sau block — ai hành động trước
+Hitlag/Hitstop: số frame cụ thể (thường 4-8 frames)
+Tường hồi phục hay không: tùy map — define khi design map
+Công thức điểm tính khi hòa
+Gravity baseline + multiplier per nhân vật
+Số mạng default (1-5, test để chọn)
+Cap % knockback chính xác (200% hay 300% — test để xác định)
+Cost mana cụ thể cho từng action
+Thời gian Rage Mode (X giây)
+Tốc độ hồi nộ (gây dmg vs bị đánh vs block)
+13.3 Quyết Định Khi Test & Balance
+Spawn rate cụ thể từng loại item
+Thời gian tự biến mất của item thường
+Counter decay rate của viên nộ (X giây không đánh thì giảm)
+Tốc độ bay min/max của viên nộ
+Buff DMG: % tăng và thời gian kéo dài (cả 3 tier)
+Thời gian item tự biến mất khi không được nhặt
+GDD v2.1 — Core Systems + Item System hoàn chỉnh
