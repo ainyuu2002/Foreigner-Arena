@@ -134,6 +134,9 @@ namespace FA.Movement
         /// <summary>State WallJump (bật khỏi tường, spam để leo). Phase 3.</summary>
         IState WallJumpState();
 
+        /// <summary>State Crouch (ngồi pose-only). A2 — Motor vào từ Idle/Walk khi giữ Xuống thuần.</summary>
+        IState CrouchState();
+
         /// <summary>
         /// WallJumpState gọi ở Enter để báo cú wall-jump VỪA bắt đầu → Motor "disarm" re-grab WallHang
         /// (đặt cờ armed=false). Chỉ khi nhân vật thực sự RỜI tường (WallCheck.IsTouchingRaw==false ≥1

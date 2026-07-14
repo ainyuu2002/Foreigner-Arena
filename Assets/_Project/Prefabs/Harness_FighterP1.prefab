@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Harness_FighterP1
       objectReference: {fileID: 0}
+    - target: {fileID: 584454292511064029, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 5289793999483661950, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
       propertyPath: onComboChanged
       value: 

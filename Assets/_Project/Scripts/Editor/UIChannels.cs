@@ -38,6 +38,7 @@ namespace FA.EditorTools
             public VoidEventChannelSO Rematch, BackToCharSelect;  // RematchPressedChannel / BackToCharSelectChannel
 
             // GameFlow systems (Lobby wire MatchManager/WinCondition/MatchTimer — P12)
+            public VoidEventChannelSO MatchStart;                  // OnMatchStartChannel (MatchManager → ItemSpawner khởi động item)
             public VoidEventChannelSO MatchEnded;                  // OnMatchEndedChannel (WinCondition → MatchManager)
             public VoidEventChannelSO TimeUp;                      // OnTimeUpChannel (MatchTimer → WinCondition)
             public GameObjectEventChannelSO OutOfLives;            // OnPlayerOutOfLivesChannel (LivesSystem → WinCondition)
@@ -88,6 +89,9 @@ namespace FA.EditorTools
             b.Rematch = Find<VoidEventChannelSO>("RematchPressedChannel", b);
             b.BackToCharSelect = Find<VoidEventChannelSO>("BackToCharSelectChannel", b);
 
+            // Kênh khởi động item (hệ item hợp nhất): MatchManager raise cuối LoadMapAndStart → ItemSpawner StartSpawning.
+            // Find-or-create để build lại Lobby KHÔNG làm rớt wiring này (tránh "spawner không drop item").
+            b.MatchStart = FindOrCreateVoid("OnMatchStartChannel", b);
             b.MatchEnded = Find<VoidEventChannelSO>("OnMatchEndedChannel", b);
             b.TimeUp = Find<VoidEventChannelSO>("OnTimeUpChannel", b);
             b.OutOfLives = Find<GameObjectEventChannelSO>("OnPlayerOutOfLivesChannel", b);
@@ -115,7 +119,7 @@ namespace FA.EditorTools
             sb.AppendLine($"  Combo: P1={N(b.ComboP1)}  P2={N(b.ComboP2)}");
             sb.AppendLine($"  CharSel: P1={N(b.CharSelP1)}  P2={N(b.CharSelP2)}  | StageSel={N(b.StageSel)}");
             sb.AppendLine($"  MatchResult={N(b.MatchResult)}  Rematch={N(b.Rematch)}  Back={N(b.BackToCharSelect)}");
-            sb.AppendLine($"  GameFlow: MatchEnded={N(b.MatchEnded)}  TimeUp={N(b.TimeUp)}  OutOfLives={N(b.OutOfLives)}  Settings={N(b.MatchSettings)}");
+            sb.AppendLine($"  GameFlow: MatchStart={N(b.MatchStart)}  MatchEnded={N(b.MatchEnded)}  TimeUp={N(b.TimeUp)}  OutOfLives={N(b.OutOfLives)}  Settings={N(b.MatchSettings)}");
             sb.AppendLine($"  Registry: Character={N(b.CharacterRegistry)}  Stage={N(b.StageRegistry)}  | PercentCap={b.PercentCap}");
             Debug.Log(sb.ToString());
         }
@@ -129,6 +133,18 @@ namespace FA.EditorTools
 
             string path = $"{DataFolder}/{assetName}.asset";
             var ch = ScriptableObject.CreateInstance<FloatEventChannelSO>();
+            AssetDatabase.CreateAsset(ch, path);
+            b.Created.Add(path);
+            return ch;
+        }
+
+        private static VoidEventChannelSO FindOrCreateVoid(string assetName, Bundle b)
+        {
+            var found = FindExact<VoidEventChannelSO>(assetName);
+            if (found != null) return found;
+
+            string path = $"{DataFolder}/GameFlow/{assetName}.asset";
+            var ch = ScriptableObject.CreateInstance<VoidEventChannelSO>();
             AssetDatabase.CreateAsset(ch, path);
             b.Created.Add(path);
             return ch;

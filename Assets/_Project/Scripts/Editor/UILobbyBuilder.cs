@@ -387,6 +387,7 @@ namespace FA.EditorTools
             UIKit.SetObj(soM, "onRematchPressed", ch.Rematch);
             UIKit.SetObj(soM, "onBackToCharSelect", ch.BackToCharSelect);
             UIKit.SetObj(soM, "onMatchEnded", ch.MatchEnded);
+            UIKit.SetObj(soM, "onMatchStart", ch.MatchStart);   // khởi động ItemSpawner (hệ item) khi vào Match — đừng để rớt khi build lại Lobby.
             soM.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(manager);
 

@@ -24,6 +24,11 @@ namespace FA.Movement
     [RequireComponent(typeof(Animator))]
     public sealed class CharacterMotor : MonoBehaviour, ICharacterContext, IMoveInput, ICombatContext, IJumpIntent
     {
+        // A2 (Ngồi): ngưỡng input NHẬN vào Ngồi — deadzone kiểu input (như MoveDeadzone trong các state),
+        // KHÔNG phải số balance nên để const (đối xứng const trong IdleState/WalkState).
+        private const float CrouchDownThreshold = 0.5f;   // giữ Xuống < -ngưỡng này mới ngồi
+        private const float CrouchMoveDeadzone = 0.1f;    // |MoveX| < ngưỡng này = "thuần" (không ép ngang)
+
         [Header("Tham chiếu")]
         [Tooltip("Số liệu nhân vật (walkSpeed, mass, gravityScale, nhảy...). BẮT BUỘC gán asset CharacterData.")]
         [SerializeField] private CharacterData data;
@@ -102,6 +107,7 @@ namespace FA.Movement
         private IState _dash;
         private WallHangState _wallHang; // typed: Motor đọc WallSide đã chốt để cấp cho WallJump
         private IState _wallJump;
+        private IState _crouch;          // A2: ngồi pose-only
 
         // ===== IMoveInput =====
         public float MoveX => _moveX;
@@ -247,6 +253,7 @@ namespace FA.Movement
         public IState DashState() => _dash;
         public IState WallHangState() => _wallHang;
         public IState WallJumpState() => _wallJump;
+        public IState CrouchState() => _crouch;
 
         public void OnWallJumpStarted()
         {
@@ -281,6 +288,7 @@ namespace FA.Movement
             _dash = new DashState(this);
             _wallHang = new WallHangState(this);
             _wallJump = new WallJumpState(this);
+            _crouch = new CrouchState(this);
 
             // Phase 4: dựng buffer + parser (1 cặp/Motor). State đọc input qua IMoveInput nên
             // KHÔNG biết nguồn đã đổi → không hồi quy P1-P3.
@@ -374,6 +382,25 @@ namespace FA.Movement
 
         private void Update()
         {
+            // (MỤC D) CINEMATIC GATE — intro vào trận / pose kết trận đang mở: nhân vật ĐỨNG YÊN, KHÔNG
+            // nhận điều khiển. Zero ý định + vận tốc ngang rồi RETURN TRƯỚC mọi transition + _machine.Tick
+            // → FSM giữ nguyên state hiện tại (không re-assert Idle/đè StateId Intro/Win/Lose do orchestrator
+            // set). Super/chant cũng Acquire nhưng lúc đó timeScale=0 (thế giới đứng hình) nên guard KHÔNG
+            // đổi hành vi cũ; chỉ thực sự tác dụng lúc intro/outro (timeScale=1). Chỉ zero vận tốc NGANG —
+            // trọng lực vẫn kéo về đất để pose đứng trên sàn.
+            if (CinematicGate.IsActive)
+            {
+                _moveX = _moveY = 0f;
+                _jumpPressed = _dashPressed = false;
+                if (body != null)
+                {
+                    Vector2 v = body.linearVelocity;
+                    v.x = 0f;
+                    body.linearVelocity = v;
+                }
+                return;
+            }
+
             // Đọc input ở Update (không chạm physics). Phase 4: MoveX/MoveY giữ ANALOG (đọc thẳng
             // Input System — di chuyển cần độ mượt). Edge Jump/Dash suy TỪ buffer qua parser
             // (WasPressedWithin) → buffer-tha-thứ: nhập sớm vài frame vẫn ăn. Buffer được nuôi
@@ -432,7 +459,14 @@ namespace FA.Movement
                 _parser.ConsumePress(InputButton.Jump, EdgeWindow);   // 1 lần nhấn không kích double-jump cùng edge
                 _machine.ChangeState(_jump);
             }
-            // Đi khỏi mép sàn (không nhảy) → rơi. Chỉ khi đang ở Idle/Walk mà không còn chạm sàn.
+            // Lệnh NGỒI TOÀN CỤC (A2): từ Idle/Walk khi đứng đất + giữ Xuống THUẦN → Crouch. Đặt ở Motor
+            // (giống "Any State → Crouch"), SAU dash/wallhang/jump nên các lệnh đó vẫn thoát khỏi Ngồi được
+            // (Crouch ∈ IsGroundState). Crouch tự thoát về Idle/Walk khi nhả xuống/ép ngang (CrouchState.Tick).
+            else if (IsGrounded && CanEnterCrouch())
+            {
+                _machine.ChangeState(_crouch);
+            }
+            // Đi khỏi mép sàn (không nhảy) → rơi. Chỉ khi đang ở ground-state mà không còn chạm sàn (gồm Crouch).
             else if (!IsGrounded && IsGroundState(_machine.CurrentState))
             {
                 _machine.ChangeState(_air);
@@ -487,8 +521,19 @@ namespace FA.Movement
             return 0;
         }
 
-        /// <summary>True nếu state là state mặt đất (Idle/Walk) — nơi cho phép lệnh nhảy từ đất.</summary>
-        private bool IsGroundState(IState s) => ReferenceEquals(s, _idle) || ReferenceEquals(s, _walk);
+        /// <summary>True nếu state là state mặt đất (Idle/Walk/Crouch) — nơi cho phép lệnh nhảy/dash từ đất
+        /// & phát hiện đi khỏi mép sàn. Crouch (A2) là ground-state → nhảy/dash/rời-đất thoát khỏi Ngồi.</summary>
+        private bool IsGroundState(IState s) =>
+            ReferenceEquals(s, _idle) || ReferenceEquals(s, _walk) || ReferenceEquals(s, _crouch);
+
+        /// <summary>Được vào Ngồi (A2): đang Idle/Walk (KHÔNG phải Crouch, tránh re-enter), giữ Xuống THUẦN
+        /// (MoveY xuống, |MoveX| nhỏ → down-forward/back vẫn đi bộ). Grounded do người gọi kiểm.</summary>
+        private bool CanEnterCrouch()
+        {
+            IState s = _machine.CurrentState;
+            if (!ReferenceEquals(s, _idle) && !ReferenceEquals(s, _walk)) return false;
+            return _moveY < -CrouchDownThreshold && Mathf.Abs(_moveX) < CrouchMoveDeadzone;
+        }
 
         /// <summary>
         /// True nếu state hiện tại là MỘT TRONG các state CỦA CHÍNH Motor (Movement). Whitelist này
@@ -502,7 +547,8 @@ namespace FA.Movement
             ReferenceEquals(s, _idle) || ReferenceEquals(s, _walk) ||
             ReferenceEquals(s, _jump) || ReferenceEquals(s, _air) ||
             ReferenceEquals(s, _doubleJump) || ReferenceEquals(s, _dash) ||
-            ReferenceEquals(s, _wallHang) || ReferenceEquals(s, _wallJump);
+            ReferenceEquals(s, _wallHang) || ReferenceEquals(s, _wallJump) ||
+            ReferenceEquals(s, _crouch);
 
         /// <summary>
         /// Được phép vào Dash khi: đang ở Idle/Walk (dash mặt đất — free, không quota), HOẶC đang trên

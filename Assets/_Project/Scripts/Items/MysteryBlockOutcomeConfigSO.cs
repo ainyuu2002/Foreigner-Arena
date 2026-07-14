@@ -61,6 +61,10 @@ namespace FA.Items
             string duration = durationSeconds > 0f ? $" / {durationSeconds:0.#}s" : string.Empty;
             return $"{DisplayName} - Tier {tier} ({TierName}){amount}{duration}";
         }
+
+        /// <summary>(Hợp nhất item) Chuyển 1 outcome (dữ liệu asset) sang <see cref="ItemEffect"/> DÙNG CHUNG.
+        /// int của <see cref="MysteryBlockOutcomeType"/> TRÙNG <see cref="ItemEffectType"/> nên cast an toàn.</summary>
+        public ItemEffect ToEffect() => new ItemEffect((ItemEffectType)(int)type, value, durationSeconds);
     }
 
     [CreateAssetMenu(menuName = "FA/Items/Mystery Block Outcome Config", fileName = "MysteryBlockOutcomeConfig")]
@@ -96,6 +100,10 @@ namespace FA.Items
 
             return outcomes[outcomes.Count - 1] ?? FallbackOutcome();
         }
+
+        /// <summary>(Hợp nhất item) Roll 1 outcome rồi trả về <see cref="ItemEffect"/> DÙNG CHUNG — Item gọi
+        /// khi nhặt Mystery Block. Không bao giờ null (PickRandom có fallback).</summary>
+        public ItemEffect PickRandomEffect() => PickRandom().ToEffect();
 
         private static MysteryBlockOutcome FallbackOutcome()
         {

@@ -14,10 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: FA.Items::FA.Items.ItemData
   type: 1
   tintColor: {r: 0.2, g: 0.5, b: 1, a: 1}
-  visualScale: 1.0
-  icon: {fileID: 0}
+  visualScale: 1.8
+  icon: {fileID: -7878718650673093578, guid: a87afb569607dc3468f6fe2d38e7517f, type: 3}
   knockbackReducePercent: 0
-  manaAddFraction: 0.10
+  manaAddFraction: 0.1
   damageMultiplier: 1
   damageBuffDuration: 10
   spawnWeight: 2
+  prefabOverride: {fileID: 0}
+  mysteryOutcomeConfig: {fileID: 0}

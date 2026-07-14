@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa130001da7a000000000000000000d1, type: 3}
+  m_Name: Item_MysteryBlock
+  m_EditorClassIdentifier: FA.Items::FA.Items.ItemData
+  type: 3
+  tintColor: {r: 1, g: 1, b: 1, a: 1}
+  visualScale: 0.19
+  icon: {fileID: -7953269085874672423, guid: ed9d6ac3367cfb946b21e06e742923c3, type: 3}
+  knockbackReducePercent: 10
+  manaAddFraction: 0.1
+  damageMultiplier: 1.5
+  damageBuffDuration: 10
+  spawnWeight: 2
+  prefabOverride: {fileID: 697037576, guid: 8f6a8e4c4ccf4ef5a01f63a4d1e7c9a2, type: 3}
+  mysteryOutcomeConfig: {fileID: 11400000, guid: 87eda3474a454ab5ae65e42d66fdf7ab, type: 2}
