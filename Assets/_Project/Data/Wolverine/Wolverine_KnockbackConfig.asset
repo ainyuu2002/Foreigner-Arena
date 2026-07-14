@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c246c74b73ebff14fa558ce5bd2ea99d, type: 3}
+  m_Name: Wolverine_KnockbackConfig
+  m_EditorClassIdentifier: FA.Combat::FA.Combat.KnockbackConfigSO
+  percentCap: 250
+  percentPerHitFallback: 5
+  milestone1: 10
+  milestone2: 20
+  referenceWeight: 1
+  knockbackReleaseFrames: 26
+  diMaxDegrees: 15
+  enableSDI: 0
+  wallSplatSpeedThreshold: 12
+  wallSplatStunFrames: 18
+  groundBounceSpeedThreshold: 14
+  wallBounciness: 0.5
+  groundBounciness: 0.4
+  tumbleEndSpeed: 1.5

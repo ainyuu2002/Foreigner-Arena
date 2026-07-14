@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9c8e1446bd6a6d4f90774f1f6283237, type: 3}
+  m_Name: BlackHeart_Data
+  m_EditorClassIdentifier: FA.Movement::FA.Movement.CharacterData
+  walkSpeed: 4
+  mass: 1
+  gravityScale: 3
+  jumpSpeed: 10
+  maxAirJumps: 1
+  airControl: 0.8
+  dashSpeed: 10
+  dashDuration: 0.18
+  allowAirDash: 1
+  maxAirDashes: 1
+  wallSlideSpeed: 2
+  wallStickSpeed: 1.5
+  wallJumpSpeedX: 3
+  wallJumpSpeedY: 6
+  wallJumpControlLock: 0.1
