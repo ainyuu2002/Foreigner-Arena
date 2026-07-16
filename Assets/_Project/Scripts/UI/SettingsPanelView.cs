@@ -37,6 +37,12 @@ namespace FA.UI
         [Tooltip("Panel rebind phím (con của root này, tắt sẵn) — mở bằng nút CÀI ĐẶT PHÍM.")]
         [SerializeField] private KeybindPanelView keybindPanel;
 
+        // Số panel Settings đang MỞ (tăng OnEnable / giảm OnDisable). GamepadAudioGestureController chỉ nghe
+        // cử chỉ (lắc/thổi) khi AnyOpen = true → ngoài Settings không kích nhầm (né như game AAA: chỉ nghe
+        // đúng ngữ cảnh, không dựa vào phân loại âm thanh hoàn hảo).
+        private static int _openCount;
+        public static bool AnyOpen => _openCount > 0;
+
         public void Open() => gameObject.SetActive(true);
 
         public void Close()
@@ -82,6 +88,7 @@ namespace FA.UI
                 sfxSlider.onValueChanged.AddListener(OnSfx);
             }
             RefreshLabels();
+            _openCount++; // panel mở → cho phép GamepadAudioGestureController nghe cử chỉ.
 
             if (menuOnlySections != null)
                 foreach (var go in menuOnlySections)
@@ -93,6 +100,20 @@ namespace FA.UI
             if (masterSlider != null) masterSlider.onValueChanged.RemoveListener(OnMaster);
             if (bgmSlider != null) bgmSlider.onValueChanged.RemoveListener(OnBgm);
             if (sfxSlider != null) sfxSlider.onValueChanged.RemoveListener(OnSfx);
+            _openCount = Mathf.Max(0, _openCount - 1); // panel đóng → ngừng nghe cử chỉ.
+        }
+
+        // Cử chỉ tay cầm (GamepadAudioGestureController) đổi Master NGOÀI slider → đồng bộ hiển thị mỗi frame
+        // khi panel đang mở. SetValueWithoutNotify tránh vòng lặp bắn lại OnMaster. Chỉ chạy khi GO active.
+        private void Update()
+        {
+            if (masterSlider == null) return;
+            float m = GameSettings.Master;
+            if (!Mathf.Approximately(masterSlider.value, m))
+            {
+                masterSlider.SetValueWithoutNotify(m);
+                RefreshLabels();
+            }
         }
 
         private void OnMaster(float v) { GameSettings.Master = v; RefreshLabels(); }

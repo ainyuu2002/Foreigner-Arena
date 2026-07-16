@@ -72,6 +72,10 @@ PrefabInstance:
       propertyPath: inputScheme
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8462392293323820384, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
+      propertyPath: pairExtraGamepad
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -137,6 +141,9 @@ MonoBehaviour:
   body: {fileID: 4759567282326988132}
   invulnerability: {fileID: 9160494972867570027}
   fallbackRespawnPoint: {fileID: 0}
+  respawnHeightOffset: 6
+  platformMaxSeconds: 10
+  platformSprite: {fileID: 0}
 --- !u!114 &6219539400092109617
 MonoBehaviour:
   m_ObjectHideFlags: 0

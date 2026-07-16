@@ -56,6 +56,15 @@ namespace FA.Movement
         [Tooltip("Khi inputScheme=Gamepad & có NHIỀU tay cầm: chọn tay thứ mấy (0 = tay đầu tiên).")]
         [SerializeField] private int gamepadIndex = 0;
 
+        [Tooltip("CHỈ có tác dụng khi inputScheme=Keyboard (prefab P1). Bật = P1 tự 'nhặt' tay cầm PHỤ nếu " +
+                 "người chơi cắm thêm 1 tay nữa giữa trận → P1 điều khiển được CẢ keyboard lẫn tay cầm đó " +
+                 "(keyboard vẫn là backup). Hot-plug tự nhận, không cần bật lại game.")]
+        [SerializeField] private bool pairExtraGamepad = false;
+
+        [Tooltip("Khi pairExtraGamepad: lấy tay cầm thứ mấy làm tay PHỤ cho P1. Mặc định 1 vì P2 (Gamepad) " +
+                 "đã ăn tay index 0 — tay mới cắm rơi vào index 1 = đúng P1.")]
+        [SerializeField] private int extraGamepadIndex = 1;
+
         // --- Nguồn input (P1: Input System trực tiếp; P4: chèn InputBuffer/CommandParser vào giữa) ---
         private FA_Controls _controls;
         private float _moveX;
@@ -238,7 +247,8 @@ namespace FA.Movement
                         var pads = Gamepad.all;
                         return pads.Count > gamepadIndex ? pads[gamepadIndex] : null;
                     case InputScheme.Keyboard:
-                        return null;
+                        // P1: rung tay cầm PHỤ nếu đã pair (pairExtraGamepad); chỉ keyboard → null (không rung).
+                        return ResolveExtraGamepad();
                     default:
                         return Gamepad.current;
                 }
@@ -334,11 +344,20 @@ namespace FA.Movement
             switch (inputScheme)
             {
                 case InputScheme.Keyboard:
-                    _controls.bindingMask = InputBinding.MaskByGroup("Keyboard");
-                    if (Keyboard.current == null) { LockNoDevice("Keyboard"); return; }
-                    _controls.devices = new InputDevice[] { Keyboard.current };
-                    Debug.Log($"[CharacterMotor] {name}: paired Keyboard ({Keyboard.current.name}).", this);
+                {
+                    var kb = Keyboard.current;
+                    var extra = ResolveExtraGamepad();   // null nếu không bật/không đủ tay cầm
+                    if (kb == null && extra == null) { LockNoDevice("Keyboard"); return; }
+
+                    // Có tay cầm phụ → bỏ mask (null) để CẢ binding Keyboard lẫn Gamepad resolve (P1 dùng
+                    // được cả 2). Không có → khóa về group "Keyboard" như cũ (không hồi quy P1 1-người).
+                    _controls.bindingMask = (extra != null) ? (InputBinding?)null
+                                                            : InputBinding.MaskByGroup("Keyboard");
+                    _controls.devices = BuildDevices(kb, extra);
+                    Debug.Log($"[CharacterMotor] {name}: paired Keyboard" +
+                              $"{(extra != null ? $" + {extra.name}" : "")}.", this);
                     break;
+                }
 
                 case InputScheme.Gamepad:
                     _controls.bindingMask = InputBinding.MaskByGroup("Gamepad");
@@ -352,6 +371,25 @@ namespace FA.Movement
                     _controls.devices = null;
                     break;
             }
+        }
+
+        /// <summary>Tay cầm PHỤ cho P1 khi bật pairExtraGamepad: Gamepad.all[extraGamepadIndex] nếu đủ tay,
+        /// ngược lại null. Resolve mỗi lần gọi (không cache) — bền với cắm/rút giữa trận (OnDeviceChange
+        /// re-apply). Index mặc định 1 vì P2 đã ăn tay index 0.</summary>
+        private Gamepad ResolveExtraGamepad()
+        {
+            if (!pairExtraGamepad) return null;
+            var pads = Gamepad.all;
+            return pads.Count > extraGamepadIndex ? pads[extraGamepadIndex] : null;
+        }
+
+        /// <summary>Gộp keyboard + tay cầm phụ thành mảng devices (bỏ phần tử null).</summary>
+        private static InputDevice[] BuildDevices(InputDevice a, InputDevice b)
+        {
+            if (a != null && b != null) return new[] { a, b };
+            if (a != null) return new[] { a };
+            if (b != null) return new[] { b };
+            return new InputDevice[0];
         }
 
         /// <summary>Thiếu thiết bị của scheme → KHÓA wrapper (mảng devices RỖNG = không nghe thiết bị nào).
