@@ -206,6 +206,9 @@ namespace FA.GameFlow
 
         private IEnumerator UnloadMapIfAny()
         {
+            // OBJECT POOLING (§3.1): dọn pool VFX/projectile TRƯỚC khi despawn player + unload map — tránh
+            // giữ ref object bị Destroy theo scene sang trận sau. PoolBootstrap prewarm lại ở onMatchStart.
+            PrefabPool.Clear();
             if (playerSpawner != null) playerSpawner.DespawnPlayers();
             if (!string.IsNullOrEmpty(_loadedMapScene))
             {

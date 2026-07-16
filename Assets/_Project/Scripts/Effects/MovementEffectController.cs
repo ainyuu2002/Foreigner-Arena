@@ -156,7 +156,7 @@ namespace FA.Effects
             {
                 Vector3 pos = transform.position +
                               new Vector3(fx.offset.x * facing * ownerScale, fx.offset.y * ownerScale, 0f);
-                GameObject vfx = Instantiate(fx.vfxPrefab, pos, fx.vfxPrefab.transform.rotation);
+                GameObject vfx = PrefabPool.Spawn(fx.vfxPrefab, pos, fx.vfxPrefab.transform.rotation);
                 Vector3 s = vfx.transform.localScale * fx.scale * ownerScale;
                 s.x = Mathf.Abs(s.x) * facing;   // world-space → tự lật theo hướng nhìn.
                 vfx.transform.localScale = s;

@@ -100,8 +100,10 @@ namespace FA.Specials
         private void Despawn()
         {
             _active = false;
-            // P9: Destroy đơn giản (pool = tối ưu sau, research §3.4). OnDisable gỡ subscribe.
-            Destroy(gameObject);
+            // OBJECT POOLING (§3.1): trả về pool thay vì Destroy (tránh GC spike bắn/hit liên tục).
+            // OnDisable (chạy khi actionOnRelease SetActive(false)) gỡ subscribe đối xứng. Prefab chưa
+            // đăng ký pool → PrefabPool.Despawn fallback Destroy (backward-compat).
+            PrefabPool.Despawn(gameObject);
         }
     }
 }

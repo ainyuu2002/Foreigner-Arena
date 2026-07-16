@@ -114,6 +114,14 @@ namespace FA.Stage
             float t = 0f;
             while (!done && t < perPersonTimeout)
             {
+                // (FIX P1 không diễn intro) Player VỪA spawn: MatchManager raise OnRoundIntroStart NGAY
+                // trong frame Instantiate (không yield), FindPlayers tìm được ngay (Rigidbody2D có sẵn) →
+                // ta set StateId=Intro TRƯỚC khi CharacterMotor.Start() chạy. Frame kế Start() gọi
+                // ChangeState(Idle) → IdleState.Enter GHI ĐÈ StateId về 0 → AnyState→Intro không kích →
+                // P1 đứng im. P2 diễn intro ~6s SAU (Start đã xong) nên không dính. RE-ASSERT mỗi frame để
+                // bền với mọi lần đè muộn (Start/init): Animator eval SAU coroutine nên KHÔNG nháy Idle,
+                // canTransitionToSelf=false nên set lại 42 khi đang Intro là no-op (không restart clip).
+                SetStateId(who, IntroStateId);
                 t += Time.deltaTime;
                 yield return null;
             }

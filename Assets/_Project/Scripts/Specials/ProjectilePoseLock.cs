@@ -15,6 +15,11 @@ namespace FA.Specials
     {
         private static readonly Dictionary<GameObject, int> s_locks = new Dictionary<GameObject, int>();
 
+        /// <summary>Reset static giữa các lần Play khi "Enter Play Mode Options" tắt Domain Reload —
+        /// tránh giữ ref owner đã Destroy theo domain trước từ lần Play trước.</summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticState() => s_locks.Clear();
+
         public static void Acquire(GameObject owner)
         {
             if (owner == null) return;

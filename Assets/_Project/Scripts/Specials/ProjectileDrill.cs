@@ -96,12 +96,26 @@ namespace FA.Specials
             _rb.sleepMode = RigidbodySleepMode2D.NeverSleep;
         }
 
-        private void Start()
+        /// <summary>POOLING (§3.1): gọi qua BroadcastMessage("Launch") ở BƯỚC CUỐI mỗi spawn (thay
+        /// Start — Start chỉ chạy 1 lần đời object, pool tái dùng không gọi lại). RESET toàn bộ state
+        /// mutable (đời trước để lại) rồi cấp move + subscribe + khóa pose. Spawner Init trước Launch
+        /// nên _proj.HitChannel/_proj.Owner đã sẵn.</summary>
+        public void Launch()
         {
+            // Reset state mutable (pool tái dùng cùng object — không còn Destroy/Awake làm mới).
+            _hits = 0;
+            _frames = 0;
+            _explosionAge = 0;
+            _drilling = false;
+            _exploded = false;
+            _done = false;
+            _victimRb = null;
+            _lastConfirmFrame = 0;
+
             // Cấp move CARRY làm move hiện hành cho hitbox con. KHÔNG dùng moveOverride (per-hitbox,
             // thắng SetMove) — drill cần swap carry→ender lúc chạy nên hitbox phải để override trống.
             BroadcastMessage("SetMove", carryMove, SendMessageOptions.DontRequireReceiver);
-            _channel = _proj.HitChannel;   // spawner đã Init trước Start.
+            _channel = _proj.HitChannel;   // spawner đã Init trước Launch.
             if (_channel != null) _channel.OnEventRaised += OnHitLanded;
             if (hitConfirmedChannel != null) hitConfirmedChannel.OnEventRaised += OnHitConfirmed;
             ProjectilePoseLock.Acquire(_proj.Owner);   // giữ người bắn nguyên pose tới khi tên biến mất.
@@ -144,7 +158,7 @@ namespace FA.Specials
             else if (_hits > carryHits + blastHits)
             {
                 _done = true;   // ender đã đánh — dừng ghim NGAY để launch P7 (áp sau hitstop) không bị đè.
-                Destroy(gameObject);
+                PrefabPool.Despawn(gameObject);   // POOLING: trả về pool (OnDisable gỡ subscribe + nhả pose).
             }
         }
 
@@ -170,7 +184,8 @@ namespace FA.Specials
             if (explosionEffect == null) return;
             if (explosionEffect.vfxPrefab != null)
             {
-                GameObject vfx = Instantiate(explosionEffect.vfxPrefab, transform.position, Quaternion.identity);
+                // POOLING (§3.1): lấy từ pool. OnGet restore localScale gốc → *scale là TUYỆT ĐỐI.
+                GameObject vfx = PrefabPool.Spawn(explosionEffect.vfxPrefab, transform.position, Quaternion.identity);
                 vfx.transform.localScale *= explosionEffect.scale;
             }
             AudioClip boom = explosionEffect.PickClip();
@@ -209,7 +224,7 @@ namespace FA.Specials
             if (_exploded && ++_explosionAge > explosionFailsafeFrames)
             {
                 _done = true;   // victim thoát giữa vụ nổ — không kết được thì tự dọn.
-                Destroy(gameObject);
+                PrefabPool.Despawn(gameObject);   // POOLING: trả về pool (OnDisable gỡ subscribe + nhả pose).
             }
         }
     }
