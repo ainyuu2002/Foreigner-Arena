@@ -13,6 +13,10 @@ namespace FA.Items
 
         /// <summary>DMG Buff — gắn ItemDamageBuff (IBuffSource) lên người nhặt: ×damage có thời hạn (3 tier).</summary>
         DamageBuff = 2,
+
+        /// <summary>(Hợp nhất item) Mystery Block — ROLL 1 hiệu ứng từ <see cref="ItemData.mysteryOutcomeConfig"/>
+        /// khi nhặt (không cố định). Dùng prefab riêng qua <see cref="ItemData.prefabOverride"/>.</summary>
+        MysteryBlock = 3,
     }
 
     /// <summary>
@@ -32,7 +36,7 @@ namespace FA.Items
         [Tooltip("Màu item (GDD: phân LOẠI bằng màu). Đặt lên SpriteRenderer khi spawn. Đề xuất: KB=lục, Mana=lam, DMG=đỏ.")]
         public Color tintColor = Color.white;
 
-        [Tooltip("Scale item (GDD: phân TIER bằng size). Nhỏ→lớn = tier thấp→cao. CẦN TEST: 0.8/1.0/1.3.")]
+        [Tooltip("Scale item (GDD: phân TIER bằng size). Nhỏ→lớn = tier thấp→cao. CẦN TEST: 1.6/1.8/2.0 (bình), 0.19 (mystery).")]
         [Min(0.1f)] public float visualScale = 1f;
 
         [Tooltip("(Tùy) Sprite riêng cho item. Bỏ trống = dùng sprite mặc định của prefab.")]
@@ -54,5 +58,40 @@ namespace FA.Items
         [Header("Spawn (weighted random ở ItemSpawner)")]
         [Tooltip("Trọng số xuất hiện so với item khác (cao = hay ra hơn). CẦN TEST.")]
         [Min(0f)] public float spawnWeight = 1f;
+
+        [Tooltip("(Tùy) Prefab RIÊNG cho item này (vd Mystery Block có animator flip). Bỏ trống = dùng prefab " +
+                 "chung của ItemSpawner. ItemSpawner: Instantiate(prefabOverride ?? itemPrefab).")]
+        public GameObject prefabOverride;
+
+        [Header("Mystery Block (chỉ dùng khi type = MysteryBlock)")]
+        [Tooltip("Bảng roll hiệu ứng ngẫu nhiên. BẮT BUỘC gán nếu type = MysteryBlock; item nhặt → PickRandomEffect().")]
+        public MysteryBlockOutcomeConfigSO mysteryOutcomeConfig;
+
+        /// <summary>
+        /// (Hợp nhất item) Dựng <see cref="ItemEffect"/> item áp khi nhặt. Item bình thường = CỐ ĐỊNH từ field;
+        /// Mystery = ROLL từ <see cref="mysteryOutcomeConfig"/> (đổi mỗi lần gọi). Quy ước value xem
+        /// <see cref="ItemEffect"/> — giữ nguyên hành vi cũ để không hồi quy balance.
+        /// </summary>
+        public ItemEffect BuildEffect()
+        {
+            switch (type)
+            {
+                case ItemType.KnockbackPotion:
+                    return new ItemEffect(ItemEffectType.ResistanceRecovery, knockbackReducePercent, 0f);
+
+                case ItemType.ManaPotion:
+                    return new ItemEffect(ItemEffectType.ManaRecovery, manaAddFraction, 0f);
+
+                case ItemType.DamageBuff:
+                    // Applier dựng lại multiplier = 1 + value ⇒ value = damageMultiplier - 1 (giữ x1.3/1.5/2.0).
+                    return new ItemEffect(ItemEffectType.DamageBuff, Mathf.Max(0f, damageMultiplier - 1f), damageBuffDuration);
+
+                case ItemType.MysteryBlock:
+                    return mysteryOutcomeConfig != null ? mysteryOutcomeConfig.PickRandomEffect() : default;
+
+                default:
+                    return default;
+            }
+        }
     }
 }

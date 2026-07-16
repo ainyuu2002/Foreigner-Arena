@@ -19,6 +19,14 @@ namespace FA.Core
         /// <summary>Hash của "StateId" — truyền vào Animator.SetInteger(...).</summary>
         public static readonly int StateId = Animator.StringToHash(StateIdName);
 
+        /// <summary>Tên param bool "IsGrounded" — CharacterMotor (FA.Movement) GHI mỗi frame; module chỉ
+        /// ref Core (vd FA.Effects MovementEffectController) ĐỌC để phân biệt đất/khí. Hợp đồng liên-module
+        /// nên đặt ở Core (giá trị chuỗi trùng đúng MovementAnimatorParams.IsGroundedName — KHÔNG đổi bên đó).</summary>
+        public const string IsGroundedName = "IsGrounded";
+
+        /// <summary>Hash của "IsGrounded" — truyền vào Animator.GetBool(...).</summary>
+        public static readonly int IsGrounded = Animator.StringToHash(IsGroundedName);
+
         /// <summary>Tên param int "HurtVariant" — chọn 1 trong N clip Hurt (P6). CHỈ điều khiển HÌNH ẢNH
         /// (variant biểu cảm trúng đòn), KHÔNG ảnh hưởng logic/hitbox/frame → dùng được Random không phá
         /// determinism gameplay. Animator: nhiều state Hurt_0/1/2 cùng StateId==11, lọc thêm HurtVariant.</summary>

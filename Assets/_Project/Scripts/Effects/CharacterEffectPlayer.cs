@@ -62,8 +62,8 @@ namespace FA.Effects
                           new Vector3(fx.offset.x * facing * ownerScale, fx.offset.y * ownerScale, 0f);
             // GIỮ rotation prefab (VFX xoay nghiêng như cột sáng dọc kiếm/vệt chém bake góc trên root
             // — identity sẽ xóa mất). Prefab cũ đều identity → không đổi hành vi.
-            GameObject vfx = Instantiate(fx.vfxPrefab, pos, fx.vfxPrefab.transform.rotation,
-                                         fx.attachToOwner ? transform : null);
+            GameObject vfx = PrefabPool.Spawn(fx.vfxPrefab, pos, fx.vfxPrefab.transform.rotation,
+                                              fx.attachToOwner ? transform : null);
 
             // Lật theo hướng nhìn (slash/glow ra đúng phía) + nhân scale của EffectData.
             // attachToOwner: CHA (root nhân vật) đã lật localScale.x theo facing (CharacterMotor) → VFX

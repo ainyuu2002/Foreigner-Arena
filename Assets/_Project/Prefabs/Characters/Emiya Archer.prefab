@@ -123,6 +123,8 @@ GameObject:
   - component: {fileID: 1435338679004942087}
   - component: {fileID: 5370597810873021979}
   - component: {fileID: 8185938671784161670}
+  - component: {fileID: 3998289813332915396}
+  - component: {fileID: 1184978784061725438}
   m_Layer: 11
   m_Name: Emiya Archer
   m_TagString: Untagged
@@ -924,6 +926,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b8d9cb8e1d032c24e8e49ed551b08e4c, type: 2}
   - {fileID: 11400000, guid: ea1e8baae1017fb4e97f181ca41241fb, type: 2}
   - {fileID: 11400000, guid: b985af7e4fc8c5d46bd15b6d7f771bcf, type: 2}
+  - {fileID: 11400000, guid: cd24dbd13c06aad42966f0b7af43b7e3, type: 2}
+  - {fileID: 11400000, guid: 3df17aa02d0b26440976580fc8681bab, type: 2}
+  - {fileID: 11400000, guid: eadf00a830e589c47a8694278b0187da, type: 2}
+  - {fileID: 11400000, guid: 71f155c740c44d94a86c133efc9aa5df, type: 2}
+  - {fileID: 11400000, guid: 2f5b7773c697e8b48b0064da20126c9c, type: 2}
 --- !u!114 &8915658180919500242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1403,6 +1410,51 @@ MonoBehaviour:
   altProfile: {fileID: 11400000, guid: ac8ac95b299ecd3408e950c3f89eda31, type: 2}
   target: {fileID: 5229451945257038344}
   bakeShader: {fileID: 4800000, guid: 712594ac32faf434d9b74b08bb094b4f, type: 3}
+--- !u!114 &3998289813332915396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 750ba87edb3d46244bff6fe879cfd884, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Effects::FA.Effects.MovementEffectController
+  animator: {fileID: 4840833399210449717}
+  audioSource: {fileID: 7872972031602866958}
+  jumpGround: {fileID: 0}
+  jumpAir: {fileID: 11400000, guid: e4331f7f18996264997737d0687b467c, type: 2}
+  land: {fileID: 0}
+  dashGround: {fileID: 0}
+  dashAir: {fileID: 11400000, guid: 909c481031a97bd439709813728e5ebd, type: 2}
+  walkStep: {fileID: 0}
+  footContactPhases:
+  - 0.15
+  - 0.65
+--- !u!114 &1184978784061725438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a172b17d39a2da4d9ace6bb912c9826, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Effects::FA.Effects.PoseEffectController
+  animator: {fileID: 4840833399210449717}
+  audioSource: {fileID: 7872972031602866958}
+  relay: {fileID: -6127148562445082577}
+  bodyRenderer: {fileID: 5229451945257038344}
+  introFx: {fileID: 11400000, guid: f635df218275f7644965c8aef9f41e6b, type: 2}
+  introTransitionFx: {fileID: 11400000, guid: fee8e8286953078448659c3c00ebe81c, type: 2}
+  winFx: {fileID: 11400000, guid: 397e1c168d05f6b4db8ef06d3c95c387, type: 2}
+  loseFx: {fileID: 11400000, guid: af8fcc4115eb4a446962effac2bd74c7, type: 2}
+  drawFx: {fileID: 11400000, guid: b5ad8728eaf3104488fa3c9f532b1993, type: 2}
+  drawFadeTime: 2
 --- !u!1 &608847813806676017
 GameObject:
   m_ObjectHideFlags: 0

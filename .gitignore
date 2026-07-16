@@ -108,3 +108,6 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# Không track file Markdown (CLAUDE.md, .claude skill/agent, docs...) — giữ local
+*.md

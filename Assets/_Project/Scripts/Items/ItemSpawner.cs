@@ -1,47 +1,68 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FA.Core;
 
 namespace FA.Items
 {
     /// <summary>
-    /// (P13) SPAWNER ITEM — code chỉ ĐIỀU PHỐI (research §3.2): coroutine timer theo spawnInterval, giữ
-    /// danh sách item đang sống, cap maxConcurrent, chọn ItemData (weighted) + điểm trong safe-rect (SO) rồi
-    /// Instantiate. KHÔNG ref FA.Stage: vùng spawn an toàn là Rect trong <see cref="ItemSpawnConfigSO"/>
-    /// (người dựng map khai 1 lần). Rơi-từ-trên = spawn cao hơn rồi để Rigidbody2D rớt; teleport-in = spawn
-    /// đúng chỗ + particle. Code chọn vị trí + Instantiate; rơi/đáp/trượt do physics (§1.1).
+    /// (Hợp nhất item) SPAWNER ITEM DUY NHẤT — BAY quanh map (gộp từ MysteryBlockSpawner) rồi THẢ item từ vị
+    /// trí đang bay để rơi bằng physics. Code chỉ ĐIỀU PHỐI: coroutine timer theo spawnInterval, giữ list
+    /// item sống, cap maxConcurrent, chọn ItemData (weighted) rồi Instantiate prefab (data.prefabOverride ??
+    /// itemPrefab — Mystery dùng prefab riêng, bình dùng prefab chung). Vùng an toàn (giữ-trong-map) +
+    /// vùng BAY đều nằm trong <see cref="ItemSpawnConfigSO"/> (KHÔNG ref FA.Stage).
     ///
-    /// Gắn 1 cái trong scene map. Item prefab phải có <see cref="Item"/>. Tự dọn item null khỏi list (đã bị
-    /// nhặt/despawn Destroy). Coroutine = Unity-native timer (KHÔNG đếm frame tay).
+    /// VÒNG ĐỜI TRẬN: nghe VoidEventChannelSO onMatchStart → StartSpawning; onMatchEnded → StopSpawning
+    /// (subscribe OnEnable / unsubscribe OnDisable). autoStart giữ cho scene test độc lập.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class ItemSpawner : MonoBehaviour
     {
         [Header("Cấu hình")]
-        [Tooltip("ItemSpawnConfigSO — nhịp/cap/lifetime/safe-rect/pool. BẮT BUỘC gán.")]
+        [Tooltip("ItemSpawnConfigSO — nhịp/cap/lifetime/safe-rect/fly-bounds/pool. BẮT BUỘC gán.")]
         [SerializeField] private ItemSpawnConfigSO config;
 
-        [Tooltip("Prefab item (có component Item + Rigidbody2D + collider thân + child trigger Layer Item).")]
+        [Tooltip("Prefab item CHUNG (có Item + Rigidbody2D + collider thân + child trigger Layer Item). " +
+                 "ItemData.prefabOverride (nếu có) ghi đè cho item đó.")]
         [SerializeField] private Item itemPrefab;
 
-        [Tooltip("Tự bắt đầu spawn khi scene chạy. Tắt nếu MatchManager (P12) muốn điều khiển bằng StartSpawning.")]
+        [Tooltip("Tự bắt đầu spawn khi scene chạy (test). Tắt nếu để onMatchStart điều khiển.")]
         [SerializeField] private bool autoStart = true;
 
-        [Header("(Tùy) VFX teleport-in")]
-        [Tooltip("ParticleSystem prefab phát tại chỗ khi item TELEPORT-IN. Optional.")]
-        [SerializeField] private ParticleSystem teleportVfxPrefab;
+        [Header("(Tùy) VFX spawn-in")]
+        [Tooltip("ParticleSystem phát tại chỗ khi item xuất hiện. Optional.")]
+        [SerializeField] private ParticleSystem spawnVfxPrefab;
+
+        [Header("Kênh vòng đời trận (Void Event Channel)")]
+        [Tooltip("onMatchStart — MatchManager raise khi vào Match → StartSpawning.")]
+        [SerializeField] private VoidEventChannelSO onMatchStart;
+        [Tooltip("onMatchEnded — WinCondition/MatchManager raise → StopSpawning.")]
+        [SerializeField] private VoidEventChannelSO onMatchEnded;
 
         private readonly List<Item> _alive = new List<Item>();
         private Coroutine _loop;
+        private Vector2 _velocity;
+        private float _directionTimer;
 
         private void OnEnable()
         {
+            if (onMatchStart != null) onMatchStart.OnEventRaised += StartSpawning;
+            if (onMatchEnded != null) onMatchEnded.OnEventRaised += StopSpawning;
+
+            PickNewDirection();
             if (autoStart) StartSpawning();
         }
 
-        private void OnDisable() => StopSpawning();
+        private void OnDisable()
+        {
+            if (onMatchStart != null) onMatchStart.OnEventRaised -= StartSpawning;
+            if (onMatchEnded != null) onMatchEnded.OnEventRaised -= StopSpawning;
+            StopSpawning();
+        }
 
-        /// <summary>Bắt đầu vòng spawn (MatchManager P12 có thể gọi khi vào Match).</summary>
+        private void Update() => MoveAroundMap();
+
+        /// <summary>Bắt đầu vòng spawn (onMatchStart hoặc autoStart gọi).</summary>
         public void StartSpawning()
         {
             if (_loop != null) return;
@@ -83,22 +104,85 @@ namespace FA.Items
             ItemData data = config.PickWeighted();
             if (data == null) return;
 
-            Rect rect = config.SafeRect;
-            float x = Random.Range(rect.xMin, rect.xMax);
-            float groundY = Random.Range(rect.yMin, rect.yMax);
+            Vector3 pos = transform.position; // thả từ vị trí spawner đang bay → rơi bằng gravity.
 
-            bool dropFromAbove = Random.value < config.dropFromAboveChance;
-            Vector3 pos = new Vector3(x, dropFromAbove ? rect.yMax + config.dropExtraHeight : groundY, 0f);
+            Item item = InstantiateItem(data, pos);
+            if (item == null) return;
 
-            Item item = Instantiate(itemPrefab, pos, Quaternion.identity);
-            item.Init(data, config.itemLifetime, rect, config.keepItemsInRect);
+            item.Init(data, config.itemLifetime, config.SafeRect, config.keepItemsInRect);
             _alive.Add(item);
 
-            if (!dropFromAbove && teleportVfxPrefab != null)
+            if (spawnVfxPrefab != null)
             {
-                var vfx = Instantiate(teleportVfxPrefab, pos, Quaternion.identity);
+                var vfx = Instantiate(spawnVfxPrefab, pos, Quaternion.identity);
                 vfx.Play();
             }
+        }
+
+        private Item InstantiateItem(ItemData data, Vector3 pos)
+        {
+            if (data.prefabOverride != null)
+            {
+                GameObject go = Instantiate(data.prefabOverride, pos, Quaternion.identity);
+                Item item = go.GetComponent<Item>();
+                if (item == null)
+                {
+                    Debug.LogError($"[ItemSpawner] prefabOverride của {data.name} thiếu component Item.", this);
+                    Destroy(go);
+                }
+                return item;
+            }
+            return Instantiate(itemPrefab, pos, Quaternion.identity);
+        }
+
+        // ---- Bay quanh map (gộp từ MysteryBlockSpawner) ----
+
+        private void MoveAroundMap()
+        {
+            if (config == null) return;
+
+            _directionTimer -= Time.deltaTime;
+            if (_directionTimer <= 0f) PickNewDirection();
+
+            Vector3 next = transform.position + (Vector3)(_velocity * Time.deltaTime);
+            Rect bounds = config.FlyBounds;
+
+            bool bounced = false;
+            if (next.x < bounds.xMin || next.x > bounds.xMax)
+            {
+                _velocity.x *= -1f;
+                next.x = Mathf.Clamp(next.x, bounds.xMin, bounds.xMax);
+                bounced = true;
+            }
+            if (next.y < bounds.yMin || next.y > bounds.yMax)
+            {
+                _velocity.y *= -1f;
+                next.y = Mathf.Clamp(next.y, bounds.yMin, bounds.yMax);
+                bounced = true;
+            }
+
+            transform.position = next;
+            if (bounced) ResetDirectionTimer();
+        }
+
+        private void PickNewDirection()
+        {
+            if (config == null) return;
+
+            Vector2 dir = Random.insideUnitCircle.normalized;
+            if (dir.sqrMagnitude < 0.01f) dir = Vector2.right;
+
+            float min = Mathf.Min(config.flySpeedRange.x, config.flySpeedRange.y);
+            float max = Mathf.Max(config.flySpeedRange.x, config.flySpeedRange.y);
+            _velocity = dir * Random.Range(min, max);
+            ResetDirectionTimer();
+        }
+
+        private void ResetDirectionTimer()
+        {
+            float min = Mathf.Min(config.directionChangeIntervalRange.x, config.directionChangeIntervalRange.y);
+            float max = Mathf.Max(config.directionChangeIntervalRange.x, config.directionChangeIntervalRange.y);
+            _directionTimer = Random.Range(min, max);
         }
     }
 }

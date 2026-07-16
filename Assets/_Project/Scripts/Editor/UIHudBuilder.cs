@@ -587,25 +587,34 @@ namespace FA.EditorTools
 
         private static int ResolveMaxSegments()
         {
-            var cfg = FindFirst<FA.Resources.ResourceConfigSO>();
-            return cfg != null ? Mathf.Max(1, cfg.MaxSegments) : 3;
+            // MULTI-CHARACTER: mỗi nhân vật có 1 ResourceConfigSO riêng, maxSegments KHÁC nhau
+            // (vd Emiya=4, Wolverine/BlackHeart=3). HUD là prefab bake CỨNG số ô → phải bake đủ ô cho
+            // nhân vật "khủng" nhất (LẤY MAX), nếu không nhân vật nhiều ô hơn sẽ thiếu ô hiển thị.
+            // Trước đây FindFirst vớ đúng 1 config bất kỳ (theo thứ tự quét) → dễ trúng config ít ô hơn.
+            int max = 0;
+            foreach (var cfg in FindAll<FA.Resources.ResourceConfigSO>())
+                if (cfg != null) max = Mathf.Max(max, cfg.MaxSegments);
+            return max > 0 ? Mathf.Max(1, max) : 3;
         }
 
-        private static T FindFirst<T>() where T : Object
+        private static IEnumerable<T> FindAll<T>() where T : Object
         {
-            // Quét System.IO đường dẫn TUYỆT ĐỐI (v9 — CWD của Unity bị file dialog đổi mất, xem
-            // UIKit.FindProjectFiles) — KHÔNG tin AssetDatabase.FindAssets (index trượt .asset).
+            // Quét TUYỆT ĐỐI qua System.IO (CWD Unity bị file dialog đổi — xem UIKit.FindProjectFiles) +
+            // gộp AssetDatabase.FindAssets (index đôi khi trượt .asset), khử trùng theo path.
+            var seen = new HashSet<string>();
             foreach (string file in UIKit.FindProjectFiles("*.asset"))
             {
+                if (!seen.Add(file)) continue;
                 var a = AssetDatabase.LoadAssetAtPath<T>(file);
-                if (a != null) return a;
+                if (a != null) yield return a;
             }
             foreach (string guid in AssetDatabase.FindAssets($"t:{typeof(T).Name}"))
             {
-                var a = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
-                if (a != null) return a;
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (!seen.Add(path)) continue;
+                var a = AssetDatabase.LoadAssetAtPath<T>(path);
+                if (a != null) yield return a;
             }
-            return null;
         }
     }
 }

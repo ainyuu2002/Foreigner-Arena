@@ -45,11 +45,30 @@ namespace FA.Items
         [Tooltip("Danh sách ItemData có thể spawn. Trọng số đọc từ ItemData.spawnWeight. Thêm item = thêm asset.")]
         public List<ItemData> itemPool = new List<ItemData>();
 
+        [Header("Spawner BAY quanh map (CẦN TEST — set theo từng map ở CHẶNG 2)")]
+        [Tooltip("Tâm vùng BAY của spawner (world). Item spawn tại vị trí spawner đang bay rồi rơi.")]
+        public Vector2 flyBoundsCenter = new Vector2(0f, 2.5f);
+
+        [Tooltip("Kích thước vùng BAY (rộng × cao). Spawner nảy khi chạm biên.")]
+        public Vector2 flyBoundsSize = new Vector2(12f, 4f);
+
+        [Tooltip("Khoảng tốc độ bay (min..max, world/giây). CẦN TEST.")]
+        public Vector2 flySpeedRange = new Vector2(1.5f, 3f);
+
+        [Tooltip("Khoảng thời gian đổi hướng bay (min..max giây). CẦN TEST.")]
+        public Vector2 directionChangeIntervalRange = new Vector2(1.5f, 3.5f);
+
         /// <summary>Rect vùng an toàn (tính từ center+size). Dùng cho spawn + clamp giữ-trong-map.</summary>
         public Rect SafeRect => new Rect(
             safeRectCenter.x - safeRectSize.x * 0.5f,
             safeRectCenter.y - safeRectSize.y * 0.5f,
             safeRectSize.x, safeRectSize.y);
+
+        /// <summary>Rect vùng BAY của spawner (tính từ flyBoundsCenter+Size).</summary>
+        public Rect FlyBounds => new Rect(
+            flyBoundsCenter.x - flyBoundsSize.x * 0.5f,
+            flyBoundsCenter.y - flyBoundsSize.y * 0.5f,
+            flyBoundsSize.x, flyBoundsSize.y);
 
         /// <summary>Chọn 1 ItemData theo trọng số. Trả null nếu pool rỗng.</summary>
         public ItemData PickWeighted()

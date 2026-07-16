@@ -36,6 +36,10 @@ namespace FA.UI
             set => PlayerPrefs.SetFloat(KeySfx, Mathf.Clamp01(value));
         }
 
+        /// <summary>Cộng dồn Master theo delta (cho cử chỉ lắc/thổi) — clamp 0..1 + áp ngay qua setter Master.
+        /// KHÔNG tự Save (gọi nhiều lần/frame); PlayerPrefs.Save() để lúc đóng panel như slider.</summary>
+        public static void NudgeMaster(float delta) => Master = Master + delta;
+
         /// <summary>Ghi PlayerPrefs xuống đĩa — gọi khi đóng panel settings (kẻo mất khi crash).</summary>
         public static void Save() => PlayerPrefs.Save();
 

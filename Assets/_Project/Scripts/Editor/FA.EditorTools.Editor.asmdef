@@ -11,6 +11,7 @@
         "FA.GameFlow",
         "FA.Stage",
         "FA.Movement",
+        "FA.Items",
         "Unity.InputSystem",
         "Unity.Cinemachine"
     ],

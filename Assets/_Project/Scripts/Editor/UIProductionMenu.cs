@@ -170,6 +170,31 @@ namespace FA.EditorTools
             Debug.Log("[UIProduction] Đã dựng HUD_InMatch vào scene đang mở. Wire kênh per-player: xem Console.");
         }
 
+        /// <summary>
+        /// REBUILD RIÊNG prefab HUD_InMatch (chỉ ô/số theo config hiện tại — vd đổi maxSegments của
+        /// ResourceConfig thì số ô mana bake lại cho khớp). KHÔNG đụng scene UI_Build hay các prefab
+        /// menu khác. Dựng vào scene ĐANG mở (KHÔNG NewScene — tránh bug "fake null" channel, xem BuildLobby)
+        /// → SaveAsPrefabAsset đè HudPrefabPath → dọn instance. Chạy tay hoặc qua Unity CLI -executeMethod.
+        /// </summary>
+        [MenuItem("FA/UI/Rebuild In-Match HUD Prefab (only)")]
+        public static void RebuildHudPrefabOnly()
+        {
+            UIChannels.Bundle ch = UIChannels.Resolve();
+            UIKit.EnsureCamera();
+            UIKit.EnsureEventSystem();
+
+            GameObject hud = UIHudBuilder.Build(ch);
+            EnsurePrefabFolder();
+            var created = new List<string>();
+            SavePrefab(hud, HudPrefabPath, created);
+            Object.DestroyImmediate(hud); // chỉ giữ prefab, không để instance rác trong scene.
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            LogSummary(ch, created, false);
+            Debug.Log("[UIProduction] Rebuild XONG prefab HUD_InMatch — số ô mana/nộ bake lại theo ResourceConfig hiện tại.");
+        }
+
         [MenuItem("FA/UI/Build Menu Screens (current scene)")]
         public static void BuildMenuCurrent()
         {

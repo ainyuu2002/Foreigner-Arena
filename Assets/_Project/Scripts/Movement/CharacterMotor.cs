@@ -24,6 +24,11 @@ namespace FA.Movement
     [RequireComponent(typeof(Animator))]
     public sealed class CharacterMotor : MonoBehaviour, ICharacterContext, IMoveInput, ICombatContext, IJumpIntent
     {
+        // A2 (Ngồi): ngưỡng input NHẬN vào Ngồi — deadzone kiểu input (như MoveDeadzone trong các state),
+        // KHÔNG phải số balance nên để const (đối xứng const trong IdleState/WalkState).
+        private const float CrouchDownThreshold = 0.5f;   // giữ Xuống < -ngưỡng này mới ngồi
+        private const float CrouchMoveDeadzone = 0.1f;    // |MoveX| < ngưỡng này = "thuần" (không ép ngang)
+
         [Header("Tham chiếu")]
         [Tooltip("Số liệu nhân vật (walkSpeed, mass, gravityScale, nhảy...). BẮT BUỘC gán asset CharacterData.")]
         [SerializeField] private CharacterData data;
@@ -50,6 +55,15 @@ namespace FA.Movement
 
         [Tooltip("Khi inputScheme=Gamepad & có NHIỀU tay cầm: chọn tay thứ mấy (0 = tay đầu tiên).")]
         [SerializeField] private int gamepadIndex = 0;
+
+        [Tooltip("CHỈ có tác dụng khi inputScheme=Keyboard (prefab P1). Bật = P1 tự 'nhặt' tay cầm PHỤ nếu " +
+                 "người chơi cắm thêm 1 tay nữa giữa trận → P1 điều khiển được CẢ keyboard lẫn tay cầm đó " +
+                 "(keyboard vẫn là backup). Hot-plug tự nhận, không cần bật lại game.")]
+        [SerializeField] private bool pairExtraGamepad = false;
+
+        [Tooltip("Khi pairExtraGamepad: lấy tay cầm thứ mấy làm tay PHỤ cho P1. Mặc định 1 vì P2 (Gamepad) " +
+                 "đã ăn tay index 0 — tay mới cắm rơi vào index 1 = đúng P1.")]
+        [SerializeField] private int extraGamepadIndex = 1;
 
         // --- Nguồn input (P1: Input System trực tiếp; P4: chèn InputBuffer/CommandParser vào giữa) ---
         private FA_Controls _controls;
@@ -102,6 +116,7 @@ namespace FA.Movement
         private IState _dash;
         private WallHangState _wallHang; // typed: Motor đọc WallSide đã chốt để cấp cho WallJump
         private IState _wallJump;
+        private IState _crouch;          // A2: ngồi pose-only
 
         // ===== IMoveInput =====
         public float MoveX => _moveX;
@@ -232,7 +247,8 @@ namespace FA.Movement
                         var pads = Gamepad.all;
                         return pads.Count > gamepadIndex ? pads[gamepadIndex] : null;
                     case InputScheme.Keyboard:
-                        return null;
+                        // P1: rung tay cầm PHỤ nếu đã pair (pairExtraGamepad); chỉ keyboard → null (không rung).
+                        return ResolveExtraGamepad();
                     default:
                         return Gamepad.current;
                 }
@@ -247,6 +263,7 @@ namespace FA.Movement
         public IState DashState() => _dash;
         public IState WallHangState() => _wallHang;
         public IState WallJumpState() => _wallJump;
+        public IState CrouchState() => _crouch;
 
         public void OnWallJumpStarted()
         {
@@ -281,6 +298,7 @@ namespace FA.Movement
             _dash = new DashState(this);
             _wallHang = new WallHangState(this);
             _wallJump = new WallJumpState(this);
+            _crouch = new CrouchState(this);
 
             // Phase 4: dựng buffer + parser (1 cặp/Motor). State đọc input qua IMoveInput nên
             // KHÔNG biết nguồn đã đổi → không hồi quy P1-P3.
@@ -326,11 +344,20 @@ namespace FA.Movement
             switch (inputScheme)
             {
                 case InputScheme.Keyboard:
-                    _controls.bindingMask = InputBinding.MaskByGroup("Keyboard");
-                    if (Keyboard.current == null) { LockNoDevice("Keyboard"); return; }
-                    _controls.devices = new InputDevice[] { Keyboard.current };
-                    Debug.Log($"[CharacterMotor] {name}: paired Keyboard ({Keyboard.current.name}).", this);
+                {
+                    var kb = Keyboard.current;
+                    var extra = ResolveExtraGamepad();   // null nếu không bật/không đủ tay cầm
+                    if (kb == null && extra == null) { LockNoDevice("Keyboard"); return; }
+
+                    // Có tay cầm phụ → bỏ mask (null) để CẢ binding Keyboard lẫn Gamepad resolve (P1 dùng
+                    // được cả 2). Không có → khóa về group "Keyboard" như cũ (không hồi quy P1 1-người).
+                    _controls.bindingMask = (extra != null) ? (InputBinding?)null
+                                                            : InputBinding.MaskByGroup("Keyboard");
+                    _controls.devices = BuildDevices(kb, extra);
+                    Debug.Log($"[CharacterMotor] {name}: paired Keyboard" +
+                              $"{(extra != null ? $" + {extra.name}" : "")}.", this);
                     break;
+                }
 
                 case InputScheme.Gamepad:
                     _controls.bindingMask = InputBinding.MaskByGroup("Gamepad");
@@ -344,6 +371,25 @@ namespace FA.Movement
                     _controls.devices = null;
                     break;
             }
+        }
+
+        /// <summary>Tay cầm PHỤ cho P1 khi bật pairExtraGamepad: Gamepad.all[extraGamepadIndex] nếu đủ tay,
+        /// ngược lại null. Resolve mỗi lần gọi (không cache) — bền với cắm/rút giữa trận (OnDeviceChange
+        /// re-apply). Index mặc định 1 vì P2 đã ăn tay index 0.</summary>
+        private Gamepad ResolveExtraGamepad()
+        {
+            if (!pairExtraGamepad) return null;
+            var pads = Gamepad.all;
+            return pads.Count > extraGamepadIndex ? pads[extraGamepadIndex] : null;
+        }
+
+        /// <summary>Gộp keyboard + tay cầm phụ thành mảng devices (bỏ phần tử null).</summary>
+        private static InputDevice[] BuildDevices(InputDevice a, InputDevice b)
+        {
+            if (a != null && b != null) return new[] { a, b };
+            if (a != null) return new[] { a };
+            if (b != null) return new[] { b };
+            return new InputDevice[0];
         }
 
         /// <summary>Thiếu thiết bị của scheme → KHÓA wrapper (mảng devices RỖNG = không nghe thiết bị nào).
@@ -374,6 +420,25 @@ namespace FA.Movement
 
         private void Update()
         {
+            // (MỤC D) CINEMATIC GATE — intro vào trận / pose kết trận đang mở: nhân vật ĐỨNG YÊN, KHÔNG
+            // nhận điều khiển. Zero ý định + vận tốc ngang rồi RETURN TRƯỚC mọi transition + _machine.Tick
+            // → FSM giữ nguyên state hiện tại (không re-assert Idle/đè StateId Intro/Win/Lose do orchestrator
+            // set). Super/chant cũng Acquire nhưng lúc đó timeScale=0 (thế giới đứng hình) nên guard KHÔNG
+            // đổi hành vi cũ; chỉ thực sự tác dụng lúc intro/outro (timeScale=1). Chỉ zero vận tốc NGANG —
+            // trọng lực vẫn kéo về đất để pose đứng trên sàn.
+            if (CinematicGate.IsActive)
+            {
+                _moveX = _moveY = 0f;
+                _jumpPressed = _dashPressed = false;
+                if (body != null)
+                {
+                    Vector2 v = body.linearVelocity;
+                    v.x = 0f;
+                    body.linearVelocity = v;
+                }
+                return;
+            }
+
             // Đọc input ở Update (không chạm physics). Phase 4: MoveX/MoveY giữ ANALOG (đọc thẳng
             // Input System — di chuyển cần độ mượt). Edge Jump/Dash suy TỪ buffer qua parser
             // (WasPressedWithin) → buffer-tha-thứ: nhập sớm vài frame vẫn ăn. Buffer được nuôi
@@ -432,7 +497,14 @@ namespace FA.Movement
                 _parser.ConsumePress(InputButton.Jump, EdgeWindow);   // 1 lần nhấn không kích double-jump cùng edge
                 _machine.ChangeState(_jump);
             }
-            // Đi khỏi mép sàn (không nhảy) → rơi. Chỉ khi đang ở Idle/Walk mà không còn chạm sàn.
+            // Lệnh NGỒI TOÀN CỤC (A2): từ Idle/Walk khi đứng đất + giữ Xuống THUẦN → Crouch. Đặt ở Motor
+            // (giống "Any State → Crouch"), SAU dash/wallhang/jump nên các lệnh đó vẫn thoát khỏi Ngồi được
+            // (Crouch ∈ IsGroundState). Crouch tự thoát về Idle/Walk khi nhả xuống/ép ngang (CrouchState.Tick).
+            else if (IsGrounded && CanEnterCrouch())
+            {
+                _machine.ChangeState(_crouch);
+            }
+            // Đi khỏi mép sàn (không nhảy) → rơi. Chỉ khi đang ở ground-state mà không còn chạm sàn (gồm Crouch).
             else if (!IsGrounded && IsGroundState(_machine.CurrentState))
             {
                 _machine.ChangeState(_air);
@@ -487,8 +559,19 @@ namespace FA.Movement
             return 0;
         }
 
-        /// <summary>True nếu state là state mặt đất (Idle/Walk) — nơi cho phép lệnh nhảy từ đất.</summary>
-        private bool IsGroundState(IState s) => ReferenceEquals(s, _idle) || ReferenceEquals(s, _walk);
+        /// <summary>True nếu state là state mặt đất (Idle/Walk/Crouch) — nơi cho phép lệnh nhảy/dash từ đất
+        /// & phát hiện đi khỏi mép sàn. Crouch (A2) là ground-state → nhảy/dash/rời-đất thoát khỏi Ngồi.</summary>
+        private bool IsGroundState(IState s) =>
+            ReferenceEquals(s, _idle) || ReferenceEquals(s, _walk) || ReferenceEquals(s, _crouch);
+
+        /// <summary>Được vào Ngồi (A2): đang Idle/Walk (KHÔNG phải Crouch, tránh re-enter), giữ Xuống THUẦN
+        /// (MoveY xuống, |MoveX| nhỏ → down-forward/back vẫn đi bộ). Grounded do người gọi kiểm.</summary>
+        private bool CanEnterCrouch()
+        {
+            IState s = _machine.CurrentState;
+            if (!ReferenceEquals(s, _idle) && !ReferenceEquals(s, _walk)) return false;
+            return _moveY < -CrouchDownThreshold && Mathf.Abs(_moveX) < CrouchMoveDeadzone;
+        }
 
         /// <summary>
         /// True nếu state hiện tại là MỘT TRONG các state CỦA CHÍNH Motor (Movement). Whitelist này
@@ -502,7 +585,8 @@ namespace FA.Movement
             ReferenceEquals(s, _idle) || ReferenceEquals(s, _walk) ||
             ReferenceEquals(s, _jump) || ReferenceEquals(s, _air) ||
             ReferenceEquals(s, _doubleJump) || ReferenceEquals(s, _dash) ||
-            ReferenceEquals(s, _wallHang) || ReferenceEquals(s, _wallJump);
+            ReferenceEquals(s, _wallHang) || ReferenceEquals(s, _wallJump) ||
+            ReferenceEquals(s, _crouch);
 
         /// <summary>
         /// Được phép vào Dash khi: đang ở Idle/Walk (dash mặt đất — free, không quota), HOẶC đang trên

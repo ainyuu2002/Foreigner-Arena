@@ -4,8 +4,10 @@ namespace FA.Specials
 {
     /// <summary>
     /// THIẾT LẬP LÚC PHÓNG cho projectile bay VÒNG CUNG + XOAY (kiếm ném Special 3 — MUGEN Archer
-    /// state 1205: vx=5, vy=-7, gravity 0.4/tick). Chạy ở <c>Start()</c> = SAU khi ProjectileSpawner
-    /// đã set vx theo facing (spawner GIỮ NGUYÊN vy — xem ProjectileSpawner.OnSpawnProjectile):
+    /// state 1205: vx=5, vy=-7, gravity 0.4/tick). Chạy ở <c>Launch()</c> (POOLING §3.1: KHÔNG dùng
+    /// Start — Start chỉ chạy 1 lần đời object, pool tái dùng không gọi lại; ProjectileSpawner
+    /// BroadcastMessage("Launch") ở BƯỚC CUỐI mỗi lần spawn) = SAU khi spawner đã set vx theo facing
+    /// (spawner GIỮ NGUYÊN vy — xem ProjectileSpawner.OnSpawnProjectile):
     ///  1) vy = <see cref="launchUpSpeed"/> (cung đi lên rồi rơi theo gravityScale của Rigidbody2D —
     ///     KHÔNG tự tích phân §1.1).
     ///  2) Xoay = <see cref="Rigidbody2D.angularVelocity"/> (spin vật lý Unity-native, chiều theo
@@ -38,7 +40,10 @@ namespace FA.Specials
         /// <summary>ProjectileSpawner gọi (BroadcastMessage) — nhân tốc độ riêng theo scale người bắn.</summary>
         public void SetSpeedScale(float s) => _speedScale = Mathf.Max(0.01f, s);
 
-        private void Start()
+        /// <summary>POOLING: gọi qua BroadcastMessage("Launch") ở BƯỚC CUỐI mỗi spawn (giữ decoupling —
+        /// FA.Specials không ref FA.Combat §1.3). RESET tuyệt đối vy/spin trên nền velocity đã do
+        /// PooledInstance.OnGet zero + spawner set vx.</summary>
+        public void Launch()
         {
             var rb = GetComponent<Rigidbody2D>();
 

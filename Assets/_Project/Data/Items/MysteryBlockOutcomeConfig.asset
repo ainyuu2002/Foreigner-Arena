@@ -15,17 +15,17 @@ MonoBehaviour:
   outcomes:
   - type: 0
     tier: 1
-    value: 0.05
+    value: 5
     durationSeconds: 0
     spawnWeight: 3
   - type: 0
     tier: 2
-    value: 0.1
+    value: 10
     durationSeconds: 0
     spawnWeight: 2
   - type: 0
     tier: 3
-    value: 0.2
+    value: 20
     durationSeconds: 0
     spawnWeight: 1
   - type: 1
@@ -60,17 +60,17 @@ MonoBehaviour:
     spawnWeight: 1
   - type: 3
     tier: 1
-    value: 0.05
+    value: 3
     durationSeconds: 0
     spawnWeight: 2
   - type: 3
     tier: 2
-    value: 0.1
+    value: 5
     durationSeconds: 0
     spawnWeight: 1.5
   - type: 3
     tier: 3
-    value: 0.2
+    value: 8
     durationSeconds: 0
     spawnWeight: 1
   - type: 4

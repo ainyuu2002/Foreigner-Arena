@@ -1,4 +1,5 @@
 using UnityEngine;
+using FA.Core;
 
 namespace FA.Effects
 {
@@ -42,15 +43,15 @@ namespace FA.Effects
 
         private void Update()
         {
-            if (frames == null || frames.Length == 0) { Destroy(gameObject); return; }
+            if (frames == null || frames.Length == 0) { PrefabPool.Despawn(gameObject); return; }
             // UNSCALED: VFX vẫn chạy trong super flash (Time.timeScale=0). Gameplay thường không đổi
             // (timeScale=1 → unscaled == scaled); hitstop dùng Animator.speed nên không liên quan.
             _t += Time.unscaledDeltaTime;
-            if (lifeSeconds > 0f && _t >= lifeSeconds) { Destroy(gameObject); return; }
+            if (lifeSeconds > 0f && _t >= lifeSeconds) { PrefabPool.Despawn(gameObject); return; }
             int idx = (int)(_t * framesPerSecond);
             if (idx >= frames.Length)
             {
-                if (!loop) { Destroy(gameObject); return; }
+                if (!loop) { PrefabPool.Despawn(gameObject); return; }
                 int start = Mathf.Clamp(loopStartIndex, 0, frames.Length - 1);
                 idx = start + (idx - start) % (frames.Length - start);
             }

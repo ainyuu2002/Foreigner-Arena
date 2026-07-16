@@ -64,7 +64,7 @@ namespace FA.Effects
             if (fx == null) return;
             if (fx.vfxPrefab != null)
             {
-                GameObject vfx = Instantiate(fx.vfxPrefab, new Vector3(at.x, at.y, 0f), Quaternion.identity);
+                GameObject vfx = PrefabPool.Spawn(fx.vfxPrefab, new Vector3(at.x, at.y, 0f), Quaternion.identity);
                 // × độ phóng nhân vật (root ×2.5) — spark tương xứng thân người. .y không đổi dấu facing.
                 vfx.transform.localScale *= fx.scale * Mathf.Abs(transform.lossyScale.y);
             }
