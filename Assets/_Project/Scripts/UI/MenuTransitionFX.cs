@@ -61,6 +61,20 @@ namespace FA.UI
             if (!_playing) StartCoroutine(QuitRoutine());
         }
 
+        /// <summary>(v10.11) ESC ở CharSelect gọi (<see cref="EscBackNavigator"/>): NGƯỢC của StartGame —
+        /// phủ tối → HIỆN lại content + BG/FX → fade ra. Root canvas vốn luôn active (StartGame chỉ ẩn
+        /// content/alsoHide) nên back = bật lại đúng những gì StartGame đã ẩn.</summary>
+        public void BackToMenu()
+        {
+            if (!_playing) StartCoroutine(BackRoutine());
+        }
+
+        /// <summary>Menu đang hiện (content active)? — navigator gate để ESC không xử lý khi đang ở menu.</summary>
+        public bool IsMenuShown => content != null && content.activeSelf;
+
+        /// <summary>Đang chạy chuyển cảnh? — chặn ESC chen giữa lúc dip-to-black.</summary>
+        public bool IsBusy => _playing;
+
         private IEnumerator StartRoutine()
         {
             _playing = true;
@@ -75,6 +89,23 @@ namespace FA.UI
                     if (go != null) go.SetActive(false);
 
             // Fade ra — lộ CharSelect (chậm hơn nhịp phủ một chút cho êm mắt).
+            yield return Fade(1f, 0f, 0.50f);
+            overlayGroup.blocksRaycasts = false;
+            _playing = false;
+        }
+
+        private IEnumerator BackRoutine()
+        {
+            _playing = true;
+            overlayGroup.blocksRaycasts = true;
+            overlay.color = startFlashColor;
+
+            yield return Fade(0f, 1f, 0.40f);
+            if (content != null) content.SetActive(true);
+            if (alsoHide != null)
+                foreach (var go in alsoHide)
+                    if (go != null) go.SetActive(true);
+
             yield return Fade(1f, 0f, 0.50f);
             overlayGroup.blocksRaycasts = false;
             _playing = false;
