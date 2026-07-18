@@ -22,6 +22,7 @@ namespace FA.Movement
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(Animator))]
+    [RequireComponent(typeof(PlatformDropThrough))]
     public sealed class CharacterMotor : MonoBehaviour, ICharacterContext, IMoveInput, ICombatContext, IJumpIntent
     {
         // A2 (Ngồi): ngưỡng input NHẬN vào Ngồi — deadzone kiểu input (như MoveDeadzone trong các state),
@@ -84,6 +85,8 @@ namespace FA.Movement
         private int EdgeWindow => inputConfig != null ? inputConfig.edgeWindow : 6;
         private int MotionWindow => inputConfig != null ? inputConfig.motionWindow : 12;
         private int TapMaxHold => inputConfig != null ? inputConfig.tapMaxHold : 7;
+        private int DoubleTapDownWindow => inputConfig != null ? inputConfig.doubleTapDownWindow : 15;
+        private float DropThroughIgnoreSeconds => inputConfig != null ? inputConfig.dropThroughIgnoreSeconds : 0.35f;
 
         // Cho overlay test P4 đọc trạng thái parser mà KHÔNG lộ field input nội bộ.
         public InputBuffer DebugBuffer => _inputBuffer;
@@ -117,6 +120,9 @@ namespace FA.Movement
         private WallHangState _wallHang; // typed: Motor đọc WallSide đã chốt để cấp cho WallJump
         private IState _wallJump;
         private IState _crouch;          // A2: ngồi pose-only
+
+        // Rơi xuyên one-way platform (double-tap ↓) — component cùng object, tự gắn ở Awake (mọi nhân vật).
+        private PlatformDropThrough _dropThrough;
 
         // ===== IMoveInput =====
         public float MoveX => _moveX;
@@ -278,6 +284,11 @@ namespace FA.Movement
             if (groundCheck == null) groundCheck = GetComponent<GroundCheck>();
             if (wallCheck == null) wallCheck = GetComponent<WallCheck>();
 
+            // Rơi xuyên one-way platform: tự gắn (RequireComponent lo prefab mới; GetComponent??AddComponent
+            // lo prefab ĐÃ instantiate chưa có) → áp dụng cho MỌI nhân vật, KHÔNG wire tay prefab.
+            _dropThrough = GetComponent<PlatformDropThrough>();
+            if (_dropThrough == null) _dropThrough = gameObject.AddComponent<PlatformDropThrough>();
+
             // (P10) Cache buff context (Rage Mode) NULL-SAFE — RageModeController nằm cùng root khi P10
             // gắn; không gắn → null → MoveSpeedMult=×1.0 (P1/P3 không đổi). Chỉ qua interface Core (§1.3).
             _buff = GetComponent<IBuffContext>();
@@ -354,7 +365,7 @@ namespace FA.Movement
                     _controls.bindingMask = (extra != null) ? (InputBinding?)null
                                                             : InputBinding.MaskByGroup("Keyboard");
                     _controls.devices = BuildDevices(kb, extra);
-                    Debug.Log($"[CharacterMotor] {name}: paired Keyboard" +
+                    DebugLog.Log($"[CharacterMotor] {name}: paired Keyboard" +
                               $"{(extra != null ? $" + {extra.name}" : "")}.", this);
                     break;
                 }
@@ -496,6 +507,17 @@ namespace FA.Movement
                 _jumpPressed = false;                                 // tiêu thụ trong frame này
                 _parser.ConsumePress(InputButton.Jump, EdgeWindow);   // 1 lần nhấn không kích double-jump cùng edge
                 _machine.ChangeState(_jump);
+            }
+            // RƠI XUYÊN ONE-WAY PLATFORM (double-tap ↓): đặt TRƯỚC Crouch để double-tap ăn trước khi rơi
+            // vào pose Ngồi (giữ ↓ liên tục chỉ 1 edge → không kích drop, vẫn Ngồi bình thường). CHỈ khi
+            // đang đứng trên one-way (IsOnOneWayPlatform) — double-tap trên sàn Ground cứng no-op, rơi
+            // xuống nhánh Crouch. Logic tắt/bật va chạm nằm trong PlatformDropThrough (Motor chỉ điều phối).
+            else if (_parser != null && IsGrounded && IsGroundState(_machine.CurrentState)
+                     && _dropThrough != null && _dropThrough.IsOnOneWayPlatform()
+                     && _parser.WasDownDoubleTapped(DoubleTapDownWindow))
+            {
+                _parser.ConsumeDownDoubleTap(DoubleTapDownWindow);   // 1 cặp tap = 1 lần drop
+                _dropThrough.TryDrop(DropThroughIgnoreSeconds);
             }
             // Lệnh NGỒI TOÀN CỤC (A2): từ Idle/Walk khi đứng đất + giữ Xuống THUẦN → Crouch. Đặt ở Motor
             // (giống "Any State → Crouch"), SAU dash/wallhang/jump nên các lệnh đó vẫn thoát khỏi Ngồi được

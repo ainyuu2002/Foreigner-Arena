@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Audio;
+using FA.Core;
 
 namespace FA.UI
 {
@@ -66,7 +67,7 @@ namespace FA.UI
             // Runtime SetFloat là "sự thật cuối" về exposed param (editor Verify chỉ là dự đoán ở Edit Mode).
             string paramState = _mixer == null ? "" :
                 $", param {ParamBgm}: {_mixer.SetFloat(ParamBgm, ToDb(Bgm))}, {ParamSfx}: {_mixer.SetFloat(ParamSfx, ToDb(Sfx))}";
-            Debug.Log($"[FA.Audio] AUDIO v3 — mixer: {(_mixer != null ? "OK" : "CHƯA CÓ (BGM/SFX chỉ lưu giá trị)")}{paramState}");
+            DebugLog.Log($"[FA.Audio] AUDIO v3 — mixer: {(_mixer != null ? "OK" : "CHƯA CÓ (BGM/SFX chỉ lưu giá trị)")}{paramState}");
         }
 
         private static void ApplyMaster() => AudioListener.volume = Master;

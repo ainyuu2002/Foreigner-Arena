@@ -51,7 +51,7 @@ namespace FA.Stage
                 return;
 
             if (logOnEnter)
-                Debug.Log($"[DeathZone] '{victim.name}' chạm vùng chết '{name}'.", this);
+                DebugLog.Log($"[DeathZone] '{victim.name}' chạm vùng chết '{name}'.", this);
 
             if (onPlayerDied != null)
                 onPlayerDied.RaiseEvent(victim);

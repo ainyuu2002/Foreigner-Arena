@@ -68,7 +68,7 @@ namespace FA.Combat
             int milestoneBonus = ComputeMilestoneBonus(_count);
             if (onComboChanged != null) onComboChanged.RaiseEvent(_count);
 
-            Debug.Log($"[COMBO] {me.name}: {_count} HITS" +
+            DebugLog.Log($"[COMBO] {me.name}: {_count} HITS" +
                       (milestoneBonus > 0 ? $"  (milestone +{milestoneBonus}%/hit)" : ""), me);
         }
 
@@ -83,7 +83,7 @@ namespace FA.Combat
 
         private void ResetCombo()
         {
-            if (_count > 0) Debug.Log($"[COMBO] {(root != null ? root.name : name)}: reset (đứt combo)", this);
+            if (_count > 0) DebugLog.Log($"[COMBO] {(root != null ? root.name : name)}: reset (đứt combo)", this);
             _count = 0;
             _framesSinceLastHit = 0;
             if (onComboChanged != null) onComboChanged.RaiseEvent(0);

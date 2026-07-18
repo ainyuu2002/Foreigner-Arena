@@ -52,7 +52,7 @@ namespace FA.Items
         [Tooltip("Tự biến mất sau N giây nếu không ai nhặt. Spawner ghi đè bằng config.")]
         [Min(1f)] [SerializeField] private float lifetime = 12f;
 
-        [Tooltip("Ngưỡng MoveY coi là 'đang ngồi/ấn xuống' (âm). Khớp DropThroughController P11.")]
+        [Tooltip("Ngưỡng MoveY coi là 'đang ngồi/ấn xuống' (âm). Khớp CrouchDownThreshold của Motor.")]
         [Range(-1f, 0f)] [SerializeField] private float downThreshold = -0.5f;
 
         [Header("Hiệu ứng (CẦN TEST)")]

@@ -64,7 +64,7 @@ namespace FA.UI
             UIAudioManager.PlaySfx(_sfx); // tiếng hô FIGHT — route group SFX, ăn slider Settings.
             if (_routine != null) StopCoroutine(_routine); // rematch nhanh — diễn lại từ đầu.
             _routine = StartCoroutine(ShowRoutine());
-            Debug.Log($"[FA.UI] FIGHT! banner (sfx: {(_sfx != null ? "OK" : "thiếu " + SfxResource)})"); // marker test.
+            DebugLog.Log($"[FA.UI] FIGHT! banner (sfx: {(_sfx != null ? "OK" : "thiếu " + SfxResource)})"); // marker test.
         }
 
         private IEnumerator ShowRoutine()

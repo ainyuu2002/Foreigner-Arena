@@ -41,7 +41,7 @@ namespace FA.UI
                 _ => "DRAW"
             };
             if (winnerLabel != null) winnerLabel.text = text;
-            Debug.Log($"[FA.UI] EndScreen ← {text}"); // marker đối chiếu khi test (so với kết quả trận thật).
+            DebugLog.Log($"[FA.UI] EndScreen ← {text}"); // marker đối chiếu khi test (so với kết quả trận thật).
         }
     }
 }

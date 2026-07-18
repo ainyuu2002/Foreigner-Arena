@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using FA.Core;
 
 namespace FA.UI
 {
@@ -92,7 +93,7 @@ namespace FA.UI
             OnSceneLoaded(SceneManager.GetActiveScene(), LoadSceneMode.Single); // scene đầu đã load xong trước Boot.
 
             // Marker xác nhận (đối chiếu Console khi test — như AUDIO v3 của GameSettings).
-            Debug.Log($"[FA.Audio] UIAUDIO v1 — mixer: {(mixer != null ? "OK" : "THIẾU")}, " +
+            DebugLog.Log($"[FA.Audio] UIAUDIO v1 — mixer: {(mixer != null ? "OK" : "THIẾU")}, " +
                       $"{ClipClick}: {(_click != null ? "OK" : "thiếu")}, {ClipHover}: {(_hover != null ? "OK" : "thiếu")}");
         }
 
@@ -127,7 +128,7 @@ namespace FA.UI
             {
                 _bgmSource.clip = clip;
                 _bgmSource.Play();
-                Debug.Log($"[FA.Audio] BGM ▶ {resource}");
+                DebugLog.Log($"[FA.Audio] BGM ▶ {resource}");
             }
             // Không có file cho scene này → im lặng là chủ đích (match scene chưa có nhạc trong scope).
         }
