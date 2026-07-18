@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Events;
 using UnityEngine;
@@ -43,6 +44,7 @@ namespace FA.EditorTools
             // Overlay luôn vẽ trên mọi camera nên miễn nhiễm. Sorting 210: trên HUD 100, dưới Pause 400.
             endRoot = UIKit.NewCanvas(EndName, 210);
             var end = BuildEndScreen(endRoot.transform, ch);
+            BuildFightBanner(endRoot.transform, ch); // (task 4) FIGHT! đầu trận — cùng canvas luôn-active này.
 
             // Mặc định hiện CharSelect; ẩn 2 panel còn lại (chỉ 1 active mỗi phase — MatchManager điều khiển runtime).
             charSel.SetActive(true);
@@ -559,26 +561,24 @@ namespace FA.EditorTools
 
         private static GameObject BuildEndScreen(Transform parent, UIChannels.Bundle ch)
         {
+            // (task 5) BỎ bảng stats/tính điểm (out of scope) → panel gọn lại: winner + 2 nút.
             var panel = UIKit.NewPanel("EndScreenPanel", parent, new Vector2(0.5f, 0.5f), Vector2.zero,
-                                       new Vector2(1100f, 700f), PanelBig);
+                                       new Vector2(900f, 320f), PanelBig);
             UIKit.AddVertical(panel, 16f, 30);
 
-            var winner = UIKit.AddLabel(panel.transform, "PLAYER 1 WINS", 52, FontStyle.Bold, TextAnchor.MiddleCenter);
+            // Text mặc định TRUNG TÍNH "—" (trước đây "PLAYER 1 WINS" → wiring hỏng là hiểu nhầm P1 thắng;
+            // giờ hỏng thì thấy "—" ngay, không đánh lừa ai).
+            var winner = UIKit.AddLabel(panel.transform, "—", 52, FontStyle.Bold, TextAnchor.MiddleCenter);
             UIKit.SetLayoutHeight(winner.gameObject, 70f);
 
-            var statsRow = UIKit.NewUI("StatsRow", panel.transform);
-            UIKit.SetLayoutHeight(statsRow, 360f).flexibleHeight = 1f;
-            var shlg = UIKit.AddHorizontal(statsRow, 40f, controlW: true, expandW: true, TextAnchor.UpperCenter);
-            shlg.childForceExpandHeight = true;
-            var s1 = MakeStatsCard(statsRow.transform, "P1", UIKit.ColP1Accent);
-            var s2 = MakeStatsCard(statsRow.transform, "P2", UIKit.ColP2Accent);
-
-            var view = panel.AddComponent<EndScreenView>();
+            // View đặt trên ROOT LUÔN ACTIVE (canvas Menu_EndScreen), KHÔNG trên panel — panel tắt tới khi
+            // MatchManager bật, mà kết quả raise TRƯỚC đó → subscribe trên panel là lỡ event (xem doc
+            // EndScreenView). GetComponent trước cho idempotent khi rebuild.
+            var view = parent.gameObject.GetComponent<EndScreenView>();
+            if (view == null) view = parent.gameObject.AddComponent<EndScreenView>();
             var so = new SerializedObject(view);
             UIKit.SetObj(so, "channel", ch.MatchResult);
             UIKit.SetObj(so, "winnerLabel", winner);
-            UIKit.SetObj(so, "statsP1Label", s1);
-            UIKit.SetObj(so, "statsP2Label", s2);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(view);
 
@@ -590,22 +590,94 @@ namespace FA.EditorTools
             return panel;
         }
 
-        /// <summary>Card stats 1 người: nền + Text (EndScreenView set nội dung runtime). Trả Text để wire.</summary>
-        private static Text MakeStatsCard(Transform parent, string who, Color accent)
-        {
-            var card = UIKit.NewUI($"Card_{who}", parent);
-            var le = card.AddComponent<LayoutElement>();
-            le.flexibleWidth = 1f; le.flexibleHeight = 1f;
-            UIKit.AddImage(card, new Color(accent.r, accent.g, accent.b, 0.14f));
+        // ───────────────────── FIGHT banner (task 4) ─────────────────────
 
-            // Text đặt trên GameObject CON (KHÔNG chung object với Image nền — 2 Graphic cùng GO xung đột → AddComponent null).
-            var label = UIKit.AddLabel(card.transform, $"{who}\n...", 24, FontStyle.Normal, TextAnchor.UpperLeft);
-            label.gameObject.name = $"Stats_{who}";
-            var rt = label.rectTransform;
-            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
-            rt.offsetMin = new Vector2(20f, 20f); rt.offsetMax = new Vector2(-20f, -20f);
+        /// <summary>
+        /// Banner "FIGHT!" đầu trận — child inactive của canvas Menu_EndScreen (root LUÔN ACTIVE, overlay 210
+        /// trên HUD 100). <see cref="FightBannerView"/> đặt trên ROOT (không trên banner) — HUD bật cùng frame
+        /// OnRoundIntroFinished raise nên chỉ root sống sẵn mới nghe kịp (xem doc FightBannerView).
+        /// </summary>
+        private const string FightVfxDir = "Assets/_Project/Art/UI/FightVFX";
+
+        private static void BuildFightBanner(Transform parent, UIChannels.Bundle ch)
+        {
+            var banner = UIKit.NewUI("FightBanner", parent);
+            var rt = banner.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta = new Vector2(960f, 540f); // khớp tỉ lệ PNG seq VFX; text fallback co giữa cũng ổn.
+            banner.AddComponent<CanvasGroup>(); // view điều khiển alpha khi pop/fade.
+
+            var label = UIKit.AddLabel(banner.transform, "FIGHT!", 130, FontStyle.Bold, TextAnchor.MiddleCenter);
+            label.color = new Color(1f, 0.82f, 0.16f); // vàng cam nổi trên mọi map.
+            var lrt = label.rectTransform;
+            lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
+            lrt.offsetMin = Vector2.zero; lrt.offsetMax = Vector2.zero;
+            var outline = label.gameObject.AddComponent<Outline>(); // viền đen cho dễ đọc trên nền sáng.
+            outline.effectColor = new Color(0f, 0f, 0f, 0.9f);
+            outline.effectDistance = new Vector2(3f, -3f);
             EditorUtility.SetDirty(label);
-            return label;
+
+            // VFX PNG seq (Art/UI/FightVFX/Fight_*.png) — CÓ thì dựng Image chiếu frame, text thành fallback
+            // ẩn (xóa thư mục VFX + rebuild là text tự quay lại). KHÔNG có thì thôi — text pop như cũ.
+            Sprite[] vfx = LoadFightVfxSprites();
+            Image frameImage = null;
+            if (vfx.Length > 0)
+            {
+                var imgGo = UIKit.NewUI("VFX", banner.transform);
+                var irt = imgGo.GetComponent<RectTransform>();
+                irt.anchorMin = Vector2.zero; irt.anchorMax = Vector2.one;
+                irt.offsetMin = Vector2.zero; irt.offsetMax = Vector2.zero;
+                frameImage = imgGo.AddComponent<Image>();
+                frameImage.sprite = vfx[0];
+                frameImage.preserveAspect = true;
+                frameImage.raycastTarget = false; // không chặn click xuyên banner.
+                label.gameObject.SetActive(false);
+            }
+
+            banner.SetActive(false); // view bật khi diễn.
+
+            var view = parent.gameObject.GetComponent<FightBannerView>();
+            if (view == null) view = parent.gameObject.AddComponent<FightBannerView>();
+            var so = new SerializedObject(view);
+            UIKit.SetObj(so, "channel", ch.RoundIntroFinished);
+            UIKit.SetObj(so, "banner", banner);
+            UIKit.SetObj(so, "frameImage", frameImage);
+            var fp = so.FindProperty("frames");
+            fp.arraySize = vfx.Length;
+            for (int i = 0; i < vfx.Length; i++)
+                fp.GetArrayElementAtIndex(i).objectReferenceValue = vfx[i];
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(view);
+        }
+
+        /// <summary>Nạp PNG seq FIGHT theo TÊN (Fight_00.png…), ép importer sang Sprite/no-mipmap nếu chưa
+        /// (file mới chép vào mặc định là Default texture — Image không nhận). Thiếu thư mục → mảng rỗng.</summary>
+        private static Sprite[] LoadFightVfxSprites()
+        {
+            if (!AssetDatabase.IsValidFolder(FightVfxDir)) return new Sprite[0];
+
+            var files = new List<string>(System.IO.Directory.GetFiles(
+                FightVfxDir.Replace("Assets", Application.dataPath), "Fight_*.png"));
+            files.Sort();
+
+            var sprites = new List<Sprite>(files.Count);
+            foreach (string abs in files)
+            {
+                string path = FightVfxDir + "/" + System.IO.Path.GetFileName(abs);
+                if (AssetImporter.GetAtPath(path) is TextureImporter ti &&
+                    (ti.textureType != TextureImporterType.Sprite || ti.mipmapEnabled))
+                {
+                    ti.textureType = TextureImporterType.Sprite;
+                    ti.spriteImportMode = SpriteImportMode.Single;
+                    ti.mipmapEnabled = false;
+                    ti.maxTextureSize = 1024;
+                    ti.SaveAndReimport();
+                }
+                var s = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+                if (s != null) sprites.Add(s);
+            }
+            return sprites.ToArray();
         }
 
         private static void MakeVoidButton(Transform parent, string text, Color color, VoidEventChannelSO channel)

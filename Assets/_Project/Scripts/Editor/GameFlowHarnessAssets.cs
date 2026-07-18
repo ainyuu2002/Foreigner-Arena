@@ -45,6 +45,7 @@ namespace FA.EditorTools
             public VoidEventChannelSO Rematch;              // RematchPressedChannel (EndScreen → MatchManager)
             public VoidEventChannelSO BackToCharSelect;     // BackToCharSelectChannel
             public MatchResultEventChannelSO MatchResult;   // OnMatchResultChannel (WinCondition → EndScreen)
+            public VoidEventChannelSO RoundIntroFinished;   // OnRoundIntroFinished (RoundIntroController → FIGHT banner)
 
             public string MapSceneName;                     // scene map harness (cho StageRegistry + Build Settings)
 
@@ -77,6 +78,7 @@ namespace FA.EditorTools
             b.Rematch = Find<VoidEventChannelSO>("RematchPressedChannel", b);
             b.BackToCharSelect = Find<VoidEventChannelSO>("BackToCharSelectChannel", b);
             b.MatchResult = Find<MatchResultEventChannelSO>("OnMatchResultChannel", b);
+            b.RoundIntroFinished = Find<VoidEventChannelSO>("OnRoundIntroFinished", b);
 
             // 2) Fighter prefab (tái dùng Emiya Archer — đã wire đủ Movement/Combat/Resources).
             b.FighterPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(EmiyaPrefabPath);

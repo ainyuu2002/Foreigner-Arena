@@ -388,6 +388,11 @@ namespace FA.EditorTools
             UIKit.SetObj(soM, "onBackToCharSelect", ch.BackToCharSelect);
             UIKit.SetObj(soM, "onMatchEnded", ch.MatchEnded);
             UIKit.SetObj(soM, "onMatchStart", ch.MatchStart);   // khởi động ItemSpawner (hệ item) khi vào Match — đừng để rớt khi build lại Lobby.
+            // (task 4) 2 kênh intro MỤC D — trước đây IntroWinLoseSetupTool wire tay vào Lobby, nhưng mỗi
+            // lần Build Lobby dựng lại MatchManager là RỚT (onRoundIntroStart null → MatchManager SKIP
+            // intro → không múa, không FIGHT). Builder tự wire để rebuild bao nhiêu lần cũng không mất.
+            UIKit.SetObj(soM, "onRoundIntroStart", ch.RoundIntroStart);
+            UIKit.SetObj(soM, "onRoundIntroFinished", ch.RoundIntroFinished);
             soM.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(manager);
 

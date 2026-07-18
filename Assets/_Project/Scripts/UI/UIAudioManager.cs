@@ -55,6 +55,14 @@ namespace FA.UI
                 _instance._sfxSource.PlayOneShot(_instance._hover);
         }
 
+        /// <summary>SFX bất kỳ qua nguồn phát UI (route group SFX — ăn slider). Null-safe: clip null → im lặng.
+        /// Dùng cho tiếng one-shot của UI ngoài click/hover (vd tiếng hô FIGHT của FightBannerView).</summary>
+        public static void PlaySfx(AudioClip clip)
+        {
+            if (_instance != null && clip != null)
+                _instance._sfxSource.PlayOneShot(clip);
+        }
+
         /// <summary>Gắn lại SFX cho nút SINH ĐỘNG sau khi scene load (panel spawn nút mới thì gọi cái này).</summary>
         public static void Rescan() { if (_instance != null) _instance.WireButtons(); }
 

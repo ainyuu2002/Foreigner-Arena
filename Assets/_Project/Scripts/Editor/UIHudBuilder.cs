@@ -25,8 +25,7 @@ namespace FA.EditorTools
         public const string HudName = "HUD_InMatch";
 
         // ── Palette kiểu SF6 ──
-        private static readonly Color VitLow   = Color.white;                       // % = 0  (trắng)
-        private static readonly Color VitHigh  = new Color(0.92f, 0.16f, 0.18f, 1f);// % = max (đỏ)
+        private static readonly Color VitLow   = Color.white;                       // % = 0 (trắng — bậc màu runtime do PercentColorView.tierColors quyết, task 6)
         private static readonly Color DriveCol = new Color(1f, 0.55f, 0.10f, 1f);   // Nộ (CAM — team chốt tuần 3)
         private static readonly Color ManaP1Col = new Color(0.95f, 0.25f, 0.30f, 1f);   // Mana P1 (ĐỎ — màu phe)
         private static readonly Color ManaP2Col = new Color(0.25f, 0.58f, 0.98f, 1f);   // Mana P2 (XANH — màu phe)
@@ -203,8 +202,8 @@ namespace FA.EditorTools
             UIKit.SetObj(so, "channel", channel);
             UIKit.SetObj(so, "barImage", barImg);
             UIKit.SetFloat(so, "maxRawValue", Mathf.Max(1f, maxRaw));
-            var lo = so.FindProperty("lowColor"); if (lo != null) lo.colorValue = VitLow;
-            var hi = so.FindProperty("highColor"); if (hi != null) hi.colorValue = VitHigh;
+            // (task 6) Màu theo BẬC trắng→xanh→vàng→cam→đỏ — dùng mặc định tierColors trong
+            // PercentColorView (1 nguồn), builder không đè lowColor/highColor như bản lerp cũ nữa.
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(view);
         }
