@@ -528,7 +528,7 @@ MonoBehaviour:
   onHitConfirmed: {fileID: 11400000, guid: c562eebe48484723967febf4e694280c, type: 2}
   onComboChanged: {fileID: 11400000, guid: 09c6384b97264b8f8a5056d377efc685, type: 2}
   root: {fileID: 0}
-  comboResetFrames: 24
+  comboResetFrames: 36
   milestone1: 10
   milestone2: 20
 --- !u!114 &8364922129431121209
