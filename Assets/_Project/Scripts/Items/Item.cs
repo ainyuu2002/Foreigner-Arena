@@ -279,14 +279,44 @@ namespace FA.Items
             ShowPickupFeedback(root, effect);
         }
 
-        /// <summary>Feedback TẠM (Chặng 2) qua debug OnGUI — Chặng 3 thay bằng HUD. Nội dung: người nhặt
-        /// (P1/P2 theo layer) + tên item + loại/giá trị hiệu ứng + duration nếu có.</summary>
+        /// <summary>Thông báo HUD: người chơi, item và kết quả roll nếu là Mystery Block.</summary>
         private void ShowPickupFeedback(Transform root, ItemEffect effect)
         {
             string who = root.gameObject.layer == GameLayers.Player2 ? "P2" : "P1";
-            string dur = effect.duration > 0f ? $" / {effect.duration:0.#}s" : string.Empty;
-            string msg = $"{who} nhặt {data.name}: {effect.type} {effect.value:0.##}{dur}";
-            MysteryBlockPickupDebugText.ShowImportant(msg, 4f);
+            string itemName = data.type switch
+            {
+                ItemType.KnockbackPotion => $"BÌNH HỒI {effect.value:0.#}% KHÁNG LỰC",
+                ItemType.ManaPotion => $"BÌNH MANA +{effect.value * 100f:0.#}%",
+                ItemType.DamageBuff => $"BÙA TĂNG SÁT THƯƠNG +{effect.value * 100f:0.#}%" +
+                                       (effect.duration > 0f ? $" • {effect.duration:0.#} GIÂY" : string.Empty),
+                ItemType.MysteryBlock => $"KHỐI BÍ ẨN  →  {DescribeMysteryEffect(effect)}",
+                _ => data.name.Replace('_', ' '),
+            };
+            ItemPickupNotice.Show($"{who} NHẶT: {itemName}");
+        }
+
+        private static string DescribeMysteryEffect(ItemEffect effect)
+        {
+            string duration = effect.duration > 0f ? $" • {effect.duration:0.#} GIÂY" : string.Empty;
+            switch (effect.type)
+            {
+                case ItemEffectType.ResistanceRecovery:
+                    return $"BUFF • HỒI {effect.value:0.#}% KHÁNG LỰC";
+                case ItemEffectType.ManaRecovery:
+                    return $"BUFF • +{effect.value * 100f:0.#}% MANA";
+                case ItemEffectType.WeatherImmunity:
+                    return $"BUFF • MIỄN NHIỄM THỜI TIẾT{duration}";
+                case ItemEffectType.ResistanceIncreaseDebuff:
+                    return $"DEBUFF • +{effect.value:0.#}% KNOCKBACK";
+                case ItemEffectType.SlowFall:
+                    return $"BUFF • GIẢM {effect.value * 100f:0.#}% TRỌNG LỰC{duration}";
+                case ItemEffectType.DamageBuff:
+                    return $"BUFF • +{effect.value * 100f:0.#}% SÁT THƯƠNG{duration}";
+                case ItemEffectType.TrapBall:
+                    return $"DEBUFF • BẪY HẤT VĂNG +{effect.value * 100f:0.#}%";
+                default:
+                    return effect.type.ToString();
+            }
         }
     }
 }

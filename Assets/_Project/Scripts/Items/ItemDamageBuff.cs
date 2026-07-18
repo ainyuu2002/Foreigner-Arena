@@ -18,6 +18,9 @@ namespace FA.Items
     {
         private float _multiplier = 1f;
 
+        /// <summary>Additional damage fraction (0.25 means +25%) for the HUD.</summary>
+        public float BonusFraction => _active ? Mathf.Max(0f, _multiplier - 1f) : 0f;
+
         // ===== IBuffSource (chỉ DamageDealtMult thay đổi; còn lại trung tính ×1.0/false) =====
         public float DamageDealtMult => _active ? _multiplier : 1f;
         public float KnockbackDealtMult => 1f;   // quyết định #1: KHÔNG buff knockback.
