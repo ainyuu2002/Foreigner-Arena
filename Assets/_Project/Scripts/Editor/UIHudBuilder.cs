@@ -24,6 +24,11 @@ namespace FA.EditorTools
     {
         public const string HudName = "HUD_InMatch";
 
+        // (Item HUD integration) Prefab buff icon (feature/item-system) — instantiate làm con của canvas
+        // HUD mỗi lần Build() để KHÔNG rớt khi ai rebuild HUD sau này (UIHudBuilder dựng lại canvas từ
+        // đầu, object gắn tay ngoài code sẽ mất — bài học PoolBootstrap/onMatchStart trước đây).
+        private const string ItemBuffHudPrefabPath = "Assets/_Project/Prefabs/Items/ItemBuffHud.prefab";
+
         // ── Palette kiểu SF6 ──
         private static readonly Color VitLow   = Color.white;                       // % = 0 (trắng — bậc màu runtime do PercentColorView.tierColors quyết, task 6)
         private static readonly Color DriveCol = new Color(1f, 0.55f, 0.10f, 1f);   // Nộ (CAM — team chốt tuần 3)
@@ -77,7 +82,25 @@ namespace FA.EditorTools
             // mana 4 ô xuống góc dưới, giữ nguyên kích thước ô.
             BuildBottomMana(hud.transform, true, ch, maxSegments);
             BuildBottomMana(hud.transform, false, ch, maxSegments);
+            BuildItemBuffHud(hud.transform);
             return hud;
+        }
+
+        // ───────────────────── Item Buff HUD (feature/item-system) ─────────────────────
+
+        /// <summary>Gắn prefab ItemBuffHud (dãy icon buff P1/P2, tự tìm player theo layer + tự định vị
+        /// qua p1Position/p2Position của chính nó — KHÔNG cần wire thêm gì ở đây). Thiếu prefab (project
+        /// chưa merge item-system) → log cảnh báo, KHÔNG chặn build HUD còn lại (no-regression).</summary>
+        private static void BuildItemBuffHud(Transform hudParent)
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(ItemBuffHudPrefabPath);
+            if (prefab == null)
+            {
+                Debug.LogWarning($"[UIHudBuilder] Thiếu {ItemBuffHudPrefabPath} — bỏ qua Item Buff HUD.");
+                return;
+            }
+            var inst = (GameObject)PrefabUtility.InstantiatePrefab(prefab, hudParent);
+            inst.name = "ItemBuffHud";
         }
 
         // ───────────────────── Timer (trên-giữa) ─────────────────────
