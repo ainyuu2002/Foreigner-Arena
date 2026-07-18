@@ -411,6 +411,43 @@ namespace FA.EditorTools
             EditorUtility.SetDirty(identity);
         }
 
+        /// <summary>
+        /// (v10.11) ESC = QUAY LẠI ở menu — gắn <see cref="EscBackNavigator"/> lên 2 panel màn hình:
+        ///   • CharSelectPanel: ESC gọi MenuTransitionFX.BackToMenu (canvas MainMenu) — hiện lại đúng
+        ///     content/BG/FX mà nút START đã ẩn (root canvas LUÔN active nên KHÔNG SetActive root).
+        ///     Ref CHÉO canvas nên chỉ wire ở SCENE Lobby (prefab Menu_Screens không mang ref này).
+        ///   • StageSelectPanel: ESC raise kênh BackToCharSelect — MatchManager nghe sẵn, về CharSelect.
+        /// Gọi SAU BuildMainMenu trong BuildLobby (cần object MainMenu đã tồn tại).
+        /// </summary>
+        public static void WireEscBack(UIChannels.Bundle ch, GameObject menuScreens, GameObject mainMenu)
+        {
+            GameObject charSel = FindChild(menuScreens, "CharSelectPanel");
+            GameObject stageSel = FindChild(menuScreens, "StageSelectPanel");
+            MenuTransitionFX menuFx = mainMenu != null ? mainMenu.GetComponent<MenuTransitionFX>() : null;
+
+            if (charSel != null && menuFx != null)
+            {
+                var nav = charSel.GetComponent<EscBackNavigator>();
+                if (nav == null) nav = charSel.AddComponent<EscBackNavigator>();
+                var so = new SerializedObject(nav);
+                UIKit.SetObj(so, "menuFx", menuFx);
+                so.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(nav);
+            }
+            else Debug.LogWarning("[UILobbyBuilder] WireEscBack: thiếu CharSelectPanel/MenuTransitionFX — ESC về menu KHÔNG wire.");
+
+            if (stageSel != null && ch.BackToCharSelect != null)
+            {
+                var nav = stageSel.GetComponent<EscBackNavigator>();
+                if (nav == null) nav = stageSel.AddComponent<EscBackNavigator>();
+                var so = new SerializedObject(nav);
+                UIKit.SetObj(so, "raiseOnBack", ch.BackToCharSelect);
+                so.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(nav);
+            }
+            else Debug.LogWarning("[UILobbyBuilder] WireEscBack: thiếu StageSelectPanel/kênh BackToCharSelect — ESC về CharSelect KHÔNG wire.");
+        }
+
         /// <summary>Tìm component theo PATH con của root (transform.Find hỗ trợ path) — log rõ khi trượt
         /// thay vì wire null im lặng (bài học "scene chết im lặng").</summary>
         private static T FindDeep<T>(GameObject rootGo, string path) where T : Component
