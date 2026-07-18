@@ -131,7 +131,7 @@ namespace FA.EditorTools
             // Cảnh báo scene map thiếu trong Build Settings (LoadSceneAsync sẽ fail).
             var missing = UILobbyBuilder.MissingBuildScenes(ch.StageRegistry);
             var sb = new StringBuilder();
-            sb.AppendLine("[UIProduction] HOÀN TẤT dựng LOBBY v10.4 (ô nộ Filled dùng quad trắng sắc cạnh — hết bo tròn nhòe khi sáng; mana P2 đầy mirror từ phía portrait; startSegments 0 — mở trận mana trống).");
+            sb.AppendLine("[UIProduction] HOÀN TẤT dựng LOBBY v10.9 (i18n: TOÀN BỘ text UI sang TIẾNG ANH — settings/keybind/pause/charselect/stageselect/luật trận + tên 3 map trong StageRegistry; v10.8: khung bracket + mũi tên sci-fi + bỏ label 'tên map').");
             sb.AppendLine($"• Scene: {LobbyScenePath} — Play thử: START → chọn 2 nhân vật → chọn map (chỉnh luật) → vào trận → ESC.");
             sb.AppendLine("• Art slot (thả PNG vào Assets/_Project/Art/UI/ rồi rebuild):");
             foreach (var s in UILobbyBuilder.ArtSlotStatus()) sb.AppendLine("    - " + s);

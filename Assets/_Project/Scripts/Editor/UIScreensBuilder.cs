@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Events;
 using UnityEngine;
@@ -43,6 +44,7 @@ namespace FA.EditorTools
             // Overlay luôn vẽ trên mọi camera nên miễn nhiễm. Sorting 210: trên HUD 100, dưới Pause 400.
             endRoot = UIKit.NewCanvas(EndName, 210);
             var end = BuildEndScreen(endRoot.transform, ch);
+            BuildFightBanner(endRoot.transform, ch); // (task 4) FIGHT! đầu trận — cùng canvas luôn-active này.
 
             // Mặc định hiện CharSelect; ẩn 2 panel còn lại (chỉ 1 active mỗi phase — MatchManager điều khiển runtime).
             charSel.SetActive(true);
@@ -95,7 +97,7 @@ namespace FA.EditorTools
             Text statusP2 = MakeStatusChip(panel.transform, "P2", UIKit.ColP2Accent, left: false);
 
             // ── Lưới nhân vật giữa ── banner tiêu đề dùng chung (art "CharSelect_Banner").
-            AddTitleBanner(panel.transform, "DANH SÁCH CÁC NHÂN VẬT", fallbackY: -94f);
+            AddTitleBanner(panel.transform, "SELECT YOUR FIGHTER", fallbackY: -94f);
 
             int cols = Mathf.Min(6, n);
             int rows = Mathf.CeilToInt(n / (float)cols);
@@ -122,7 +124,7 @@ namespace FA.EditorTools
             CardRefs c2 = MakeCharCard(panel.transform, isP1: false);
 
             // ── Nút tiếp tục (dưới giữa) ── ART SLOT "CharSelect_Btn": khung mạch điện xanh, label đè lên.
-            var contBtn = UIKit.MakeButton(panel.transform, "TIẾP TỤC CHỌN MAP", UIKit.ColBtn, 520f, 70f, 26);
+            var contBtn = UIKit.MakeButton(panel.transform, "CONTINUE TO MAP SELECT", UIKit.ColBtn, 520f, 70f, 26);
             UILobbyBuilder.ApplyButtonArt(contBtn, "CharSelect_Btn");
             var crt = contBtn.GetComponent<RectTransform>();
             crt.anchorMin = crt.anchorMax = crt.pivot = new Vector2(0.5f, 0f);
@@ -175,9 +177,9 @@ namespace FA.EditorTools
             var chip = UIKit.NewPanel($"Status_{tag}", parent, new Vector2(left ? 0f : 1f, 1f),
                                       new Vector2(left ? 24f : -24f, -20f), new Vector2(470f, 64f), UIKit.ColPanel);
             UIKit.AddHorizontal(chip, 10f, controlW: true, expandW: false, TextAnchor.MiddleLeft, pad: 14);
-            UIKit.AddLabel(chip.transform, $"TRẠNG THÁI CHỌN {tag}:", 22, FontStyle.Bold,
+            UIKit.AddLabel(chip.transform, $"{tag} STATUS:", 22, FontStyle.Bold,
                            TextAnchor.MiddleLeft, accent, width: 265f);
-            return UIKit.AddLabel(chip.transform, "Chưa chọn", 22, FontStyle.Bold,
+            return UIKit.AddLabel(chip.transform, "Not selected", 22, FontStyle.Bold,
                                   TextAnchor.MiddleLeft, UIKit.ColTxt, width: 165f);
         }
 
@@ -286,7 +288,7 @@ namespace FA.EditorTools
             var nameLbl = UIKit.AddLabel(inner.transform, "—", 28, FontStyle.Bold, TextAnchor.MiddleCenter);
             UIKit.SetLayoutHeight(nameLbl.gameObject, 42f);
 
-            var confirm = UIKit.MakeButton(inner.transform, "XÁC NHẬN",
+            var confirm = UIKit.MakeButton(inner.transform, "CONFIRM",
                                            Color.Lerp(accent, Color.black, 0.35f), 300f, 64f, 26);
             // ART SLOT "CharSelect_Btn" (chung với nút TIẾP TỤC): sprite thay nền accent; viền card vẫn
             // giữ màu per-player nên không mất nhận diện P1/P2.
@@ -345,7 +347,7 @@ namespace FA.EditorTools
 
             // ── Banner tiêu đề ── dùng chung khung "CharSelect_Banner" với màn chọn nhân vật (v9.8 —
             // đồng bộ art 2 màn theo yêu cầu user).
-            AddTitleBanner(panel.transform, "LỰA CHỌN CHIẾN TRƯỜNG", fallbackY: -66f);
+            AddTitleBanner(panel.transform, "SELECT BATTLEFIELD", fallbackY: -66f);
 
             // ── Carousel (lệch trái — chừa chỗ card random bên phải) ──
             var car = UIKit.NewUI("Carousel", panel.transform);
@@ -354,12 +356,7 @@ namespace FA.EditorTools
             crt0.anchoredPosition = new Vector2(-240f, 20f);
             crt0.sizeDelta = new Vector2(1080f, 580f);
 
-            var tenMap = UIKit.AddLabel(car.transform, "tên map", 20, FontStyle.Normal,
-                                        TextAnchor.MiddleCenter, UIKit.ColTxtDim);
-            var tmrt = tenMap.GetComponent<RectTransform>();
-            tmrt.anchorMin = tmrt.anchorMax = tmrt.pivot = new Vector2(0.5f, 0.5f);
-            tmrt.anchoredPosition = new Vector2(0f, 264f);
-
+            // (v10.8) label phụ "tên map" đã BỎ — thừa, NameChip ngay dưới hiện tên thật rồi.
             var chip = UIKit.NewPanel("NameChip", car.transform, new Vector2(0.5f, 0.5f),
                                       new Vector2(0f, 220f), new Vector2(430f, 54f), UIKit.ColPanel);
             var mapName = UIKit.AddLabel(chip.transform, "—", 26, FontStyle.Bold, TextAnchor.MiddleCenter);
@@ -373,14 +370,13 @@ namespace FA.EditorTools
             MakeMapCard(car.transform, "Center", new Vector2(0f, -30f), new Vector2(310f, 410f), dim: false,
                         out Image centerImg, out Text centerLetter);
 
-            var prevBtn = UIKit.MakeButton(car.transform, "<", UIKit.ColPanelLight, 70f, 70f, 32);
-            var pbrt = prevBtn.GetComponent<RectTransform>();
-            pbrt.anchorMin = pbrt.anchorMax = pbrt.pivot = new Vector2(0.5f, 0.5f);
-            pbrt.anchoredPosition = new Vector2(-490f, -30f);
-            var nextBtn = UIKit.MakeButton(car.transform, ">", UIKit.ColPanelLight, 70f, 70f, 32);
-            var nbrt = nextBtn.GetComponent<RectTransform>();
-            nbrt.anchorMin = nbrt.anchorMax = nbrt.pivot = new Vector2(0.5f, 0.5f);
-            nbrt.anchoredPosition = new Vector2(490f, -30f);
+            // (v10.8) Khung targeting-bracket quanh card GIỮA — chữ ký thị giác game đối kháng, card
+            // được chọn nổi hẳn so với 2 card mờ. Thuần Image, không cần art.
+            AddTargetBrackets(centerImg.transform.parent);
+
+            // (v10.8) Mũi tên kiểu thẻ sci-fi (ảnh mẫu user): khung viền cyan + nền teal + sọc chéo góc.
+            var prevBtn = MakeArrowButton(car.transform, "Arrow_Prev", "<", new Vector2(-490f, -30f));
+            var nextBtn = MakeArrowButton(car.transform, "Arrow_Next", ">", new Vector2(490f, -30f));
 
             // Chấm trang (1 chấm / map).
             var dotsRow = UIKit.NewUI("Dots", car.transform);
@@ -452,10 +448,10 @@ namespace FA.EditorTools
                                        new Color(1f, 1f, 1f, 0.30f));
                 UIKit.StretchFull(q.gameObject);
             }
-            var randTitle = UIKit.AddLabel(randGo.transform, "BẢN ĐỒ NGẪU NHIÊN", 28, FontStyle.Bold,
+            var randTitle = UIKit.AddLabel(randGo.transform, "RANDOM MAP", 28, FontStyle.Bold,
                                            TextAnchor.MiddleCenter);
             UIKit.SetLayoutHeight(randTitle.gameObject, 40f);
-            var randSub = UIKit.AddLabel(randGo.transform, "SẼ CHỌN MỘT TRẬN ĐẤU BẤT NGỜ", 17,
+            var randSub = UIKit.AddLabel(randGo.transform, "A SURPRISE BATTLEFIELD AWAITS", 17,
                                          FontStyle.Normal, TextAnchor.MiddleCenter, UIKit.ColTxtDim);
             UIKit.SetLayoutHeight(randSub.gameObject, 30f);
 
@@ -468,7 +464,7 @@ namespace FA.EditorTools
             UIKit.AddVertical(rulesHolder, 0f, 0, TextAnchor.MiddleCenter);
             UISettingsBuilder.AddMatchRules(rulesHolder.transform, ch);
 
-            var startBtn = UIKit.MakeButton(panel.transform, "BẮT ĐẦU TRẬN ĐẤU", UIKit.ColBtn, 520f, 70f, 28);
+            var startBtn = UIKit.MakeButton(panel.transform, "START BATTLE", UIKit.ColBtn, 520f, 70f, 28);
             // Cùng khung mạch điện với nút TIẾP TỤC CHỌN MAP / XÁC NHẬN bên CharSelect (cùng cỡ 520×70).
             UILobbyBuilder.ApplyButtonArt(startBtn, "CharSelect_Btn");
             var srt = startBtn.GetComponent<RectTransform>();
@@ -536,6 +532,99 @@ namespace FA.EditorTools
         }
 
         /// <summary>Card ảnh map cho carousel: khung tối + Image preserveAspect + chữ cái fallback.</summary>
+        // Bảng màu cyan sci-fi cho khung chọn map + mũi tên (theo ảnh mẫu user 2026-07-18).
+        private static readonly Color ArrowBorder = new Color(0.25f, 0.55f, 0.62f, 1f);
+        private static readonly Color ArrowBg = new Color(0.06f, 0.18f, 0.21f, 1f);
+        private static readonly Color ArrowChevron = new Color(0.78f, 0.92f, 0.93f, 1f);
+        private static readonly Color StripeBright = new Color(0.33f, 0.71f, 0.78f, 1f);
+        private static readonly Color StripeDim = new Color(0.20f, 0.45f, 0.52f, 1f);
+        private static readonly Color BracketColor = new Color(0.42f, 0.78f, 0.88f, 1f);
+
+        /// <summary>
+        /// KHUNG CHỌN kiểu targeting-bracket: 4 góc ngoặc (mỗi góc = thanh ngang + dọc) màu cyan, loe ra
+        /// NGOÀI mép card 8px — như khung "khóa mục tiêu" của game đối kháng. Thuần Image, không art.
+        /// </summary>
+        private static void AddTargetBrackets(Transform card, float thick = 4f, float len = 26f, float gap = 8f)
+        {
+            var frame = UIKit.NewUI("SelectFrame", card);
+            UIKit.StretchFull(frame);
+            var frt = frame.GetComponent<RectTransform>();
+            frt.offsetMin = new Vector2(-gap, -gap);
+            frt.offsetMax = new Vector2(gap, gap);
+
+            AddBracketCorner(frame.transform, new Vector2(0f, 1f), thick, len);
+            AddBracketCorner(frame.transform, new Vector2(1f, 1f), thick, len);
+            AddBracketCorner(frame.transform, new Vector2(0f, 0f), thick, len);
+            AddBracketCorner(frame.transform, new Vector2(1f, 0f), thick, len);
+        }
+
+        /// <summary>1 góc ngoặc = thanh ngang + thanh dọc neo đúng góc (pivot = góc → tự chĩa VÀO trong).</summary>
+        private static void AddBracketCorner(Transform parent, Vector2 corner, float thick, float len)
+        {
+            var h = UIKit.NewUI("BracketH", parent);
+            var hrt = h.GetComponent<RectTransform>();
+            hrt.anchorMin = hrt.anchorMax = hrt.pivot = corner;
+            hrt.anchoredPosition = Vector2.zero;
+            hrt.sizeDelta = new Vector2(len, thick);
+            UIKit.AddImage(h, BracketColor);
+
+            var v = UIKit.NewUI("BracketV", parent);
+            var vrt = v.GetComponent<RectTransform>();
+            vrt.anchorMin = vrt.anchorMax = vrt.pivot = corner;
+            vrt.anchoredPosition = Vector2.zero;
+            vrt.sizeDelta = new Vector2(thick, len);
+            UIKit.AddImage(v, BracketColor);
+        }
+
+        /// <summary>
+        /// NÚT MŨI TÊN carousel kiểu thẻ sci-fi (ảnh mẫu user): khung viền cyan (Image ngoài) + nền teal tối
+        /// (Image trong lùi 2px) + chevron giữa + sọc chéo trang trí góc trên-phải / dưới-trái (đối xứng
+        /// tâm, clip bằng RectMask2D nên không thò ra mép). Hover/press tint VIỀN (targetGraphic).
+        /// </summary>
+        private static Button MakeArrowButton(Transform parent, string name, string chevron, Vector2 pos)
+        {
+            var root = UIKit.NewUI(name, parent);
+            var rt = root.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = new Vector2(64f, 110f);
+            var borderImg = UIKit.AddImage(root, ArrowBorder, raycastTarget: true);
+            root.AddComponent<RectMask2D>(); // clip sọc chéo trong khuôn thẻ.
+
+            var bg = UIKit.NewUI("Bg", root.transform);
+            UIKit.StretchFull(bg);
+            var brt = bg.GetComponent<RectTransform>();
+            brt.offsetMin = new Vector2(2f, 2f);
+            brt.offsetMax = new Vector2(-2f, -2f);
+            UIKit.AddImage(bg, ArrowBg);
+
+            // Sọc chéo góc: trên-phải 2 sọc + dưới-trái 2 sọc (đối xứng tâm như ảnh mẫu).
+            AddStripe(root.transform, new Vector2(1f, 1f), new Vector2(6f, -6f), StripeBright);
+            AddStripe(root.transform, new Vector2(1f, 1f), new Vector2(6f, -18f), StripeDim);
+            AddStripe(root.transform, new Vector2(0f, 0f), new Vector2(-6f, 6f), StripeBright);
+            AddStripe(root.transform, new Vector2(0f, 0f), new Vector2(-6f, 18f), StripeDim);
+
+            var label = UIKit.AddLabel(root.transform, chevron, 44, FontStyle.Bold,
+                                       TextAnchor.MiddleCenter, ArrowChevron);
+            UIKit.StretchFull(label.gameObject);
+
+            var btn = root.AddComponent<Button>();
+            btn.targetGraphic = borderImg;
+            return btn;
+        }
+
+        /// <summary>1 sọc chéo 45° neo tại góc <paramref name="corner"/> (RectMask2D của thẻ cắt phần thừa).</summary>
+        private static void AddStripe(Transform parent, Vector2 corner, Vector2 offset, Color color)
+        {
+            var s = UIKit.NewUI("Stripe", parent);
+            var rt = s.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = rt.pivot = corner;
+            rt.anchoredPosition = offset;
+            rt.sizeDelta = new Vector2(46f, 6f);
+            rt.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            UIKit.AddImage(s, color);
+        }
+
         private static void MakeMapCard(Transform parent, string name, Vector2 pos, Vector2 size, bool dim,
                                         out Image img, out Text letter)
         {
@@ -559,26 +648,24 @@ namespace FA.EditorTools
 
         private static GameObject BuildEndScreen(Transform parent, UIChannels.Bundle ch)
         {
+            // (task 5) BỎ bảng stats/tính điểm (out of scope) → panel gọn lại: winner + 2 nút.
             var panel = UIKit.NewPanel("EndScreenPanel", parent, new Vector2(0.5f, 0.5f), Vector2.zero,
-                                       new Vector2(1100f, 700f), PanelBig);
+                                       new Vector2(900f, 320f), PanelBig);
             UIKit.AddVertical(panel, 16f, 30);
 
-            var winner = UIKit.AddLabel(panel.transform, "PLAYER 1 WINS", 52, FontStyle.Bold, TextAnchor.MiddleCenter);
+            // Text mặc định TRUNG TÍNH "—" (trước đây "PLAYER 1 WINS" → wiring hỏng là hiểu nhầm P1 thắng;
+            // giờ hỏng thì thấy "—" ngay, không đánh lừa ai).
+            var winner = UIKit.AddLabel(panel.transform, "—", 52, FontStyle.Bold, TextAnchor.MiddleCenter);
             UIKit.SetLayoutHeight(winner.gameObject, 70f);
 
-            var statsRow = UIKit.NewUI("StatsRow", panel.transform);
-            UIKit.SetLayoutHeight(statsRow, 360f).flexibleHeight = 1f;
-            var shlg = UIKit.AddHorizontal(statsRow, 40f, controlW: true, expandW: true, TextAnchor.UpperCenter);
-            shlg.childForceExpandHeight = true;
-            var s1 = MakeStatsCard(statsRow.transform, "P1", UIKit.ColP1Accent);
-            var s2 = MakeStatsCard(statsRow.transform, "P2", UIKit.ColP2Accent);
-
-            var view = panel.AddComponent<EndScreenView>();
+            // View đặt trên ROOT LUÔN ACTIVE (canvas Menu_EndScreen), KHÔNG trên panel — panel tắt tới khi
+            // MatchManager bật, mà kết quả raise TRƯỚC đó → subscribe trên panel là lỡ event (xem doc
+            // EndScreenView). GetComponent trước cho idempotent khi rebuild.
+            var view = parent.gameObject.GetComponent<EndScreenView>();
+            if (view == null) view = parent.gameObject.AddComponent<EndScreenView>();
             var so = new SerializedObject(view);
             UIKit.SetObj(so, "channel", ch.MatchResult);
             UIKit.SetObj(so, "winnerLabel", winner);
-            UIKit.SetObj(so, "statsP1Label", s1);
-            UIKit.SetObj(so, "statsP2Label", s2);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(view);
 
@@ -590,22 +677,94 @@ namespace FA.EditorTools
             return panel;
         }
 
-        /// <summary>Card stats 1 người: nền + Text (EndScreenView set nội dung runtime). Trả Text để wire.</summary>
-        private static Text MakeStatsCard(Transform parent, string who, Color accent)
-        {
-            var card = UIKit.NewUI($"Card_{who}", parent);
-            var le = card.AddComponent<LayoutElement>();
-            le.flexibleWidth = 1f; le.flexibleHeight = 1f;
-            UIKit.AddImage(card, new Color(accent.r, accent.g, accent.b, 0.14f));
+        // ───────────────────── FIGHT banner (task 4) ─────────────────────
 
-            // Text đặt trên GameObject CON (KHÔNG chung object với Image nền — 2 Graphic cùng GO xung đột → AddComponent null).
-            var label = UIKit.AddLabel(card.transform, $"{who}\n...", 24, FontStyle.Normal, TextAnchor.UpperLeft);
-            label.gameObject.name = $"Stats_{who}";
-            var rt = label.rectTransform;
-            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
-            rt.offsetMin = new Vector2(20f, 20f); rt.offsetMax = new Vector2(-20f, -20f);
+        /// <summary>
+        /// Banner "FIGHT!" đầu trận — child inactive của canvas Menu_EndScreen (root LUÔN ACTIVE, overlay 210
+        /// trên HUD 100). <see cref="FightBannerView"/> đặt trên ROOT (không trên banner) — HUD bật cùng frame
+        /// OnRoundIntroFinished raise nên chỉ root sống sẵn mới nghe kịp (xem doc FightBannerView).
+        /// </summary>
+        private const string FightVfxDir = "Assets/_Project/Art/UI/FightVFX";
+
+        private static void BuildFightBanner(Transform parent, UIChannels.Bundle ch)
+        {
+            var banner = UIKit.NewUI("FightBanner", parent);
+            var rt = banner.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta = new Vector2(960f, 540f); // khớp tỉ lệ PNG seq VFX; text fallback co giữa cũng ổn.
+            banner.AddComponent<CanvasGroup>(); // view điều khiển alpha khi pop/fade.
+
+            var label = UIKit.AddLabel(banner.transform, "FIGHT!", 130, FontStyle.Bold, TextAnchor.MiddleCenter);
+            label.color = new Color(1f, 0.82f, 0.16f); // vàng cam nổi trên mọi map.
+            var lrt = label.rectTransform;
+            lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
+            lrt.offsetMin = Vector2.zero; lrt.offsetMax = Vector2.zero;
+            var outline = label.gameObject.AddComponent<Outline>(); // viền đen cho dễ đọc trên nền sáng.
+            outline.effectColor = new Color(0f, 0f, 0f, 0.9f);
+            outline.effectDistance = new Vector2(3f, -3f);
             EditorUtility.SetDirty(label);
-            return label;
+
+            // VFX PNG seq (Art/UI/FightVFX/Fight_*.png) — CÓ thì dựng Image chiếu frame, text thành fallback
+            // ẩn (xóa thư mục VFX + rebuild là text tự quay lại). KHÔNG có thì thôi — text pop như cũ.
+            Sprite[] vfx = LoadFightVfxSprites();
+            Image frameImage = null;
+            if (vfx.Length > 0)
+            {
+                var imgGo = UIKit.NewUI("VFX", banner.transform);
+                var irt = imgGo.GetComponent<RectTransform>();
+                irt.anchorMin = Vector2.zero; irt.anchorMax = Vector2.one;
+                irt.offsetMin = Vector2.zero; irt.offsetMax = Vector2.zero;
+                frameImage = imgGo.AddComponent<Image>();
+                frameImage.sprite = vfx[0];
+                frameImage.preserveAspect = true;
+                frameImage.raycastTarget = false; // không chặn click xuyên banner.
+                label.gameObject.SetActive(false);
+            }
+
+            banner.SetActive(false); // view bật khi diễn.
+
+            var view = parent.gameObject.GetComponent<FightBannerView>();
+            if (view == null) view = parent.gameObject.AddComponent<FightBannerView>();
+            var so = new SerializedObject(view);
+            UIKit.SetObj(so, "channel", ch.RoundIntroFinished);
+            UIKit.SetObj(so, "banner", banner);
+            UIKit.SetObj(so, "frameImage", frameImage);
+            var fp = so.FindProperty("frames");
+            fp.arraySize = vfx.Length;
+            for (int i = 0; i < vfx.Length; i++)
+                fp.GetArrayElementAtIndex(i).objectReferenceValue = vfx[i];
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(view);
+        }
+
+        /// <summary>Nạp PNG seq FIGHT theo TÊN (Fight_00.png…), ép importer sang Sprite/no-mipmap nếu chưa
+        /// (file mới chép vào mặc định là Default texture — Image không nhận). Thiếu thư mục → mảng rỗng.</summary>
+        private static Sprite[] LoadFightVfxSprites()
+        {
+            if (!AssetDatabase.IsValidFolder(FightVfxDir)) return new Sprite[0];
+
+            var files = new List<string>(System.IO.Directory.GetFiles(
+                FightVfxDir.Replace("Assets", Application.dataPath), "Fight_*.png"));
+            files.Sort();
+
+            var sprites = new List<Sprite>(files.Count);
+            foreach (string abs in files)
+            {
+                string path = FightVfxDir + "/" + System.IO.Path.GetFileName(abs);
+                if (AssetImporter.GetAtPath(path) is TextureImporter ti &&
+                    (ti.textureType != TextureImporterType.Sprite || ti.mipmapEnabled))
+                {
+                    ti.textureType = TextureImporterType.Sprite;
+                    ti.spriteImportMode = SpriteImportMode.Single;
+                    ti.mipmapEnabled = false;
+                    ti.maxTextureSize = 1024;
+                    ti.SaveAndReimport();
+                }
+                var s = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+                if (s != null) sprites.Add(s);
+            }
+            return sprites.ToArray();
         }
 
         private static void MakeVoidButton(Transform parent, string text, Color color, VoidEventChannelSO channel)

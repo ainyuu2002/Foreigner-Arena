@@ -65,6 +65,7 @@ namespace FA.EditorTools
             BuildCharSelect(ui.transform, b, r);
             BuildStageSelect(ui.transform, b, r);
             BuildEndScreen(ui.transform, b, r);
+            BuildFightBanner(ui.transform, b); // (task 4) FIGHT! đầu trận — root canvas luôn active.
             BuildDebugPanel(ui.transform, b, r);
             return r;
         }
@@ -207,29 +208,22 @@ namespace FA.EditorTools
 
         private static void BuildEndScreen(Transform parent, GameFlowHarnessAssets.Bundle b, Refs r)
         {
+            // (task 5) BỎ bảng stats/tính điểm (out of scope) → panel gọn: winner + 2 nút.
             var panel = NewPanel("EndScreenPanel", parent, new Vector2(0.5f, 0.5f), Vector2.zero,
-                                 new Vector2(1000f, 640f), PanelBack);
+                                 new Vector2(800f, 280f), PanelBack);
             r.EndScreenPanel = panel;
             AddVerticalLayout(panel, 14f);
 
-            var winner = AddLabel(panel.transform, "WINNER", 40, FontStyle.Bold, TextAnchor.MiddleCenter);
+            // Text mặc định trung tính "—" — wiring hỏng thì thấy ngay, không hiểu nhầm ai thắng.
+            var winner = AddLabel(panel.transform, "—", 40, FontStyle.Bold, TextAnchor.MiddleCenter);
 
-            var statsRow = NewUI("StatsRow", panel.transform);
-            var hlg = statsRow.AddComponent<HorizontalLayoutGroup>();
-            hlg.spacing = 40f; hlg.childAlignment = TextAnchor.UpperCenter;
-            hlg.childControlWidth = true; hlg.childControlHeight = true;
-            hlg.childForceExpandWidth = true; hlg.childForceExpandHeight = false;
-            var sle = statsRow.AddComponent<LayoutElement>();
-            sle.preferredHeight = 320f; sle.minHeight = 320f; sle.flexibleHeight = 1f;
-            var s1 = AddLabel(statsRow.transform, "P1\n...", 22, FontStyle.Normal, TextAnchor.UpperLeft);
-            var s2 = AddLabel(statsRow.transform, "P2\n...", 22, FontStyle.Normal, TextAnchor.UpperLeft);
-
-            var view = panel.AddComponent<EndScreenView>();
+            // View đặt trên ROOT LUÔN ACTIVE (canvas harness), KHÔNG trên panel — panel tắt tới khi
+            // MatchManager bật, kết quả raise TRƯỚC đó → subscribe trên panel là lỡ event (doc EndScreenView).
+            var view = parent.gameObject.GetComponent<EndScreenView>();
+            if (view == null) view = parent.gameObject.AddComponent<EndScreenView>();
             var so = new SerializedObject(view);
             SetObj(so, "channel", b.MatchResult);
             SetObj(so, "winnerLabel", winner);
-            SetObj(so, "statsP1Label", s1);
-            SetObj(so, "statsP2Label", s2);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(view); // flush channel + label refs vào scene khi SaveScene.
             r.EndScreen = view;
@@ -244,6 +238,40 @@ namespace FA.EditorTools
 
             MakeVoidRaiserButton(btnRow.transform, "REMATCH", b.Rematch);
             MakeVoidRaiserButton(btnRow.transform, "BACK", b.BackToCharSelect);
+        }
+
+        // ───────────────────── FIGHT banner (task 4) ─────────────────────
+
+        /// <summary>Banner FIGHT! — child inactive; <see cref="FightBannerView"/> trên ROOT canvas (luôn
+        /// active) vì HUD/panel bật cùng frame OnRoundIntroFinished raise (doc FightBannerView).</summary>
+        private static void BuildFightBanner(Transform parent, GameFlowHarnessAssets.Bundle b)
+        {
+            var banner = NewUI("FightBanner", parent);
+            var rt = banner.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta = new Vector2(900f, 240f);
+            banner.AddComponent<CanvasGroup>();
+
+            var label = AddLabel(banner.transform, "FIGHT!", 110, FontStyle.Bold, TextAnchor.MiddleCenter);
+            label.color = new Color(1f, 0.82f, 0.16f);
+            var lrt = label.rectTransform;
+            lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
+            lrt.offsetMin = Vector2.zero; lrt.offsetMax = Vector2.zero;
+            var outline = label.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(0f, 0f, 0f, 0.9f);
+            outline.effectDistance = new Vector2(3f, -3f);
+            EditorUtility.SetDirty(label);
+
+            banner.SetActive(false);
+
+            var view = parent.gameObject.GetComponent<FightBannerView>();
+            if (view == null) view = parent.gameObject.AddComponent<FightBannerView>();
+            var so = new SerializedObject(view);
+            SetObj(so, "channel", b.RoundIntroFinished);
+            SetObj(so, "banner", banner);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(view);
         }
 
         private static void MakeVoidRaiserButton(Transform parent, string text, VoidEventChannelSO ch)

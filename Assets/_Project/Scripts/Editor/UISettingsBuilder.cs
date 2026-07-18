@@ -48,19 +48,15 @@ namespace FA.EditorTools
                                        TextAnchor.MiddleCenter);
             UIKit.SetLayoutHeight(title.gameObject, 60f);
 
-            var master = MakeVolumeSlider(panel.transform, "ÂM LƯỢNG CHUNG", out Text masterVal);
-            var bgm = MakeVolumeSlider(panel.transform, "NHẠC NỀN", out Text bgmVal);
-            var sfx = MakeVolumeSlider(panel.transform, "HIỆU ỨNG", out Text sfxVal);
+            // (i18n 2026-07-18) Toàn bộ text UI chuyển TIẾNG ANH theo yêu cầu user.
+            var master = MakeVolumeSlider(panel.transform, "MASTER VOLUME", out Text masterVal);
+            var bgm = MakeVolumeSlider(panel.transform, "MUSIC", out Text bgmVal);
+            var sfx = MakeVolumeSlider(panel.transform, "SOUND FX", out Text sfxVal);
 
-            // Ghi chú: BGM/SFX mới LƯU giá trị (contract PlayerPrefs cho người làm audio) — nói thẳng trên UI
-            // để người test không tưởng slider hỏng khi game chưa có tiếng.
-            var note = UIKit.AddLabel(panel.transform,
-                "Game chưa có âm thanh — giá trị được lưu sẵn, có audio là chạy.",
-                16, FontStyle.Italic, TextAnchor.MiddleCenter, UIKit.ColTxtDim);
-            UIKit.SetLayoutHeight(note.gameObject, 34f);
+            // Ghi chú "game chưa có âm thanh" đã BỎ — hệ audio chạy thật từ task 1-3 (P12 Audio).
 
-            var keysBtn = UIKit.MakeButton(panel.transform, "CÀI ĐẶT PHÍM", UIKit.ColPanel, 280f, 56f, 24);
-            var closeBtn = UIKit.MakeButton(panel.transform, "ĐÓNG", UIKit.ColBtn, 240f, 60f, 26);
+            var keysBtn = UIKit.MakeButton(panel.transform, "KEY BINDINGS", UIKit.ColPanel, 280f, 56f, 24);
+            var closeBtn = UIKit.MakeButton(panel.transform, "CLOSE", UIKit.ColBtn, 240f, 60f, 26);
 
             // Panel rebind phím: sibling SAU Panel (vẽ đè lên) trong cùng root — root tắt là ẩn cả cụm.
             var keybind = BuildKeybindPanel(root.transform);
@@ -155,8 +151,8 @@ namespace FA.EditorTools
         private static readonly string[] KeyRowParts =
             { "up", "down", "left", "right", "", "", "", "", "", "", "", "" };
         private static readonly string[] KeyRowLabels =
-            { "LÊN", "XUỐNG", "TRÁI", "PHẢI", "NHẢY", "LƯỚT",
-              "ĐÁNH NHẸ", "ĐÁNH VỪA", "ĐÁNH MẠNH", "TUYỆT CHIÊU 1", "TUYỆT CHIÊU 2", "NỘ" };
+            { "UP", "DOWN", "LEFT", "RIGHT", "JUMP", "DASH",
+              "LIGHT ATTACK", "MEDIUM ATTACK", "HEAVY ATTACK", "SPECIAL 1", "SPECIAL 2", "RAGE" };
         // Phím mặc định (khớp FA_Controls.inputactions) — chỉ để label có chữ ngay trong editor;
         // runtime OnEnable tự Refresh theo overrides đã lưu.
         private static readonly string[] KeyRowDefaults =
@@ -180,7 +176,7 @@ namespace FA.EditorTools
                                        new Vector2(960f, 700f), UIKit.ColPanelLight);
             UIKit.AddVertical(panel, 14f, 26, TextAnchor.UpperCenter);
 
-            var title = UIKit.AddLabel(panel.transform, "CÀI ĐẶT PHÍM", 34, FontStyle.Bold,
+            var title = UIKit.AddLabel(panel.transform, "KEY BINDINGS", 34, FontStyle.Bold,
                                        TextAnchor.MiddleCenter);
             UIKit.SetLayoutHeight(title.gameObject, 54f);
 
@@ -188,11 +184,11 @@ namespace FA.EditorTools
             var tabs = UIKit.NewUI("Tabs", panel.transform);
             UIKit.SetLayoutHeight(tabs, 50f).flexibleWidth = 1f;
             UIKit.AddHorizontal(tabs, 18f, controlW: true, expandW: false, TextAnchor.MiddleCenter);
-            var tabKb = UIKit.MakeButton(tabs.transform, "BÀN PHÍM (P1)", UIKit.ColBtn, 280f, 46f, 22);
-            var tabGp = UIKit.MakeButton(tabs.transform, "TAY CẦM (P2)", UIKit.ColPanelLight, 280f, 46f, 22);
+            var tabKb = UIKit.MakeButton(tabs.transform, "KEYBOARD (P1)", UIKit.ColBtn, 280f, 46f, 22);
+            var tabGp = UIKit.MakeButton(tabs.transform, "GAMEPAD (P2)", UIKit.ColPanelLight, 280f, 46f, 22);
 
             var note = UIKit.AddLabel(panel.transform,
-                "Cho phép trùng phím trong 1 tab (NHẢY = LÊN là chủ ý) — có nhắc khi trùng.",
+                "Duplicate keys are allowed within a tab (JUMP = UP is intentional) — you'll get a note.",
                 16, FontStyle.Italic, TextAnchor.MiddleCenter, UIKit.ColTxtDim);
             UIKit.SetLayoutHeight(note.gameObject, 30f);
 
@@ -225,15 +221,15 @@ namespace FA.EditorTools
             }
 
             var status = UIKit.AddLabel(panel.transform,
-                "Bấm vào ô phím để đổi. Chỉ đổi phím P1 (bàn phím).",
+                "Click a key slot to rebind. Keyboard bindings apply to P1.",
                 18, FontStyle.Normal, TextAnchor.MiddleCenter, UIKit.ColTxtDim);
             UIKit.SetLayoutHeight(status.gameObject, 34f);
 
             var footer = UIKit.NewUI("Footer", panel.transform);
             UIKit.SetLayoutHeight(footer, 60f).flexibleWidth = 1f;
             UIKit.AddHorizontal(footer, 24f, controlW: true, expandW: false, TextAnchor.MiddleCenter);
-            var resetBtn = UIKit.MakeButton(footer.transform, "MẶC ĐỊNH", UIKit.ColBtnAccent, 220f, 56f, 24);
-            var closeBtn = UIKit.MakeButton(footer.transform, "ĐÓNG", UIKit.ColBtn, 220f, 56f, 24);
+            var resetBtn = UIKit.MakeButton(footer.transform, "RESET", UIKit.ColBtnAccent, 220f, 56f, 24);
+            var closeBtn = UIKit.MakeButton(footer.transform, "CLOSE", UIKit.ColBtn, 220f, 56f, 24);
 
             var view = root.AddComponent<KeybindPanelView>();
             var so = new SerializedObject(view);
@@ -295,11 +291,11 @@ namespace FA.EditorTools
             var title = UIKit.AddLabel(box.transform, "PAUSED", 44, FontStyle.Bold, TextAnchor.MiddleCenter);
             UIKit.SetLayoutHeight(title.gameObject, 64f);
 
-            var resumeBtn = UIKit.MakeButton(box.transform, "TIẾP TỤC", UIKit.ColBtn, 320f, 66f, 26);
+            var resumeBtn = UIKit.MakeButton(box.transform, "RESUME", UIKit.ColBtn, 320f, 66f, 26);
             var settingsBtn = UIKit.MakeButton(box.transform, "SETTINGS", UIKit.ColPanel, 320f, 66f, 26);
-            // (v9.7) VỀ MENU tách đôi: ĐẤU LẠI (rematch tại chỗ) / THOÁT (về màn chọn nhân vật).
-            var rematchBtn = UIKit.MakeButton(box.transform, "ĐẤU LẠI", UIKit.ColBtn, 320f, 66f, 26);
-            var quitBtn = UIKit.MakeButton(box.transform, "THOÁT", UIKit.ColBtnAccent, 320f, 66f, 26);
+            // (v9.7) VỀ MENU tách đôi: REMATCH (đấu lại tại chỗ) / QUIT (về màn chọn nhân vật).
+            var rematchBtn = UIKit.MakeButton(box.transform, "REMATCH", UIKit.ColBtn, 320f, 66f, 26);
+            var quitBtn = UIKit.MakeButton(box.transform, "QUIT", UIKit.ColBtnAccent, 320f, 66f, 26);
 
             // Settings bản in-match (sibling của PausePanel — đè lên bảng khi mở).
             var settings = BuildSettingsPanel(canvas.transform, inMatch: true);
@@ -349,14 +345,14 @@ namespace FA.EditorTools
             UIKit.SetLayoutHeight(row, 58f).flexibleWidth = 1f;
             UIKit.AddHorizontal(row, 10f, controlW: true, expandW: false, TextAnchor.MiddleCenter);
 
-            UIKit.AddLabel(row.transform, "THỜI GIAN", 22, FontStyle.Bold, TextAnchor.MiddleRight,
+            UIKit.AddLabel(row.transform, "TIME", 22, FontStyle.Bold, TextAnchor.MiddleRight,
                            UIKit.ColTxtDim, width: 150f);
             var timePrev = UIKit.MakeButton(row.transform, "<", UIKit.ColPanelLight, 46f, 46f, 24);
             var timeVal = UIKit.AddLabel(row.transform, "99s", 26, FontStyle.Bold,
                                          TextAnchor.MiddleCenter, UIKit.ColTxt, width: 90f);
             var timeNext = UIKit.MakeButton(row.transform, ">", UIKit.ColPanelLight, 46f, 46f, 24);
 
-            UIKit.AddLabel(row.transform, "MẠNG", 22, FontStyle.Bold, TextAnchor.MiddleRight,
+            UIKit.AddLabel(row.transform, "LIVES", 22, FontStyle.Bold, TextAnchor.MiddleRight,
                            UIKit.ColTxtDim, width: 120f);
             var livesPrev = UIKit.MakeButton(row.transform, "<", UIKit.ColPanelLight, 46f, 46f, 24);
             var livesVal = UIKit.AddLabel(row.transform, "3", 26, FontStyle.Bold,

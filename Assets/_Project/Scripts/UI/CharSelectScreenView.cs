@@ -131,9 +131,9 @@ namespace FA.UI
                 previewLetter.text = sp != null ? "" : (has ? nm.Substring(0, 1).ToUpperInvariant() : "?");
             }
             if (nameLabel != null) nameLabel.text = nm;
-            if (statusLabel != null) statusLabel.text = ready ? "Sẵn sàng!" : (has ? "Đang chọn..." : "Chưa chọn");
+            if (statusLabel != null) statusLabel.text = ready ? "Ready!" : (has ? "Selecting..." : "Not selected");
             if (confirmButton != null) confirmButton.interactable = has;
-            if (confirmLabel != null) confirmLabel.text = ready ? "CHỌN LẠI" : "XÁC NHẬN";
+            if (confirmLabel != null) confirmLabel.text = ready ? "CHANGE" : "CONFIRM";
         }
     }
 }

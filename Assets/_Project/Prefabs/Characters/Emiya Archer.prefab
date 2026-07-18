@@ -332,6 +332,8 @@ MonoBehaviour:
   inputConfig: {fileID: 11400000, guid: f4050133ba61d844999ac5527b932a2c, type: 2}
   inputScheme: 0
   gamepadIndex: 0
+  pairExtraGamepad: 0
+  extraGamepadIndex: 1
 --- !u!114 &3624986202743913585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -738,7 +740,7 @@ AudioSource:
   m_GameObject: {fileID: 584454292511064029}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300003, guid: aa0df100aa0df100aa0df100aa0df101, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
