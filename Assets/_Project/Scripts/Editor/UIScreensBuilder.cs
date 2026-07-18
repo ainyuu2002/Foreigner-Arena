@@ -97,7 +97,7 @@ namespace FA.EditorTools
             Text statusP2 = MakeStatusChip(panel.transform, "P2", UIKit.ColP2Accent, left: false);
 
             // ── Lưới nhân vật giữa ── banner tiêu đề dùng chung (art "CharSelect_Banner").
-            AddTitleBanner(panel.transform, "DANH SÁCH CÁC NHÂN VẬT", fallbackY: -94f);
+            AddTitleBanner(panel.transform, "SELECT YOUR FIGHTER", fallbackY: -94f);
 
             int cols = Mathf.Min(6, n);
             int rows = Mathf.CeilToInt(n / (float)cols);
@@ -124,7 +124,7 @@ namespace FA.EditorTools
             CardRefs c2 = MakeCharCard(panel.transform, isP1: false);
 
             // ── Nút tiếp tục (dưới giữa) ── ART SLOT "CharSelect_Btn": khung mạch điện xanh, label đè lên.
-            var contBtn = UIKit.MakeButton(panel.transform, "TIẾP TỤC CHỌN MAP", UIKit.ColBtn, 520f, 70f, 26);
+            var contBtn = UIKit.MakeButton(panel.transform, "CONTINUE TO MAP SELECT", UIKit.ColBtn, 520f, 70f, 26);
             UILobbyBuilder.ApplyButtonArt(contBtn, "CharSelect_Btn");
             var crt = contBtn.GetComponent<RectTransform>();
             crt.anchorMin = crt.anchorMax = crt.pivot = new Vector2(0.5f, 0f);
@@ -177,9 +177,9 @@ namespace FA.EditorTools
             var chip = UIKit.NewPanel($"Status_{tag}", parent, new Vector2(left ? 0f : 1f, 1f),
                                       new Vector2(left ? 24f : -24f, -20f), new Vector2(470f, 64f), UIKit.ColPanel);
             UIKit.AddHorizontal(chip, 10f, controlW: true, expandW: false, TextAnchor.MiddleLeft, pad: 14);
-            UIKit.AddLabel(chip.transform, $"TRẠNG THÁI CHỌN {tag}:", 22, FontStyle.Bold,
+            UIKit.AddLabel(chip.transform, $"{tag} STATUS:", 22, FontStyle.Bold,
                            TextAnchor.MiddleLeft, accent, width: 265f);
-            return UIKit.AddLabel(chip.transform, "Chưa chọn", 22, FontStyle.Bold,
+            return UIKit.AddLabel(chip.transform, "Not selected", 22, FontStyle.Bold,
                                   TextAnchor.MiddleLeft, UIKit.ColTxt, width: 165f);
         }
 
@@ -288,7 +288,7 @@ namespace FA.EditorTools
             var nameLbl = UIKit.AddLabel(inner.transform, "—", 28, FontStyle.Bold, TextAnchor.MiddleCenter);
             UIKit.SetLayoutHeight(nameLbl.gameObject, 42f);
 
-            var confirm = UIKit.MakeButton(inner.transform, "XÁC NHẬN",
+            var confirm = UIKit.MakeButton(inner.transform, "CONFIRM",
                                            Color.Lerp(accent, Color.black, 0.35f), 300f, 64f, 26);
             // ART SLOT "CharSelect_Btn" (chung với nút TIẾP TỤC): sprite thay nền accent; viền card vẫn
             // giữ màu per-player nên không mất nhận diện P1/P2.
@@ -347,7 +347,7 @@ namespace FA.EditorTools
 
             // ── Banner tiêu đề ── dùng chung khung "CharSelect_Banner" với màn chọn nhân vật (v9.8 —
             // đồng bộ art 2 màn theo yêu cầu user).
-            AddTitleBanner(panel.transform, "LỰA CHỌN CHIẾN TRƯỜNG", fallbackY: -66f);
+            AddTitleBanner(panel.transform, "SELECT BATTLEFIELD", fallbackY: -66f);
 
             // ── Carousel (lệch trái — chừa chỗ card random bên phải) ──
             var car = UIKit.NewUI("Carousel", panel.transform);
@@ -356,12 +356,7 @@ namespace FA.EditorTools
             crt0.anchoredPosition = new Vector2(-240f, 20f);
             crt0.sizeDelta = new Vector2(1080f, 580f);
 
-            var tenMap = UIKit.AddLabel(car.transform, "tên map", 20, FontStyle.Normal,
-                                        TextAnchor.MiddleCenter, UIKit.ColTxtDim);
-            var tmrt = tenMap.GetComponent<RectTransform>();
-            tmrt.anchorMin = tmrt.anchorMax = tmrt.pivot = new Vector2(0.5f, 0.5f);
-            tmrt.anchoredPosition = new Vector2(0f, 264f);
-
+            // (v10.8) label phụ "tên map" đã BỎ — thừa, NameChip ngay dưới hiện tên thật rồi.
             var chip = UIKit.NewPanel("NameChip", car.transform, new Vector2(0.5f, 0.5f),
                                       new Vector2(0f, 220f), new Vector2(430f, 54f), UIKit.ColPanel);
             var mapName = UIKit.AddLabel(chip.transform, "—", 26, FontStyle.Bold, TextAnchor.MiddleCenter);
@@ -375,14 +370,13 @@ namespace FA.EditorTools
             MakeMapCard(car.transform, "Center", new Vector2(0f, -30f), new Vector2(310f, 410f), dim: false,
                         out Image centerImg, out Text centerLetter);
 
-            var prevBtn = UIKit.MakeButton(car.transform, "<", UIKit.ColPanelLight, 70f, 70f, 32);
-            var pbrt = prevBtn.GetComponent<RectTransform>();
-            pbrt.anchorMin = pbrt.anchorMax = pbrt.pivot = new Vector2(0.5f, 0.5f);
-            pbrt.anchoredPosition = new Vector2(-490f, -30f);
-            var nextBtn = UIKit.MakeButton(car.transform, ">", UIKit.ColPanelLight, 70f, 70f, 32);
-            var nbrt = nextBtn.GetComponent<RectTransform>();
-            nbrt.anchorMin = nbrt.anchorMax = nbrt.pivot = new Vector2(0.5f, 0.5f);
-            nbrt.anchoredPosition = new Vector2(490f, -30f);
+            // (v10.8) Khung targeting-bracket quanh card GIỮA — chữ ký thị giác game đối kháng, card
+            // được chọn nổi hẳn so với 2 card mờ. Thuần Image, không cần art.
+            AddTargetBrackets(centerImg.transform.parent);
+
+            // (v10.8) Mũi tên kiểu thẻ sci-fi (ảnh mẫu user): khung viền cyan + nền teal + sọc chéo góc.
+            var prevBtn = MakeArrowButton(car.transform, "Arrow_Prev", "<", new Vector2(-490f, -30f));
+            var nextBtn = MakeArrowButton(car.transform, "Arrow_Next", ">", new Vector2(490f, -30f));
 
             // Chấm trang (1 chấm / map).
             var dotsRow = UIKit.NewUI("Dots", car.transform);
@@ -454,10 +448,10 @@ namespace FA.EditorTools
                                        new Color(1f, 1f, 1f, 0.30f));
                 UIKit.StretchFull(q.gameObject);
             }
-            var randTitle = UIKit.AddLabel(randGo.transform, "BẢN ĐỒ NGẪU NHIÊN", 28, FontStyle.Bold,
+            var randTitle = UIKit.AddLabel(randGo.transform, "RANDOM MAP", 28, FontStyle.Bold,
                                            TextAnchor.MiddleCenter);
             UIKit.SetLayoutHeight(randTitle.gameObject, 40f);
-            var randSub = UIKit.AddLabel(randGo.transform, "SẼ CHỌN MỘT TRẬN ĐẤU BẤT NGỜ", 17,
+            var randSub = UIKit.AddLabel(randGo.transform, "A SURPRISE BATTLEFIELD AWAITS", 17,
                                          FontStyle.Normal, TextAnchor.MiddleCenter, UIKit.ColTxtDim);
             UIKit.SetLayoutHeight(randSub.gameObject, 30f);
 
@@ -470,7 +464,7 @@ namespace FA.EditorTools
             UIKit.AddVertical(rulesHolder, 0f, 0, TextAnchor.MiddleCenter);
             UISettingsBuilder.AddMatchRules(rulesHolder.transform, ch);
 
-            var startBtn = UIKit.MakeButton(panel.transform, "BẮT ĐẦU TRẬN ĐẤU", UIKit.ColBtn, 520f, 70f, 28);
+            var startBtn = UIKit.MakeButton(panel.transform, "START BATTLE", UIKit.ColBtn, 520f, 70f, 28);
             // Cùng khung mạch điện với nút TIẾP TỤC CHỌN MAP / XÁC NHẬN bên CharSelect (cùng cỡ 520×70).
             UILobbyBuilder.ApplyButtonArt(startBtn, "CharSelect_Btn");
             var srt = startBtn.GetComponent<RectTransform>();
@@ -538,6 +532,99 @@ namespace FA.EditorTools
         }
 
         /// <summary>Card ảnh map cho carousel: khung tối + Image preserveAspect + chữ cái fallback.</summary>
+        // Bảng màu cyan sci-fi cho khung chọn map + mũi tên (theo ảnh mẫu user 2026-07-18).
+        private static readonly Color ArrowBorder = new Color(0.25f, 0.55f, 0.62f, 1f);
+        private static readonly Color ArrowBg = new Color(0.06f, 0.18f, 0.21f, 1f);
+        private static readonly Color ArrowChevron = new Color(0.78f, 0.92f, 0.93f, 1f);
+        private static readonly Color StripeBright = new Color(0.33f, 0.71f, 0.78f, 1f);
+        private static readonly Color StripeDim = new Color(0.20f, 0.45f, 0.52f, 1f);
+        private static readonly Color BracketColor = new Color(0.42f, 0.78f, 0.88f, 1f);
+
+        /// <summary>
+        /// KHUNG CHỌN kiểu targeting-bracket: 4 góc ngoặc (mỗi góc = thanh ngang + dọc) màu cyan, loe ra
+        /// NGOÀI mép card 8px — như khung "khóa mục tiêu" của game đối kháng. Thuần Image, không art.
+        /// </summary>
+        private static void AddTargetBrackets(Transform card, float thick = 4f, float len = 26f, float gap = 8f)
+        {
+            var frame = UIKit.NewUI("SelectFrame", card);
+            UIKit.StretchFull(frame);
+            var frt = frame.GetComponent<RectTransform>();
+            frt.offsetMin = new Vector2(-gap, -gap);
+            frt.offsetMax = new Vector2(gap, gap);
+
+            AddBracketCorner(frame.transform, new Vector2(0f, 1f), thick, len);
+            AddBracketCorner(frame.transform, new Vector2(1f, 1f), thick, len);
+            AddBracketCorner(frame.transform, new Vector2(0f, 0f), thick, len);
+            AddBracketCorner(frame.transform, new Vector2(1f, 0f), thick, len);
+        }
+
+        /// <summary>1 góc ngoặc = thanh ngang + thanh dọc neo đúng góc (pivot = góc → tự chĩa VÀO trong).</summary>
+        private static void AddBracketCorner(Transform parent, Vector2 corner, float thick, float len)
+        {
+            var h = UIKit.NewUI("BracketH", parent);
+            var hrt = h.GetComponent<RectTransform>();
+            hrt.anchorMin = hrt.anchorMax = hrt.pivot = corner;
+            hrt.anchoredPosition = Vector2.zero;
+            hrt.sizeDelta = new Vector2(len, thick);
+            UIKit.AddImage(h, BracketColor);
+
+            var v = UIKit.NewUI("BracketV", parent);
+            var vrt = v.GetComponent<RectTransform>();
+            vrt.anchorMin = vrt.anchorMax = vrt.pivot = corner;
+            vrt.anchoredPosition = Vector2.zero;
+            vrt.sizeDelta = new Vector2(thick, len);
+            UIKit.AddImage(v, BracketColor);
+        }
+
+        /// <summary>
+        /// NÚT MŨI TÊN carousel kiểu thẻ sci-fi (ảnh mẫu user): khung viền cyan (Image ngoài) + nền teal tối
+        /// (Image trong lùi 2px) + chevron giữa + sọc chéo trang trí góc trên-phải / dưới-trái (đối xứng
+        /// tâm, clip bằng RectMask2D nên không thò ra mép). Hover/press tint VIỀN (targetGraphic).
+        /// </summary>
+        private static Button MakeArrowButton(Transform parent, string name, string chevron, Vector2 pos)
+        {
+            var root = UIKit.NewUI(name, parent);
+            var rt = root.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = new Vector2(64f, 110f);
+            var borderImg = UIKit.AddImage(root, ArrowBorder, raycastTarget: true);
+            root.AddComponent<RectMask2D>(); // clip sọc chéo trong khuôn thẻ.
+
+            var bg = UIKit.NewUI("Bg", root.transform);
+            UIKit.StretchFull(bg);
+            var brt = bg.GetComponent<RectTransform>();
+            brt.offsetMin = new Vector2(2f, 2f);
+            brt.offsetMax = new Vector2(-2f, -2f);
+            UIKit.AddImage(bg, ArrowBg);
+
+            // Sọc chéo góc: trên-phải 2 sọc + dưới-trái 2 sọc (đối xứng tâm như ảnh mẫu).
+            AddStripe(root.transform, new Vector2(1f, 1f), new Vector2(6f, -6f), StripeBright);
+            AddStripe(root.transform, new Vector2(1f, 1f), new Vector2(6f, -18f), StripeDim);
+            AddStripe(root.transform, new Vector2(0f, 0f), new Vector2(-6f, 6f), StripeBright);
+            AddStripe(root.transform, new Vector2(0f, 0f), new Vector2(-6f, 18f), StripeDim);
+
+            var label = UIKit.AddLabel(root.transform, chevron, 44, FontStyle.Bold,
+                                       TextAnchor.MiddleCenter, ArrowChevron);
+            UIKit.StretchFull(label.gameObject);
+
+            var btn = root.AddComponent<Button>();
+            btn.targetGraphic = borderImg;
+            return btn;
+        }
+
+        /// <summary>1 sọc chéo 45° neo tại góc <paramref name="corner"/> (RectMask2D của thẻ cắt phần thừa).</summary>
+        private static void AddStripe(Transform parent, Vector2 corner, Vector2 offset, Color color)
+        {
+            var s = UIKit.NewUI("Stripe", parent);
+            var rt = s.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = rt.pivot = corner;
+            rt.anchoredPosition = offset;
+            rt.sizeDelta = new Vector2(46f, 6f);
+            rt.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            UIKit.AddImage(s, color);
+        }
+
         private static void MakeMapCard(Transform parent, string name, Vector2 pos, Vector2 size, bool dim,
                                         out Image img, out Text letter)
         {
