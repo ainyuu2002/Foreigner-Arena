@@ -21,6 +21,7 @@ namespace FA.Stage
     /// (cả nhánh timeout) — rò gate = khóa input cả trận.
     /// </summary>
     [DisallowMultipleComponent]
+    [DefaultExecutionOrder(100)] // (Fix trôi-vật-lý-intro) chạy SAU mọi hazard/motor (vd SnowstormHazard=50) để zero-velocity ở đây luôn là tiếng nói cuối trong lúc khoá.
     public sealed class RoundIntroController : MonoBehaviour
     {
         // StateId literal (FA.Stage không ref FA.Movement) — khớp CharacterStateId.Intro/Idle.
@@ -51,6 +52,15 @@ namespace FA.Stage
 
         private bool _gateHeld;
 
+        // (Fix trôi-vật-lý-intro) Khoá gravityScale=0 + zero velocity mỗi FixedUpdate cho CẢ 2 player
+        // suốt intro — spawn point chưa chắc sát đất (dev map đang làm lại, sẽ chỉnh sau) nên nhân vật
+        // có thể còn đang rơi/trôi khi VFX intro bắn theo transform.position sống → lệch vị trí (aura
+        // dưới chân/VFX đổi trang phục). Khoá y hệt pattern đã proven (HitstopController/DashState/
+        // MatchOutroController: gravityScale=0 + velocity=0), restore đúng baseline khi xong.
+        private Rigidbody2D _lockedP1, _lockedP2;
+        private float _savedGravP1, _savedGravP2;
+        private bool _physicsLocked;
+
         private void OnEnable()
         {
             if (onRoundIntroStart != null) onRoundIntroStart.OnEventRaised += OnRoundIntroStart;
@@ -60,7 +70,15 @@ namespace FA.Stage
         {
             if (onRoundIntroStart != null) onRoundIntroStart.OnEventRaised -= OnRoundIntroStart;
             StopAllCoroutines();
+            UnlockPhysics();  // scene unload giữa intro → trả gravityScale gốc, không kẹt gravityScale=0.
             ReleaseGate();   // scene unload giữa intro → không rò gate (khóa input trận sau).
+        }
+
+        private void FixedUpdate()
+        {
+            if (!_physicsLocked) return;
+            if (_lockedP1 != null) _lockedP1.linearVelocity = Vector2.zero;
+            if (_lockedP2 != null) _lockedP2.linearVelocity = Vector2.zero;
         }
 
         private void OnRoundIntroStart()
@@ -83,6 +101,12 @@ namespace FA.Stage
                 yield return null;
             }
 
+            // 2b. Khoá vật lý NGAY khi tìm được 2 player — trước khi diễn bất kỳ ai, tránh rơi/trôi lọt
+            // khung hình 1-2 frame đầu (spawn point hiện chưa chắc sát đất — chỉnh riêng khi dev map merge).
+            LockPhysics(
+                p1 != null ? p1.GetComponent<Rigidbody2D>() : null,
+                p2 != null ? p2.GetComponent<Rigidbody2D>() : null);
+
             // 3. Tắt cả 2 vcam intro (bắt đầu từ khung đánh).
             SetCam(introCamP1, null, idlePriority);
             SetCam(introCamP2, null, idlePriority);
@@ -96,8 +120,31 @@ namespace FA.Stage
             SetStateId(p2, IdleStateId);
             SetCam(introCamP1, null, idlePriority);
             SetCam(introCamP2, null, idlePriority);
+            UnlockPhysics();   // trả gravityScale gốc — vào trận rơi/nhảy bình thường lại.
             ReleaseGate();
             if (onRoundIntroFinished != null) onRoundIntroFinished.RaiseEvent();
+        }
+
+        /// <summary>Lưu gravityScale gốc + zero velocity + gravityScale=0 cho cả 2 player (null-safe từng
+        /// người — thiếu 1 bên vẫn khoá bên còn lại). FixedUpdate giữ velocity=0 mỗi step tới khi Unlock.</summary>
+        private void LockPhysics(Rigidbody2D rb1, Rigidbody2D rb2)
+        {
+            _lockedP1 = rb1;
+            _lockedP2 = rb2;
+            if (_lockedP1 != null) { _savedGravP1 = _lockedP1.gravityScale; _lockedP1.gravityScale = 0f; _lockedP1.linearVelocity = Vector2.zero; }
+            if (_lockedP2 != null) { _savedGravP2 = _lockedP2.gravityScale; _lockedP2.gravityScale = 0f; _lockedP2.linearVelocity = Vector2.zero; }
+            _physicsLocked = true;
+        }
+
+        /// <summary>Trả gravityScale gốc cho cả 2 (idempotent — gọi khi chưa khoá là no-op, an toàn cho
+        /// nhánh OnDisable phòng scene unload giữa intro).</summary>
+        private void UnlockPhysics()
+        {
+            if (!_physicsLocked) return;
+            if (_lockedP1 != null) _lockedP1.gravityScale = _savedGravP1;
+            if (_lockedP2 != null) _lockedP2.gravityScale = _savedGravP2;
+            _lockedP1 = _lockedP2 = null;
+            _physicsLocked = false;
         }
 
         /// <summary>Zoom cận 1 người + diễn Intro, chờ RecoveryEnd cuối clip (hoặc timeout).</summary>

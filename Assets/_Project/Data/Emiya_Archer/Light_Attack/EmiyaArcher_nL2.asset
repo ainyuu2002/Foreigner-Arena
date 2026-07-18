@@ -35,7 +35,7 @@ MonoBehaviour:
   onHitAdvantage: 0
   hitsLow: 1
   hitsHigh: 1
-  hitstunFrames: 35
+  hitstunFrames: 28
   hitstopFrames: 6
   motionImpulses: []
   driftSpeed: 4.5

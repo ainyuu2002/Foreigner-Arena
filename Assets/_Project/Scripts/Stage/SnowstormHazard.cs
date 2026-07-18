@@ -70,7 +70,10 @@ namespace FA.Stage
         /// </summary>
         private void FixedUpdate()
         {
-            if (config == null || !stormActive) return;
+            // (Fix gió-đè-intro) CinematicGate đang mở (intro/chant/super-flash — RoundIntroController và
+            // các cinematic khác Acquire) → mọi hazard môi trường đứng yên, không đè lực lên nhân vật đang
+            // bị khoá diễn cảnh.
+            if (config == null || !stormActive || CinematicGate.IsActive) return;
             foreach (var rb in ResolveBodies())
             {
                 if (rb == null) continue;
