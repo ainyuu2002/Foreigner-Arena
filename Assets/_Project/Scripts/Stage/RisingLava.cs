@@ -102,7 +102,7 @@ namespace FA.Stage
                     {
                         if (warningIcon != null) warningIcon.enabled = false;
                         _phase = Phase.Rising;
-                        Debug.Log("[RisingLava] Dung nham DÂNG!", this);
+                        DebugLog.Log("[RisingLava] Dung nham DÂNG!", this);
                     }
                     break;
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using FA.Core;
 
 namespace FA.Resources
 {
@@ -35,7 +36,7 @@ namespace FA.Resources
                 foreach (var r in rageBars)
                     if (r != null) r.ResetRage();
 
-            Debug.Log("[Resources] Reset Mana + Rage (debug).");
+            DebugLog.Log("[Resources] Reset Mana + Rage (debug).");
         }
     }
 }

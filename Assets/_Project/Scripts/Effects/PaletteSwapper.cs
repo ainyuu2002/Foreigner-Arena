@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using FA.Core;
 
 namespace FA.Effects
 {
@@ -61,7 +62,7 @@ namespace FA.Effects
             }
             if (_mpb == null) _mpb = new MaterialPropertyBlock();
             _active = true;
-            Debug.Log($"[PaletteSwapper] {name}: bật bộ màu alt ({altProfile.SwapCount} cặp màu).", this);
+            DebugLog.Log($"[PaletteSwapper] {name}: bật bộ màu alt ({altProfile.SwapCount} cặp màu).", this);
         }
 
         private void LateUpdate()

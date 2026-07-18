@@ -38,7 +38,7 @@ namespace FA.UI
             UIAudioManager.PlayClick();
             if (menuFx != null) menuFx.BackToMenu();
             else if (raiseOnBack != null) raiseOnBack.RaiseEvent();
-            Debug.Log($"[FA.UI] ESC back — {name} → {(menuFx != null ? "MainMenu" : raiseOnBack != null ? raiseOnBack.name : "(chưa wire)")}");
+            DebugLog.Log($"[FA.UI] ESC back — {name} → {(menuFx != null ? "MainMenu" : raiseOnBack != null ? raiseOnBack.name : "(chưa wire)")}");
         }
     }
 }

@@ -111,7 +111,7 @@ namespace FA.Stage
             if (stormActive)
             {
                 _windDir = Random.value < 0.5f ? -1 : 1; // hướng gió random mỗi trận bão.
-                Debug.Log($"[SnowstormHazard] Bão tuyết BẮT ĐẦU — gió thổi sang {(_windDir > 0 ? "PHẢI" : "TRÁI")}.", this);
+                DebugLog.Log($"[SnowstormHazard] Bão tuyết BẮT ĐẦU — gió thổi sang {(_windDir > 0 ? "PHẢI" : "TRÁI")}.", this);
             }
             if (snowParticles != null)
             {

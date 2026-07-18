@@ -120,9 +120,8 @@ namespace FA.EditorTools
             if (f1 != null) StageSceneKit.SetObj(f1, "opponent", p2.transform);
             if (f2 != null) StageSceneKit.SetObj(f2, "opponent", p1.transform);
 
-            // Drop-through (P11 C4): thêm nếu prefab chưa có, wire qua interface Core.
-            WireDropThrough(p1);
-            WireDropThrough(p2);
+            // Drop-through one-way platform: CharacterMotor tự gắn PlatformDropThrough (Awake) — KHÔNG
+            // cần wire tay ở đây nữa (hệ thống dùng chung, áp dụng mọi nhân vật).
 
             // Điểm hồi sinh dự phòng cho LivesSystem/RespawnSystem (P12 có sẵn trên fighter):
             // thiếu cái này thì khi test không qua luồng P12, chết là rơi tự do giữa không trung.
@@ -141,18 +140,6 @@ namespace FA.EditorTools
             if (respawn == null) return;
             var rs = fighter.GetComponentInChildren<RespawnSystem>();
             if (rs != null) StageSceneKit.SetObj(rs, "fallbackRespawnPoint", respawn);
-        }
-
-        private static void WireDropThrough(GameObject fighter)
-        {
-            if (fighter.GetComponentInChildren<DropThroughController>() != null) return;
-            var motor = fighter.GetComponentInChildren<CharacterMotor>();
-            if (motor == null) return;
-            var drop = motor.gameObject.AddComponent<DropThroughController>();
-            StageSceneKit.SetObj(drop, "moveInputSource", motor);
-            var body = motor.GetComponent<CapsuleCollider2D>();
-            if (body != null) StageSceneKit.SetObj(drop, "bodyCollider", body);
-            StageSceneKit.SetMask(drop, "oneWayPlatformLayers", GameLayers.OneWayPlatformMask);
         }
 
         [MenuItem("FA/Stage/Test - Tắt debug self-respawn (chuẩn bị ghép P12)")]

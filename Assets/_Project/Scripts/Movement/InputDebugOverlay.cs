@@ -48,7 +48,7 @@ namespace FA.Movement
         {
             _footstepCount++;
             _lastFootstepTime = Time.time;
-            Debug.Log($"[P4] Footstep relay #{_footstepCount} @ frame {Time.frameCount}");
+            DebugLog.Log($"[P4] Footstep relay #{_footstepCount} @ frame {Time.frameCount}");
         }
 
         private void OnGUI()
