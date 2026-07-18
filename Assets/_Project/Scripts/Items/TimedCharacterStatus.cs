@@ -22,6 +22,7 @@ namespace FA.Items
 
         protected float _timeLeft;
         protected bool _active;
+        private float _duration;
 
         private SpriteRenderer[] _renderers;
         private Color[] _originalColors;
@@ -31,12 +32,19 @@ namespace FA.Items
         /// <summary>Trạng thái còn hiệu lực (subclass/hệ khác đọc để kiểm tra, vd weather-immunity).</summary>
         public bool IsActive => _active;
 
+        /// <summary>Seconds remaining, exposed for the status HUD countdown.</summary>
+        public float TimeLeft => Mathf.Max(0f, _timeLeft);
+
+        /// <summary>Total duration of the latest application, used to normalize radial cooldown UI.</summary>
+        public float Duration => Mathf.Max(0.1f, _duration);
+
         /// <summary>Áp/refresh: cache renderer, đặt thời lượng + tint, gọi hook, chạy 1 coroutine duy nhất.</summary>
         public void ApplyOrRefresh(float duration, Color tint)
         {
             CacheRenderers();
 
             _timeLeft = Mathf.Max(0.1f, duration);
+            _duration = _timeLeft;
             _tint = tint;
             _active = true;
 

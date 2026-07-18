@@ -15,6 +15,9 @@ namespace FA.Items
         private float _originalGravityScale;
         private bool _gravityModified;
 
+        /// <summary>Gravity reduction fraction (0.4 means -40%) for the HUD.</summary>
+        public float GravityReductionFraction => _active ? _value : 0f;
+
         /// <summary>Overload: đặt độ giảm rồi refresh (base lo tint/countdown). value ∈ [0..1].</summary>
         public void ApplyOrRefresh(float value, float duration, Color tint)
         {
