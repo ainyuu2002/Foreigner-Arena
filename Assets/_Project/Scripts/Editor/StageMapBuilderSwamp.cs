@@ -24,6 +24,7 @@ namespace FA.EditorTools
         private static readonly HashSet<string> RigRootNames = new HashSet<string>
         {
             "CM_MatchCamera", "CM_TargetGroup", "CM_IntroP1", "CM_IntroP2", "RoundDirector",
+            "ItemSpawner",
         };
 
         public static void Build()

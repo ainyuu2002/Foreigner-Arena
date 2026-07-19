@@ -8013,6 +8013,72 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1364347366
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1364347369}
+  - component: {fileID: 1364347368}
+  - component: {fileID: 1364347367}
+  m_Layer: 0
+  m_Name: ItemSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1364347367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1364347366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ebc6a99c5b84f4f9a7f8df277b7d661, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Items::FA.Items.MysteryBlockPickupDebugText
+  screenPosition: {x: 16, y: 16}
+  boxSize: {x: 620, y: 112}
+  messageDuration: 8
+--- !u!114 &1364347368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1364347366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d688e423834f5140a43eb3c262f54c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Items::FA.Items.ItemSpawner
+  config: {fileID: 11400000, guid: 6fcd6e726a9ce894984067a0d58eaecf, type: 2}
+  itemPrefab: {fileID: 5679477267589878859, guid: b059ec75199611e4d9cf25d8f9cbdc23, type: 3}
+  autoStart: 0
+  spawnVfxPrefab: {fileID: 0}
+  onMatchStart: {fileID: 11400000, guid: ef98baa8c35bbca4d85e196b6bfb6cef, type: 2}
+  onMatchEnded: {fileID: 11400000, guid: 3ef41c2b32f34d41822e159474427ea4, type: 2}
+--- !u!4 &1364347369
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1364347366}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 4, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1371858738
 GameObject:
   m_ObjectHideFlags: 0
@@ -16488,3 +16554,4 @@ SceneRoots:
   - {fileID: 833015314}
   - {fileID: 1371858740}
   - {fileID: 1199959800}
+  - {fileID: 1364347369}
