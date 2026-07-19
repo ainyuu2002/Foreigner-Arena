@@ -30,3 +30,5 @@ MonoBehaviour:
   lavaWarningLead: 3
   lavaWarningBlinkPeriod: 0.25
   lavaRecedeSpeed: 0.9
+  lavaRestSeconds: 26
+  lavaRestJitter: 8
