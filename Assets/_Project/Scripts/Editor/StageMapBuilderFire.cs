@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 using FA.Core;
 using FA.Stage;
@@ -16,10 +19,42 @@ namespace FA.EditorTools
     {
         public const string SceneName = "Map_Fire";
 
+        /// <summary>Tên root object thuộc rig camera/intro — KHÔNG đụng khi restyle scene có sẵn
+        /// (dựng bởi StageCameraRigBuilder/IntroWinLoseSetupTool, chạy sau map builder này).</summary>
+        private static readonly HashSet<string> RigRootNames = new HashSet<string>
+        {
+            "CM_MatchCamera", "CM_TargetGroup", "CM_IntroP1", "CM_IntroP2", "RoundDirector",
+            "ItemSpawner",
+        };
+
         public static void Build()
         {
             var scene = StageSceneKit.NewScene();
+            PopulateScene(includeCameraRig: true);
+            StageSceneKit.SaveScene(scene, SceneName);
+            StageSceneKit.AddStageToRegistry("Lò Dung Nham (Lửa)", SceneName,
+                StageSceneKit.LoadSprite(StageArtFire.Platform));
+            Debug.Log("[Phase11] Đã dựng xong Map_Fire.");
+        }
 
+        /// <summary>Dựng lại NỘI DUNG map trên scene ĐÃ CÓ SẴN, giữ nguyên rig camera/intro
+        /// (<see cref="RigRootNames"/>) — xem StageMapBuilderIce.RestyleExistingScene. Idempotent.</summary>
+        [MenuItem("FA/Stage/Restyle map content only (keep camera+intro rig)/Map_Fire")]
+        public static void RestyleExistingScene()
+        {
+            var path = "Assets/_Project/Scenes/" + SceneName + ".unity";
+            var scene = EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+            foreach (var root in scene.GetRootGameObjects())
+                if (!RigRootNames.Contains(root.name)) Object.DestroyImmediate(root);
+
+            PopulateScene(includeCameraRig: false);
+
+            StageSceneKit.SaveScene(scene, SceneName);
+            Debug.Log("[StageMapBuilderFire] Đã restyle nội dung Map_Fire — giữ nguyên rig camera/intro.");
+        }
+
+        private static void PopulateScene(bool includeCameraRig)
+        {
             // ---- Nền parallax ----
             StageSceneKit.MakeBackdrop("BG_Sky", StageArtFire.Sky, new Vector3(0f, 4.5f, 0f), -100, 0.92f, null, 1.5f);
             // BIỂN LAVA XA + măng đá silhouette (redesign Norfair: hang động, lava là nguồn sáng duy nhất).
@@ -163,13 +198,11 @@ namespace FA.EditorTools
             StageSceneKit.MakePointLight(null, "Light_Lava_C", new Vector2(0f, -4.5f), new Color(1f, 0.48f, 0.12f), 0.9f, 8f);
             StageSceneKit.MakePointLight(null, "Light_Lava_R", new Vector2(14f, -4.5f), new Color(1f, 0.48f, 0.12f), 0.9f, 8f);
 
-            // ---- Camera (size up: ortho 6.5 → 7.2 + confiner rộng theo đảo 24) ----
-            StageSceneKit.MakeCameraRig(null, new Rect(-19f, -4.5f, 38f, 19.5f), 7.2f, new Color32(18, 3, 3, 255));
-
-            StageSceneKit.SaveScene(scene, SceneName);
-            StageSceneKit.AddStageToRegistry("Lò Dung Nham (Lửa)", SceneName,
-                StageSceneKit.LoadSprite(StageArtFire.Platform));
-            Debug.Log("[Phase11] Đã dựng xong Map_Fire.");
+            if (includeCameraRig)
+            {
+                // ---- Camera (size up: ortho 6.5 → 7.2 + confiner rộng theo đảo 24) ----
+                StageSceneKit.MakeCameraRig(null, new Rect(-19f, -4.5f, 38f, 19.5f), 7.2f, new Color32(18, 3, 3, 255));
+            }
         }
     }
 }

@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 using FA.Core;
 using FA.Stage;
@@ -16,10 +19,43 @@ namespace FA.EditorTools
     {
         public const string SceneName = "Map_Ice";
 
+        /// <summary>Tên root object thuộc rig camera/intro — KHÔNG đụng khi restyle scene có sẵn
+        /// (dựng bởi StageCameraRigBuilder/IntroWinLoseSetupTool, chạy sau map builder này).</summary>
+        private static readonly HashSet<string> RigRootNames = new HashSet<string>
+        {
+            "CM_MatchCamera", "CM_TargetGroup", "CM_IntroP1", "CM_IntroP2", "RoundDirector",
+            "ItemSpawner",
+        };
+
         public static void Build()
         {
             var scene = StageSceneKit.NewScene();
+            PopulateScene(includeCameraRig: true);
+            StageSceneKit.SaveScene(scene, SceneName);
+            StageSceneKit.AddStageToRegistry("Đỉnh Vĩnh Đông (Băng)", SceneName,
+                StageSceneKit.LoadSprite(StageArtIce.Platform));
+            Debug.Log("[Phase11] Đã dựng xong Map_Ice.");
+        }
 
+        /// <summary>Dựng lại NỘI DUNG map (sàn/platform/hazard/ánh sáng...) trên scene ĐÃ CÓ SẴN, giữ
+        /// nguyên rig camera/intro (<see cref="RigRootNames"/>) — dùng khi redesign map mà không muốn
+        /// build-từ-đầu xoá mất rig đã wire bởi StageCameraRigBuilder/IntroWinLoseSetupTool. Idempotent.</summary>
+        [MenuItem("FA/Stage/Restyle map content only (keep camera+intro rig)/Map_Ice")]
+        public static void RestyleExistingScene()
+        {
+            var path = "Assets/_Project/Scenes/" + SceneName + ".unity";
+            var scene = EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+            foreach (var root in scene.GetRootGameObjects())
+                if (!RigRootNames.Contains(root.name)) Object.DestroyImmediate(root);
+
+            PopulateScene(includeCameraRig: false);
+
+            StageSceneKit.SaveScene(scene, SceneName);
+            Debug.Log("[StageMapBuilderIce] Đã restyle nội dung Map_Ice — giữ nguyên rig camera/intro.");
+        }
+
+        private static void PopulateScene(bool includeCameraRig)
+        {
             // ---- Nền parallax (xa → gần) ----
             StageSceneKit.MakeBackdrop("BG_Sky", StageArtIce.Sky, new Vector3(0f, 4f, 0f), -100, 0.92f, null, 1.5f);
             // Cực quang lớp riêng TRÔI LỮNG LỜ (AmbientDrift) — nền 'sống' như Smash.
@@ -102,7 +138,7 @@ namespace FA.EditorTools
 
             // ---- TƯỜNG BÁM lơ lửng 2 bên (feedback: chạm tường trên không là bám được) ----
             // Treo CAO (chân cột cách sàn ~4.6 — gấp đôi bản đầu, feedback): với tới từ TẦNG CAO
-            // (±4.5, 6.5) hoặc nấm/đà nhảy đôi; đứng được trên đỉnh cột.
+            // (±5.5, 6.5) hoặc nấm/đà nhảy đôi; đứng được trên đỉnh cột.
             // (Feedback: dời tường XA platform thêm 1 unit — hết dính sát nhau.)
             StageSceneKit.MakeClingWall("ClingWall_L", StageArtIce.ClingWall, new Vector2(-11.5f, 6.6f), iceCfg);
             StageSceneKit.MakeClingWall("ClingWall_R", StageArtIce.ClingWall, new Vector2(11.5f, 6.6f), iceCfg);
@@ -133,16 +169,14 @@ namespace FA.EditorTools
             StageSceneKit.MakePointLight(null, "Light_Aurora", new Vector2(-8f, 11f),
                 new Color(0.25f, 0.85f, 0.69f), 0.35f, 12f);
 
-            // ---- Camera (size up: ortho 7.2 + confiner rộng theo sàn 34) ----
-            // ĐÁY confiner NÂNG lên -4 (feedback: camera bị chếch xuống thân băng — khu chơi là NỬA TRÊN):
-            // camera thấp nhất cũng chỉ lộ ~4 unit dưới mặt sàn, phần trời/cực quang luôn chiếm khung.
-            StageSceneKit.MakeCameraRig(null, new Rect(-20.5f, -4f, 41f, 17.5f), 7.2f,
-                new Color32(7, 10, 30, 255));
-
-            StageSceneKit.SaveScene(scene, SceneName);
-            StageSceneKit.AddStageToRegistry("Đỉnh Vĩnh Đông (Băng)", SceneName,
-                StageSceneKit.LoadSprite(StageArtIce.Platform));
-            Debug.Log("[Phase11] Đã dựng xong Map_Ice.");
+            if (includeCameraRig)
+            {
+                // ---- Camera (size up: ortho 7.2 + confiner rộng theo sàn 34) ----
+                // ĐÁY confiner NÂNG lên -4 (feedback: camera bị chếch xuống thân băng — khu chơi là NỬA TRÊN):
+                // camera thấp nhất cũng chỉ lộ ~4 unit dưới mặt sàn, phần trời/cực quang luôn chiếm khung.
+                StageSceneKit.MakeCameraRig(null, new Rect(-20.5f, -4f, 41f, 17.5f), 7.2f,
+                    new Color32(7, 10, 30, 255));
+            }
         }
 
         /// <summary>Cụm gai băng v2: sprite + IceSpikeHazard — CHẠM là +% một phát + hất nhẹ + flash

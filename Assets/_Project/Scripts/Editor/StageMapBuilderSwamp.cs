@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 using FA.Core;
 using FA.Stage;
@@ -16,11 +19,44 @@ namespace FA.EditorTools
         public const string SceneName = "Map_Swamp";
         public const string ConfigPath = StageSceneKit.DataFolder + "/StageConfig_Swamp.asset";
 
+        /// <summary>Tên root object thuộc rig camera/intro — KHÔNG đụng khi restyle scene có sẵn
+        /// (dựng bởi StageCameraRigBuilder/IntroWinLoseSetupTool, chạy sau map builder này).</summary>
+        private static readonly HashSet<string> RigRootNames = new HashSet<string>
+        {
+            "CM_MatchCamera", "CM_TargetGroup", "CM_IntroP1", "CM_IntroP2", "RoundDirector",
+            "ItemSpawner",
+        };
+
         public static void Build()
         {
             var scene = StageSceneKit.NewScene();
             var cfg = StageSceneKit.EnsureStageConfig(ConfigPath);
+            PopulateScene(cfg, includeCameraRig: true);
+            StageSceneKit.SaveScene(scene, SceneName);
+            StageSceneKit.AddStageToRegistry("Rừng Sương Độc (Đầm Lầy)", SceneName,
+                StageSceneKit.LoadSprite(StageArtSwamp.Platform));
+            Debug.Log("[Phase11] Đã dựng xong Map_Swamp.");
+        }
 
+        /// <summary>Dựng lại NỘI DUNG map trên scene ĐÃ CÓ SẴN, giữ nguyên rig camera/intro
+        /// (<see cref="RigRootNames"/>) — xem StageMapBuilderIce.RestyleExistingScene. Idempotent.</summary>
+        [UnityEditor.MenuItem("FA/Stage/Restyle map content only (keep camera+intro rig)/Map_Swamp")]
+        public static void RestyleExistingScene()
+        {
+            var path = "Assets/_Project/Scenes/" + SceneName + ".unity";
+            var scene = EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+            foreach (var root in scene.GetRootGameObjects())
+                if (!RigRootNames.Contains(root.name)) Object.DestroyImmediate(root);
+
+            var cfg = StageSceneKit.EnsureStageConfig(ConfigPath);
+            PopulateScene(cfg, includeCameraRig: false);
+
+            StageSceneKit.SaveScene(scene, SceneName);
+            Debug.Log("[StageMapBuilderSwamp] Đã restyle nội dung Map_Swamp — giữ nguyên rig camera/intro.");
+        }
+
+        private static void PopulateScene(StageConfigSO cfg, bool includeCameraRig)
+        {
             // ---- Nền parallax ----
             StageSceneKit.MakeBackdrop("BG_Sky", StageArtSwamp.Sky, new Vector3(0f, 4f, 0f), -100, 0.92f, null, 1.5f);
             StageSceneKit.MakeBackdrop("BG_Trees", StageArtSwamp.Trees, new Vector3(0f, 2.4f, 0f), -80, 0.6f, null, 1.3f);
@@ -41,7 +77,7 @@ namespace FA.EditorTools
             mistF.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.55f);
             StageSceneKit.AddDrift(mistF, new Vector2(0.8f, 0.06f), 31f);
 
-            // ---- Đất: 2 bờ cao + bệ chìm giữa — 4 variant mặt (cỏ ×2, cỏ nấm, BÙN ƯỚT) chống lặp ----
+            // ---- Đất: 2 bờ cao SẠCH + HỐ BÙN GIỮA — bờ dùng tile cỏ sạch, hố lát toàn bùn ướt ----
             var topA = StageSceneKit.MakeTileAsset(StageArtSwamp.TileTop, StageArtSwamp.Dir + "/Tile_SwampTop.asset");
             var topB = StageSceneKit.MakeTileAsset(StageArtSwamp.TileTopB, StageArtSwamp.Dir + "/Tile_SwampTopB.asset");
             var topMud = StageSceneKit.MakeTileAsset(StageArtSwamp.TileTopMud, StageArtSwamp.Dir + "/Tile_SwampTopMud.asset");
@@ -81,7 +117,7 @@ namespace FA.EditorTools
             StageSceneKit.MakeOneWayPlatform("Platform_High", StageArtSwamp.Platform, new Vector2(0f, 4.9f), null, -5, 1f, 0.31f);
 
             // ---- NẤM NHÚN (cơ chế mới, deterministic — GDD: swamp KHÔNG thiên tai): đáp xuống mũ →
-            // bật tung lên. Bù trừ giảm lực nhảy 25%; con GIỮA map là ĐƯỜNG THOÁT khỏi bệ chìm. ----
+            // bật tung lên. Bù trừ giảm lực nhảy 25%; con GIỮA map là ĐƯỜNG THOÁT khỏi hố bùn. ----
             var bounceSprite = StageSceneKit.LoadSprite(StageArtSwamp.BounceShroom);
             var bounceMat = StageSceneKit.EnsureMushroomMaterial(cfg);
             void MakeBouncer(Vector2 at, float scale)
@@ -181,13 +217,11 @@ namespace FA.EditorTools
             StageSceneKit.MakePointLight(null, "Light_Moon", new Vector2(-12.5f, 10f),
                 new Color(0.85f, 0.91f, 0.75f), 0.55f, 8f);
 
-            // ---- Camera (size up: ortho 6.5 → 7.2 + confiner theo map 32 — vẫn bao quát gần trọn) ----
-            StageSceneKit.MakeCameraRig(null, new Rect(-16.5f, -6.5f, 33f, 20f), 7.2f, new Color32(7, 15, 9, 255));
-
-            StageSceneKit.SaveScene(scene, SceneName);
-            StageSceneKit.AddStageToRegistry("Rừng Sương Độc (Đầm Lầy)", SceneName,
-                StageSceneKit.LoadSprite(StageArtSwamp.Platform));
-            Debug.Log("[Phase11] Đã dựng xong Map_Swamp.");
+            if (includeCameraRig)
+            {
+                // ---- Camera (size up: ortho 6.5 → 7.2 + confiner theo map 32 — vẫn bao quát gần trọn) ----
+                StageSceneKit.MakeCameraRig(null, new Rect(-16.5f, -6.5f, 33f, 20f), 7.2f, new Color32(7, 15, 9, 255));
+            }
         }
     }
 }
