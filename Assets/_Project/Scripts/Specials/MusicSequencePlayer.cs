@@ -7,8 +7,9 @@ namespace FA.Specials
     /// NHẠC NỀN chuỗi cho Ultimate UBW (user chốt): 3 đoạn (S3002-0 → 5 → 6) chạy LIỀN TÙ TÌ từ lúc
     /// bắt đầu niệm chú (nghe relay <c>ChantStart</c>) tới khi thoát UBW (UBWInstallController gọi
     /// <see cref="StopMusic"/> lúc màn đen chuyển cảnh). Đây là KÊNH NHẠC NỀN — không phải SFX:
-    /// AudioSource riêng, sau này route vào AudioMixer group "Music" khi có menu chỉnh âm lượng,
-    /// và sẽ THAY nhạc nền của game (pause/resume BGM map — chờ hệ nhạc nền chung).
+    /// AudioSource riêng, sau này route vào AudioMixer group "Music" khi có menu chỉnh âm lượng.
+    /// BGM map được UBWInstallController tạm dừng riêng (kênh Core onBgmDuckRequested/onBgmRestoreRequested,
+    /// UIAudioManager FA.UI nghe) nên 2 nhạc không đè lên nhau.
     /// Hết chuỗi → loop lại từ <see cref="loopFromIndex"/> (bỏ đoạn intro). Chạy xuyên freeze
     /// (audio không phụ thuộc Time.timeScale).
     /// </summary>
