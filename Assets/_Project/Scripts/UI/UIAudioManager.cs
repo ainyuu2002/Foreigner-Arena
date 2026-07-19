@@ -90,22 +90,33 @@ namespace FA.UI
             _hover = Resources.Load<AudioClip>(ClipHover);
 
             SceneManager.sceneLoaded += OnSceneLoaded;
+            SceneManager.sceneUnloaded += OnSceneUnloaded;
             OnSceneLoaded(SceneManager.GetActiveScene(), LoadSceneMode.Single); // scene đầu đã load xong trước Boot.
 
             // Marker xác nhận (đối chiếu Console khi test — như AUDIO v3 của GameSettings).
-            DebugLog.Log($"[FA.Audio] UIAUDIO v1 — mixer: {(mixer != null ? "OK" : "THIẾU")}, " +
+            DebugLog.Log($"[FA.Audio] UIAUDIO v2 — mixer: {(mixer != null ? "OK" : "THIẾU")}, " +
                       $"{ClipClick}: {(_click != null ? "OK" : "thiếu")}, {ClipHover}: {(_hover != null ? "OK" : "thiếu")}");
         }
 
         private void OnDestroy()
         {
-            if (_instance == this) SceneManager.sceneLoaded -= OnSceneLoaded;
+            if (_instance != this) return;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            SceneManager.sceneUnloaded -= OnSceneUnloaded;
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             WireButtons();
             PlayBgmForScene(scene.name);
+        }
+
+        /// <summary>(v2) Map trận unload (thoát về menu / rematch) → BGM theo scene ACTIVE còn lại (Lobby).
+        /// Menu là panel trong CÙNG scene Lobby (chỉ SetActive) nên không có sceneLoaded khi quay về —
+        /// chỉ có sceneUnloaded của map bị gỡ.</summary>
+        private void OnSceneUnloaded(Scene scene)
+        {
+            PlayBgmForScene(SceneManager.GetActiveScene().name);
         }
 
         private void WireButtons()
