@@ -27,11 +27,16 @@ namespace FA.UI
 
         private static UIAudioManager _instance;
 
+        private const string BgmDuckChannelPath = "OnBgmDuckRequested";
+        private const string BgmRestoreChannelPath = "OnBgmRestoreRequested";
+
         private AudioSource _sfxSource;
         private AudioSource _bgmSource;
         private AudioClip _click;
         private AudioClip _hover;
         private string _currentBgm; // tên resource đang phát — tránh restart khi load lại cùng scene.
+        private VoidEventChannelSO _onBgmDuck;    // UBWInstallController raise khi vào Ultimate/UBW.
+        private VoidEventChannelSO _onBgmRestore; // UBWInstallController raise khi thoát UBW.
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Boot()
@@ -93,9 +98,17 @@ namespace FA.UI
             SceneManager.sceneUnloaded += OnSceneUnloaded;
             OnSceneLoaded(SceneManager.GetActiveScene(), LoadSceneMode.Single); // scene đầu đã load xong trước Boot.
 
+            // (v3) Duck/restore BGM map khi Ultimate UBW install/thoát — UBWInstallController (FA.Specials,
+            // chỉ ref Core) raise qua kênh Core, KHÔNG ref thẳng FA.UI (đúng luật §2 module chỉ ref Core).
+            _onBgmDuck = Resources.Load<VoidEventChannelSO>(BgmDuckChannelPath);
+            _onBgmRestore = Resources.Load<VoidEventChannelSO>(BgmRestoreChannelPath);
+            if (_onBgmDuck != null) _onBgmDuck.OnEventRaised += PauseBgm;
+            if (_onBgmRestore != null) _onBgmRestore.OnEventRaised += ResumeBgm;
+
             // Marker xác nhận (đối chiếu Console khi test — như AUDIO v3 của GameSettings).
-            DebugLog.Log($"[FA.Audio] UIAUDIO v2 — mixer: {(mixer != null ? "OK" : "THIẾU")}, " +
-                      $"{ClipClick}: {(_click != null ? "OK" : "thiếu")}, {ClipHover}: {(_hover != null ? "OK" : "thiếu")}");
+            DebugLog.Log($"[FA.Audio] UIAUDIO v3 — mixer: {(mixer != null ? "OK" : "THIẾU")}, " +
+                      $"{ClipClick}: {(_click != null ? "OK" : "thiếu")}, {ClipHover}: {(_hover != null ? "OK" : "thiếu")}, " +
+                      $"BgmDuck: {(_onBgmDuck != null ? "OK" : "thiếu")}, BgmRestore: {(_onBgmRestore != null ? "OK" : "thiếu")}");
         }
 
         private void OnDestroy()
@@ -103,7 +116,16 @@ namespace FA.UI
             if (_instance != this) return;
             SceneManager.sceneLoaded -= OnSceneLoaded;
             SceneManager.sceneUnloaded -= OnSceneUnloaded;
+            if (_onBgmDuck != null) _onBgmDuck.OnEventRaised -= PauseBgm;
+            if (_onBgmRestore != null) _onBgmRestore.OnEventRaised -= ResumeBgm;
         }
+
+        /// <summary>(v3) Tạm dừng BGM map khi vào Ultimate UBW (MusicSequencePlayer phát nhạc riêng đè lên) —
+        /// giữ nguyên vị trí phát, KHÔNG đổi _currentBgm (map vẫn "đang là track đó" khi resume).</summary>
+        private void PauseBgm() { if (_bgmSource.isPlaying) _bgmSource.Pause(); }
+
+        /// <summary>(v3) Thoát UBW → BGM map phát tiếp từ chỗ đang dừng.</summary>
+        private void ResumeBgm() { if (!_bgmSource.isPlaying) _bgmSource.UnPause(); }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
