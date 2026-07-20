@@ -3,7 +3,8 @@
     "rootNamespace": "FA.AI.Tests",
     "references": [
         "FA.Core",
-        "FA.AI"
+        "FA.AI",
+        "FA.GameFlow"
     ],
     "includePlatforms": [
         "Editor"
