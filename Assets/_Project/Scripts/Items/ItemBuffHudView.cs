@@ -4,14 +4,13 @@ using FA.Core;
 
 namespace FA.Items
 {
-    /// <summary>Items-only status HUD placed above both mana bars.</summary>
+    /// <summary>Hiển thị các trạng thái item của hai người chơi.</summary>
     [DisallowMultipleComponent]
     public sealed class ItemBuffHudView : MonoBehaviour
     {
         [Header("Status sprites")]
         [SerializeField] private Sprite damageBuffSprite;
         [SerializeField] private Sprite slowFallSprite;
-        [SerializeField] private Sprite weatherImmunitySprite;
         [SerializeField] private Font labelFont;
         [SerializeField] private GameObject statusIconPrefab;
 
@@ -25,9 +24,12 @@ namespace FA.Items
 
         private Transform _playerP1;
         private Transform _playerP2;
+        private readonly PlayerStatuses _statusP1 = new PlayerStatuses();
+        private readonly PlayerStatuses _statusP2 = new PlayerStatuses();
         private StatusRow _rowP1;
         private StatusRow _rowP2;
         private float _nextPlayerLookup;
+        private float _nextStatusLookup;
 
         private void Awake()
         {
@@ -45,10 +47,19 @@ namespace FA.Items
                 _nextPlayerLookup = Time.unscaledTime + 0.5f;
                 if (_playerP1 == null) _playerP1 = FindPlayerRoot(GameLayers.Player1);
                 if (_playerP2 == null) _playerP2 = FindPlayerRoot(GameLayers.Player2);
+                _statusP1.SetPlayer(_playerP1);
+                _statusP2.SetPlayer(_playerP2);
             }
 
-            RefreshRow(_rowP1, _playerP1);
-            RefreshRow(_rowP2, _playerP2);
+            if (Time.unscaledTime >= _nextStatusLookup)
+            {
+                _nextStatusLookup = Time.unscaledTime + 0.1f;
+                _statusP1.Refresh();
+                _statusP2.Refresh();
+            }
+
+            RefreshRow(_rowP1, _statusP1);
+            RefreshRow(_rowP2, _statusP2);
         }
 
         private StatusRow CreateRow(RectTransform parent, string rowName, bool rightAligned, Vector2 position)
@@ -60,7 +71,7 @@ namespace FA.Items
             rowRect.anchorMin = rowRect.anchorMax = new Vector2(rightAligned ? 1f : 0f, 0f);
             rowRect.pivot = new Vector2(rightAligned ? 1f : 0f, 0f);
             rowRect.anchoredPosition = position;
-            rowRect.sizeDelta = new Vector2(iconSize * 3f + spacing * 2f, iconSize);
+            rowRect.sizeDelta = new Vector2(iconSize * 2f + spacing, iconSize);
 
             HorizontalLayoutGroup layout = rowObject.GetComponent<HorizontalLayoutGroup>();
             layout.spacing = spacing;
@@ -73,8 +84,7 @@ namespace FA.Items
             return new StatusRow
             {
                 Damage = CreateIcon(rowRect, "DamageBuff", damageBuffSprite),
-                SlowFall = CreateIcon(rowRect, "SlowFall", slowFallSprite),
-                Weather = CreateIcon(rowRect, "WeatherImmunity", weatherImmunitySprite)
+                SlowFall = CreateIcon(rowRect, "SlowFall", slowFallSprite)
             };
         }
 
@@ -162,19 +172,17 @@ namespace FA.Items
             return null;
         }
 
-        private static void RefreshRow(StatusRow row, Transform player)
+        private static void RefreshRow(StatusRow row, PlayerStatuses statuses)
         {
             if (row == null) return;
-            if (player == null)
+            if (statuses == null || statuses.Player == null)
             {
                 row.HideAll();
                 return;
             }
 
-            ItemDamageBuff damage = player.GetComponentInChildren<ItemDamageBuff>();
-            SlowFallStatus slowFall = player.GetComponentInChildren<SlowFallStatus>();
-            WeatherImmunityStatus weather = player.GetComponentInChildren<WeatherImmunityStatus>();
-
+            ItemDamageBuff damage = statuses.Damage;
+            SlowFallStatus slowFall = statuses.SlowFall;
             row.Damage.Set(damage != null && damage.IsActive,
                 damage != null ? $"+{Mathf.RoundToInt(damage.BonusFraction * 100f)}%" : string.Empty,
                 damage != null ? damage.TimeLeft : 0f,
@@ -183,22 +191,45 @@ namespace FA.Items
                 slowFall != null ? $"-{Mathf.RoundToInt(slowFall.GravityReductionFraction * 100f)}%" : string.Empty,
                 slowFall != null ? slowFall.TimeLeft : 0f,
                 slowFall != null ? slowFall.Duration : 1f);
-            row.Weather.Set(weather != null && weather.IsActive, "100%",
-                weather != null ? weather.TimeLeft : 0f,
-                weather != null ? weather.Duration : 1f);
+        }
+
+        /// <summary>Giữ reference status, tránh GetComponent mỗi frame.</summary>
+        private sealed class PlayerStatuses
+        {
+            public Transform Player { get; private set; }
+            public ItemDamageBuff Damage { get; private set; }
+            public SlowFallStatus SlowFall { get; private set; }
+
+            public void SetPlayer(Transform player)
+            {
+                if (Player == player) return;
+                Player = player;
+                Damage = null;
+                SlowFall = null;
+            }
+
+            public void Refresh()
+            {
+                if (Player == null)
+                {
+                    SetPlayer(null);
+                    return;
+                }
+
+                if (Damage == null) Damage = Player.GetComponentInChildren<ItemDamageBuff>();
+                if (SlowFall == null) SlowFall = Player.GetComponentInChildren<SlowFallStatus>();
+            }
         }
 
         private sealed class StatusRow
         {
             public StatusIcon Damage;
             public StatusIcon SlowFall;
-            public StatusIcon Weather;
 
             public void HideAll()
             {
                 Damage.Set(false, string.Empty, 0f, 1f);
                 SlowFall.Set(false, string.Empty, 0f, 1f);
-                Weather.Set(false, string.Empty, 0f, 1f);
             }
         }
 

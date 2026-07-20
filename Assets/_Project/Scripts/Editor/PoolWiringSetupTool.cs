@@ -50,6 +50,10 @@ namespace FA.EditorTools
             ("Assets/_Project/Prefabs/VFX/Emiya_Archer/Super2Explosion_VFX.prefab", 3, 8),
             ("Assets/_Project/Prefabs/VFX/Emiya_Archer/Super2Explosion_VFX_Layer2.prefab", 3, 8),
             ("Assets/_Project/Prefabs/VFX/Emiya_Archer/H_Muzzle_VFX.prefab", 3, 8),
+            // E) ITEM MAP: prefab chung + Mystery override đều tái sử dụng qua PrefabPool.
+            ("Assets/_Project/Prefabs/Items/Item.prefab", 3, 5),
+            ("Assets/_Project/Prefabs/Mystery_Block_66.prefab", 1, 5),
+            ("Assets/_Project/Prefabs/Items/RageOrb.prefab", 1, 1),
         };
 
         [MenuItem("FA/Tools/Setup Pool Wiring (config + Lobby bootstrap)")]

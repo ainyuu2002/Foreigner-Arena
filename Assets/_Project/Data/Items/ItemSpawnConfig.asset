@@ -15,11 +15,10 @@ MonoBehaviour:
   spawnInterval: 8
   maxConcurrent: 5
   itemLifetime: 12
+  mysterySpawnIntervalRange: {x: 30, y: 40}
   safeRectCenter: {x: 0, y: 1}
   safeRectSize: {x: 16, y: 6}
   keepItemsInRect: 1
-  dropFromAboveChance: 0.5
-  dropExtraHeight: 4
   itemPool:
   - {fileID: 11400000, guid: fa1300a0000000000000000000000001, type: 2}
   - {fileID: 11400000, guid: fa1300a0000000000000000000000002, type: 2}

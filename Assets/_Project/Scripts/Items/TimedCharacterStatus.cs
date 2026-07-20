@@ -3,18 +3,7 @@ using UnityEngine;
 
 namespace FA.Items
 {
-    /// <summary>
-    /// (Hợp nhất item) BASE cho MỌI trạng thái NHÂN VẬT có thời hạn từ item (DMG buff / slow-fall / weather
-    /// immunity...). Rút chung phần lặp: cache SpriteRenderer + màu gốc, tint báo hiệu, coroutine đếm GIÂY
-    /// THỰC (NGOẠI LỆ hợp lệ — buff theo thời gian, KHÔNG phải frame-data clip), nháy 3s cuối, tự Destroy.
-    ///
-    /// DÙNG: subclass override <see cref="OnStatusApplied"/>/<see cref="OnStatusRemoved"/> cho hành vi riêng
-    /// (đổi gravity, báo BuffAggregator...). Applier DEDUP theo TYPE bằng GetComponent&lt;TSubclass&gt;() —
-    /// mỗi loại 1 subclass ⇒ 1 component/nhân vật. Refresh = reset thời lượng (KHÔNG stack duration).
-    ///
-    /// CẠM BẪY (CẦN TEST): 2+ status cùng lúc dùng CHUNG danh sách renderer + màu gốc ⇒ tint/nháy có thể
-    /// đè màu gốc của nhau. Chấp nhận trước mắt (không dựng arbiter) — CẦN TEST.
-    /// </summary>
+    /// <summary>Base cho status có thời hạn: đếm giờ, tint, nhấp nháy và tự gỡ.</summary>
     public abstract class TimedCharacterStatus : MonoBehaviour
     {
         protected const float BlinkLeadSeconds = 3f;
@@ -32,10 +21,10 @@ namespace FA.Items
         /// <summary>Trạng thái còn hiệu lực (subclass/hệ khác đọc để kiểm tra, vd weather-immunity).</summary>
         public bool IsActive => _active;
 
-        /// <summary>Seconds remaining, exposed for the status HUD countdown.</summary>
+        /// <summary>Thời gian còn lại cho HUD.</summary>
         public float TimeLeft => Mathf.Max(0f, _timeLeft);
 
-        /// <summary>Total duration of the latest application, used to normalize radial cooldown UI.</summary>
+        /// <summary>Tổng thời gian của lần áp gần nhất.</summary>
         public float Duration => Mathf.Max(0.1f, _duration);
 
         /// <summary>Áp/refresh: cache renderer, đặt thời lượng + tint, gọi hook, chạy 1 coroutine duy nhất.</summary>

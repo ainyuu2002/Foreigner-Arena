@@ -16,10 +16,11 @@ MonoBehaviour:
   tintColor: {r: 1, g: 0.2, b: 0.2, a: 1}
   visualScale: 2
   icon: {fileID: 2212900563798748471, guid: a87afb569607dc3468f6fe2d38e7517f, type: 3}
-  knockbackReducePercent: 0
-  manaAddFraction: 0
-  damageMultiplier: 2
-  damageBuffDuration: 10
+  displayName: DAMAGE CHARM
+  effect:
+    type: 5
+    value: 1
+    duration: 10
   spawnWeight: 1
   prefabOverride: {fileID: 0}
   mysteryOutcomeConfig: {fileID: 0}
