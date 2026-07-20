@@ -2,7 +2,8 @@
     "name": "FA.AI.Tests",
     "rootNamespace": "FA.AI.Tests",
     "references": [
-        "FA.Core"
+        "FA.Core",
+        "FA.AI"
     ],
     "includePlatforms": [
         "Editor"
