@@ -16,6 +16,8 @@ namespace FA.AI
         [Min(0f)] public float lightRange = 1.5f;
         [Min(0f)] public float mediumRange = 2.2f;
         [Min(0f)] public float heavyRange = 3f;
+        [Min(0f)] public float verticalPursuitHeight = 1.4f;
+        [Min(0.02f)] public float pursuitJumpCooldown = 0.35f;
 
         [Header("Recovery - CẦN TEST")]
         [Min(0.1f)] public float groundProbeDistance = 4f;

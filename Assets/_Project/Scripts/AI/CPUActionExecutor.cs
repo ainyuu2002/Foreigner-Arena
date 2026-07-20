@@ -21,7 +21,7 @@ namespace FA.AI
             switch (intent)
             {
                 case CPUIntent.Approach:
-                    return Direction(frame.DirectionToOpponent);
+                    return Pursue(frame);
                 case CPUIntent.KeepDistance:
                 case CPUIntent.Defend:
                     return Direction(-frame.DirectionToOpponent);
@@ -30,8 +30,9 @@ namespace FA.AI
                 case CPUIntent.AttackMedium:
                     return Attack(frame, InputKind.Medium);
                 case CPUIntent.AttackHeavy:
-                case CPUIntent.AntiAir:
                     return Attack(frame, InputKind.Heavy);
+                case CPUIntent.AntiAir:
+                    return ShouldPursueVertically(frame) ? Pursue(frame) : Attack(frame, InputKind.Heavy);
                 case CPUIntent.RecoverToStage:
                     return Recover(frame);
                 case CPUIntent.EscapeImmediateDanger:
@@ -68,6 +69,21 @@ namespace FA.AI
             }
 
             return new CPUHeldInput(direction, 0, jump, dash, false, false, false);
+        }
+
+        private CPUHeldInput Pursue(in CPUPerceptionFrame frame)
+        {
+            bool jump = ShouldPursueVertically(frame) && jumpCooldown <= 0f;
+            if (jump)
+                jumpCooldown = config != null ? config.pursuitJumpCooldown : 0.35f;
+            return new CPUHeldInput(
+                Sign(frame.DirectionToOpponent), 0, jump, false, false, false, false);
+        }
+
+        private bool ShouldPursueVertically(in CPUPerceptionFrame frame)
+        {
+            float threshold = config != null ? config.verticalPursuitHeight : 1.4f;
+            return frame.OpponentPosition.y - frame.SelfPosition.y >= threshold;
         }
 
         private CPUHeldInput Escape(in CPUPerceptionFrame frame)

@@ -86,5 +86,24 @@ namespace FA.AI.Tests
 
             Assert.That(input.DirX, Is.EqualTo(-1));
         }
+
+        [Test]
+        public void GroundedCpu_JumpsWhenApproachingOpponentFarAbove()
+        {
+            var brain = new CPUUtilityBrain(config);
+            var executor = new CPUActionExecutor(config);
+            CPUPerceptionFrame frame = CPUFrameFactory.Create(
+                self: Vector2.zero,
+                opponent: new Vector2(1f, 4f),
+                selfGrounded: true,
+                opponentGrounded: true);
+
+            CPUIntent intent = brain.Decide(frame, CPUOpponentProfile.Neutral, 0.5f);
+            CPUHeldInput input = executor.Tick(intent, frame, 0.02f);
+
+            Assert.That(intent, Is.EqualTo(CPUIntent.Approach));
+            Assert.That(input.Jump, Is.True);
+            Assert.That(input.DirX, Is.EqualTo(1));
+        }
     }
 }

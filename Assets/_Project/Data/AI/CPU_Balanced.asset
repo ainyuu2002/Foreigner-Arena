@@ -20,6 +20,8 @@ MonoBehaviour:
   lightRange: 1.5
   mediumRange: 2.2
   heavyRange: 3
+  verticalPursuitHeight: 1.4
+  pursuitJumpCooldown: 0.35
   groundProbeDistance: 4
   recoveryHorizontalDistance: 8
   recoveryVerticalOffset: 2
