@@ -1,5 +1,6 @@
 using System;
 using NUnit.Framework;
+using UnityEngine;
 using FA.Core;
 
 namespace FA.AI.Tests
@@ -33,6 +34,24 @@ namespace FA.AI.Tests
             Assert.That(parser.WasPressedWithin(InputButton.L, 4), Is.True);
             parser.ConsumePress(InputButton.L, 4);
             Assert.That(parser.WasPressedWithin(InputButton.L, 4), Is.False);
+        }
+
+        [Test]
+        public void RuntimeCpuSource_IsActiveButNeutralWithoutOpponent()
+        {
+            Type sourceType = Type.GetType("FA.AI.CPUInputSource, FA.AI");
+            Assert.That(sourceType, Is.Not.Null);
+
+            var go = new GameObject("CPUInputSource_Test");
+            Component source = go.AddComponent(sourceType);
+            sourceType.GetMethod("SetCpuControl").Invoke(source, new object[] { true });
+            var snapshot = (InputSnapshot)sourceType.GetMethod("ReadSnapshot")
+                .Invoke(source, new object[] { 1 });
+
+            Assert.That((bool)sourceType.GetProperty("IsInputActive").GetValue(source), Is.True);
+            Assert.That(snapshot.DirX, Is.Zero);
+            Assert.That(snapshot.L || snapshot.M || snapshot.H, Is.False);
+            UnityEngine.Object.DestroyImmediate(go);
         }
     }
 }
