@@ -79,6 +79,7 @@ namespace FA.Movement
         // --- Phase 4: Input Buffer + Command Parser (1 cặp/Motor → 2 player độc lập) ---
         private InputBuffer _inputBuffer;
         private CommandParser _parser;
+        private IInputSnapshotSource _alternateInput;
         private int _fixedFrame;          // số fixed-step (deterministic) để stamp snapshot
         // Window đọc từ InputConfigSO (KHÔNG hardcode); fallback nếu chưa gán asset.
         private int BufferFrames => inputConfig != null ? inputConfig.bufferFrames : 10;
@@ -292,6 +293,7 @@ namespace FA.Movement
             // (P10) Cache buff context (Rage Mode) NULL-SAFE — RageModeController nằm cùng root khi P10
             // gắn; không gắn → null → MoveSpeedMult=×1.0 (P1/P3 không đổi). Chỉ qua interface Core (§1.3).
             _buff = GetComponent<IBuffContext>();
+            _alternateInput = GetComponent<IInputSnapshotSource>();
 
             // Áp số liệu vật lý từ data (KHÔNG hardcode). gravityScale dùng thật ở P2.
             if (data != null)
@@ -454,22 +456,16 @@ namespace FA.Movement
             // Input System — di chuyển cần độ mượt). Edge Jump/Dash suy TỪ buffer qua parser
             // (WasPressedWithin) → buffer-tha-thứ: nhập sớm vài frame vẫn ăn. Buffer được nuôi
             // bằng snapshot RAW push ở FixedUpdate.
-            if (_controls != null)
-            {
-                Vector2 move = _controls.Gameplay.Move.ReadValue<Vector2>();
-                _moveX = move.x;
-                _moveY = move.y;
-                // Cache edge "chưa-tiêu-thụ" 1 frame; entry-point gọi ConsumePress để tiêu thụ
-                // (giữ ngữ nghĩa "1 lần nhấn = 1 lần kích" của Motor P3).
-                _jumpPressed = _parser != null && _parser.WasPressedWithin(InputButton.Jump, EdgeWindow);
-                _dashPressed = _parser != null && _parser.WasPressedWithin(InputButton.Dash, EdgeWindow);
-            }
-            else
-            {
-                _moveX = _moveY = 0f;
-                _jumpPressed = false;
-                _dashPressed = false;
-            }
+            bool useAlternate = _alternateInput != null && _alternateInput.IsInputActive;
+            Vector2 move = useAlternate
+                ? _alternateInput.Move
+                : _controls != null ? _controls.Gameplay.Move.ReadValue<Vector2>() : Vector2.zero;
+            _moveX = move.x;
+            _moveY = move.y;
+            // Cache edge "chưa-tiêu-thụ" 1 frame; entry-point gọi ConsumePress để tiêu thụ
+            // (giữ ngữ nghĩa "1 lần nhấn = 1 lần kích" của Motor P3).
+            _jumpPressed = _parser != null && _parser.WasPressedWithin(InputButton.Jump, EdgeWindow);
+            _dashPressed = _parser != null && _parser.WasPressedWithin(InputButton.Dash, EdgeWindow);
 
             // ARM lại re-grab WallHang ngay khi đã RỜI tường thật (raw, không tính grace) ≥1 frame.
             // Sau wall-jump cờ này = false; nhân vật bay ra → IsTouchingRaw=false → armed lại → cho
@@ -556,8 +552,17 @@ namespace FA.Movement
         /// </summary>
         private void PushInputSnapshot()
         {
-            if (_controls == null || _inputBuffer == null) return;
+            if (_inputBuffer == null) return;
             _fixedFrame++;
+
+            if (_alternateInput != null && _alternateInput.IsInputActive)
+            {
+                InputSnapshot alternate = _alternateInput.ReadSnapshot(_fixedFrame);
+                _inputBuffer.Push(in alternate);
+                return;
+            }
+
+            if (_controls == null) return;
 
             Vector2 move = _controls.Gameplay.Move.ReadValue<Vector2>();
             sbyte dx = Quantize(move.x);
