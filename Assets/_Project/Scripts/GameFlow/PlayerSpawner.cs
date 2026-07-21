@@ -41,6 +41,12 @@ namespace FA.GameFlow
             _playerP1 = SpawnOne(charIndexP1, PlayerSlot.P1, mapScene, spawns);
             _playerP2 = SpawnOne(charIndexP2, PlayerSlot.P2, mapScene, spawns);
 
+            // Chốt nguồn điều khiển đúng một lần khi spawn. Hot-plug giữa trận không đổi CPU/human;
+            // rematch spawn object mới nên tự đánh giá lại thiết bị.
+            bool cpuP2 = ShouldEnableCpu(PlayerSlot.P2, LocalInputDevices.HasGamepad);
+            if (_playerP2 != null)
+                _playerP2.BroadcastMessage("SetCpuControl", cpuP2, SendMessageOptions.DontRequireReceiver);
+
             WireOpponents(_playerP1, _playerP2);
             WireOpponents(_playerP2, _playerP1);
 
@@ -51,6 +57,9 @@ namespace FA.GameFlow
 
             RegisterToWinCondition();
         }
+
+        public static bool ShouldEnableCpu(PlayerSlot slot, bool hasGamepad)
+            => slot == PlayerSlot.P2 && !hasGamepad;
 
         /// <summary>
         /// Gán chéo đối thủ sau spawn — FacingController.SetOpponent (auto-face P6) +

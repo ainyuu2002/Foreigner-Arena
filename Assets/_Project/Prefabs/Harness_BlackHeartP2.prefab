@@ -80,6 +80,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 584454292511064029, guid: 57fbbb14dcc34c3caa49001108642d76, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7182629969403011817}
+    - targetCorrespondingSourceObject: {fileID: 584454292511064029, guid: 57fbbb14dcc34c3caa49001108642d76, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8503803461202119463}
   m_SourcePrefab: {fileID: 100100000, guid: 57fbbb14dcc34c3caa49001108642d76, type: 3}
 --- !u!70 &908534017142390263 stripped
 CapsuleCollider2D:
@@ -124,6 +127,9 @@ MonoBehaviour:
   body: {fileID: 7822943830834802685}
   invulnerability: {fileID: 560514795685802784}
   fallbackRespawnPoint: {fileID: 0}
+  respawnHeightOffset: 6
+  platformMaxSeconds: 10
+  platformSprite: {fileID: 0}
 --- !u!114 &113904081932247753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159,6 +165,19 @@ MonoBehaviour:
   onPlayerDied: {fileID: 11400000, guid: bb720499371457e4db341c85508374ad, type: 2}
   root: {fileID: 4615246415421864836}
   livesSystem: {fileID: 113904081932247753}
+--- !u!114 &8503803461202119463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1767559637319753129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83fb9f29f1909e3428cd5a0e575b510f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.AI::FA.AI.CPUInputSource
+  config: {fileID: 11400000, guid: 2b901c8fc0a2cbf488a60fd7e8dd3258, type: 2}
 --- !u!61 &2068920102455886825 stripped
 BoxCollider2D:
   m_CorrespondingSourceObject: {fileID: 877502543702106525, guid: 57fbbb14dcc34c3caa49001108642d76, type: 3}

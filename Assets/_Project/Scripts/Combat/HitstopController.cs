@@ -67,6 +67,14 @@ namespace FA.Combat
             bool involved = ReferenceEquals(hit.Attacker, me) || ReferenceEquals(hit.Victim, me);
             if (!involved) return;
 
+            // Đang chant/flash (CinematicGate, đồng nhất HitReactionController/CombatController/
+            // SpecialController/DefenseController): KHÔNG freeze Animator.speed=0 — freeze này chỉ tự mở
+            // khoá qua FixedUpdate đếm frame, mà FixedUpdate NGỪNG HẲN khi cinematic set Time.timeScale=0 →
+            // Animator.speed kẹt ở 0 vĩnh viễn → clip cinematic không bao giờ tới event kết (SuperFlashEnd/
+            // ChantEnd) → CinematicGate không bao giờ Release → đơ trong flash vĩnh viễn (hit trúng đúng lúc
+            // đang ở flash/chant của chính mình hoặc đối thủ).
+            if (CinematicGate.IsActive) return;
+
             // (P10) ULTIMATE miễn nhiễm hitstop (animation speed CỐ ĐỊNH, research §3.5). Nếu attacker
             // HOẶC victim đang Ultimate → BỎ QUA freeze (cả Animator.speed lẫn velocity-freeze). Null-safe.
             if (IsUltimateInvolved(hit)) return;

@@ -103,6 +103,14 @@ namespace FA.Specials
             // KHÔNG cho super cắt ngang state phòng thủ P10 (fix kẹt flash: super giữa RageModeState kéo
             // Animator khỏi clip chant UBW → ChantEnd/UltimateInstall không bắn → freeze kẹt vĩnh viễn).
             if (_defense != null && _defense.OwnsCurrentState) return false;
+            // KHÔNG cho super kích giữa hitstun/juggle (HurtState/Launcher/WallSplat/GroundBounce, ICombatContext
+            // IsInHitstun — cùng cờ DefenseController dùng chặn Air Dodge). Bug đơ vĩnh viễn: nếu kích trong
+            // lúc HitstopController đang freeze Animator.speed=0, event SuperFlashStart ở frame 0 clip Super
+            // vẫn bắn được (transition-enter không cần elapsed time) → StartFlash() set Time.timeScale=0 →
+            // FixedUpdate (đồng hồ un-freeze của Hitstop) NGỪNG HẲN vì timeScale=0 → Animator.speed kẹt ở 0
+            // vĩnh viễn → clip Super không bao giờ tới SuperFlashEnd → CinematicGate không bao giờ Release →
+            // đơ trong flash vĩnh viễn (bug user bắt: dùng super lúc đang hurt/hitstun/hitstop).
+            if (_ctx.IsInHitstun) return false;
 
             int win = _ctx.EdgeWindow;
             for (int i = 0; i < moveSet.Count; i++)
