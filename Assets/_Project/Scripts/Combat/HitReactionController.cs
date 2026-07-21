@@ -86,6 +86,11 @@ namespace FA.Combat
             GameObject me = root != null ? root.gameObject : gameObject;
             if (!ReferenceEquals(hit.Victim, me)) return;
             if (_ctx == null || combat == null) return;
+            // Đang chant/flash (CinematicGate, đồng nhất CombatController/SpecialController/DefenseController):
+            // KHÔNG ép ChangeState(Hurt/Block) — kéo Animator khỏi clip cinematic giữa chừng làm Animation Event
+            // kết (SuperFlashEnd/UltimateInstall/ChantEnd) không bao giờ bắn → CinematicGate kẹt mở → đơ vĩnh viễn
+            // trong flash (bug user bắt: dùng super/ultimate lúc đang hurt/hitstun/hitstop).
+            if (CinematicGate.IsActive) return;
 
             // 1) BLOCK reactive: chỉ đỡ khi — TẠI THỜI ĐIỂM TRÚNG — victim đang GIỮ LÙI (away khỏi địch)
             //    + ĐANG Ở TRẠNG THÁI CÓ THỂ THỦ (đứng đất + Idle/Walk/đang-Block; KHÔNG đỡ được khi đang

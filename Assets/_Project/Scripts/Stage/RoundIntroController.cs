@@ -107,6 +107,14 @@ namespace FA.Stage
                 p1 != null ? p1.GetComponent<Rigidbody2D>() : null,
                 p2 != null ? p2.GetComponent<Rigidbody2D>() : null);
 
+            // 2c. QUAY MẶT VÀO NHAU (fix bug: LockPhysics ở trên tắt gravity → nếu spawn point chưa sát
+            // đất thì IsGrounded=false suốt intro → FacingController (auto-face P6) bị khoá vì nó CHỈ quay
+            // mặt ở ground-neutral (IsGrounded && Idle/Walk) → P2 đứng yên quay lưng thay vì nhìn P1. Set
+            // TRỰC TIẾP qua ICombatContext.SetFacing (Core) — KHÔNG cần chờ auto-face/grounded, KHÔNG ref
+            // FA.Combat (§1.3). 1 lần đủ: physics đã khoá đứng yên, không ai đổi facing giữa intro (mọi
+            // entry-point input đều gate CinematicGate.IsActive).
+            FaceEachOther(p1, p2);
+
             // 3. Tắt cả 2 vcam intro (bắt đầu từ khung đánh).
             SetCam(introCamP1, null, idlePriority);
             SetCam(introCamP2, null, idlePriority);
@@ -176,6 +184,21 @@ namespace FA.Stage
             if (relay != null) relay.RecoveryEndEvent -= onEnd;
             SetStateId(who, IdleStateId);       // trả về Idle trước khi zoom sang người kế.
             SetCam(cam, null, idlePriority);
+        }
+
+        /// <summary>Quay P1/P2 vào nhau (2b) — dùng ICombatContext.SetFacing trực tiếp (Core interface,
+        /// KHÔNG qua FacingController vì nó gate IsGrounded/Idle — không đảm bảo đúng suốt intro khi
+        /// spawn point chưa sát đất). Null-safe từng người.</summary>
+        private static void FaceEachOther(Transform p1, Transform p2)
+        {
+            if (p1 == null || p2 == null) return;
+            ICombatContext ctx1 = p1.GetComponent<ICombatContext>();
+            ICombatContext ctx2 = p2.GetComponent<ICombatContext>();
+            float dx = p2.position.x - p1.position.x;
+            if (Mathf.Abs(dx) < 0.001f) return; // trùng x (hiếm) → giữ hướng mặc định, tránh chia 0/rung.
+            int dirP1 = dx > 0f ? 1 : -1;
+            ctx1?.SetFacing(dirP1);
+            ctx2?.SetFacing(-dirP1);
         }
 
         private void FindPlayers(out Transform p1, out Transform p2)
