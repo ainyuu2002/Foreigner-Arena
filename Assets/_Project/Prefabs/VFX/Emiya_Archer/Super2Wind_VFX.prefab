@@ -43,7 +43,7 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 2.6
   simulationSpeed: 1
-  stopAction: 2
+  stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
@@ -9681,6 +9681,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8823914039675570637}
+  - component: {fileID: 5471928360718254093}
   m_Layer: 0
   m_Name: Super2Wind_VFX
   m_TagString: Untagged
@@ -9705,3 +9706,15 @@ Transform:
   - {fileID: 543803335181035166}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5471928360718254093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3606890439570376408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 696e8a2f4d3f7db6a7eb47f2f2cf1c0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Core::FA.Core.PooledParticleRelease

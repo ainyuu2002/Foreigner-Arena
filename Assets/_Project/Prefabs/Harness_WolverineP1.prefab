@@ -56,6 +56,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6618278229166946149, guid: 8504ee4ba95442a4aacb36a9b1dbaf97, type: 3}
+      propertyPath: m_Size.y
+      value: 0.6935128
+      objectReference: {fileID: 0}
+    - target: {fileID: 6618278229166946149, guid: 8504ee4ba95442a4aacb36a9b1dbaf97, type: 3}
+      propertyPath: m_Offset.x
+      value: 0.045000017
+      objectReference: {fileID: 0}
+    - target: {fileID: 6618278229166946149, guid: 8504ee4ba95442a4aacb36a9b1dbaf97, type: 3}
+      propertyPath: m_Offset.y
+      value: 0.3467564
+      objectReference: {fileID: 0}
     - target: {fileID: 8462392293323820384, guid: 8504ee4ba95442a4aacb36a9b1dbaf97, type: 3}
       propertyPath: inputScheme
       value: 1
@@ -125,6 +137,9 @@ MonoBehaviour:
   body: {fileID: 4759567282326988132}
   invulnerability: {fileID: 9160494972867570027}
   fallbackRespawnPoint: {fileID: 0}
+  respawnHeightOffset: 6
+  platformMaxSeconds: 10
+  platformSprite: {fileID: 0}
 --- !u!114 &6219539400092109617
 MonoBehaviour:
   m_ObjectHideFlags: 0
