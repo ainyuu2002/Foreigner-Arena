@@ -7,18 +7,7 @@ using FA.Items;
 
 namespace FA.EditorTools
 {
-    /// <summary>
-    /// (Item Chặng 2) DỰNG DATA (SO) cho hệ item hợp nhất — mọi số balance ở SO (CLAUDE §3.4), CẦN TEST.
-    /// Idempotent (LoadOrCreate). Gồm:
-    /// 1) Item_MysteryBlock.asset — ItemData type=MysteryBlock, prefabOverride=Mystery_Block_66, outcomeConfig,
-    ///    visualScale=0.19 (box native 3.22u @ scale1 → world-height ≈0.61u, ~39% chiều cao nhân vật ~1.55u).
-    /// 2) Gán icon TẠM cho 9 bình (3 hình phân biệt 3 LOẠI; tier phân biệt bằng visualScale) + mystery.
-    /// 2b) (fa-fix ISSUE 1) Set lại visualScale 9 bình theo tier T1/T2/T3=1.6/1.8/2.0 — world-height ≈0.42–0.60u
-    ///    (~27–39% chiều cao nhân vật Emiya Archer ~1.55u = root scale 2.5 × sprite 62px/100PPU). CẦN TEST.
-    /// 3) OnMatchStartChannel.asset (VoidEventChannelSO) ở Data/GameFlow.
-    /// 4) ItemSpawnConfig_Ice/Fire/Swamp.asset — pool 9 bình + mystery, fly-bounds/safe-rect theo geometry mỗi map.
-    /// CLI: -executeMethod FA.EditorTools.ItemDataSetupTool.Run
-    /// </summary>
+    /// <summary>Tạo hoặc cập nhật data, icon và spawn config của hệ item.</summary>
     public static class ItemDataSetupTool
     {
         private const string ItemsDataDir = "Assets/_Project/Data/Items";
@@ -31,13 +20,13 @@ namespace FA.EditorTools
         private const string MysteryBoxSheet = "Assets/_Project/Art/Items/Mystery Box.png";
         private const long MysteryBoxLocalId = -7953269085874672423;
 
-        // (fa-fix ISSUE 1) visualScale theo tier — item cao ~30-40% nhân vật (~1.55u). CẦN TEST.
+        // Kích thước hiển thị theo tier.
         private const float ScaleT1 = 1.6f;
         private const float ScaleT2 = 1.8f;
         private const float ScaleT3 = 2.0f;
         private const float MysteryScale = 0.19f;
 
-        // 3 hình TẠM phân biệt 3 LOẠI (dev đổi qua ItemData.icon).
+        // Icon mặc định cho từng loại bình.
         private const string KnockbackIcon = "Mobile - Idle Skilling - Apothecary - Potions_0";
         private const string ManaIcon = "Mobile - Idle Skilling - Apothecary - Potions_10";
         private const string DamageIcon = "Mobile - Idle Skilling - Apothecary - Potions_20";
@@ -86,12 +75,19 @@ namespace FA.EditorTools
                 AssetDatabase.CreateAsset(data, MysteryDataPath);
             }
             data.type = ItemType.MysteryBlock;
-            data.tintColor = Color.white;                 // white — không tint box.
-            data.visualScale = MysteryScale;              // box native 3.22u → world-height ≈0.61u. CẦN TEST.
+            data.tintColor = Color.white;
+            data.visualScale = MysteryScale;
             data.icon = LoadMysteryBox();
-            data.spawnWeight = 2f;                        // CẦN TEST.
+            data.spawnWeight = 2f;
             data.mysteryOutcomeConfig = AssetDatabase.LoadAssetAtPath<MysteryBlockOutcomeConfigSO>(OutcomeConfigPath);
             data.prefabOverride = AssetDatabase.LoadAssetAtPath<GameObject>(MysteryPrefabPath);
+            var serialized = new SerializedObject(data);
+            serialized.FindProperty("displayName").stringValue = "MYSTERY BLOCK";
+            SerializedProperty effect = serialized.FindProperty("effect");
+            effect.FindPropertyRelative("type").enumValueIndex = (int)ItemEffectType.ResistanceRecovery;
+            effect.FindPropertyRelative("value").floatValue = 0f;
+            effect.FindPropertyRelative("duration").floatValue = 0f;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(data);
             return data;
         }
@@ -109,8 +105,7 @@ namespace FA.EditorTools
             }
         }
 
-        /// <summary>(fa-fix ISSUE 1) Item quá bé — set visualScale theo tier (suffix _T1/_T2/_T3 tên asset)
-        /// để item cao ~30-40% nhân vật, giữ chênh lệch tier (T1&lt;T2&lt;T3). CẦN TEST.</summary>
+        /// <summary>Đặt kích thước item theo hậu tố tier của asset.</summary>
         private static void SetPotionVisualScales()
         {
             foreach (string name in PotionAssets)
@@ -149,9 +144,10 @@ namespace FA.EditorTools
                 cfg = ScriptableObject.CreateInstance<ItemSpawnConfigSO>();
                 AssetDatabase.CreateAsset(cfg, path);
             }
-            cfg.spawnInterval = 10f;       // CẦN TEST.
-            cfg.maxConcurrent = 3;         // CẦN TEST.
-            cfg.itemLifetime = 13f;        // CẦN TEST.
+            cfg.spawnInterval = 10f;
+            cfg.maxConcurrent = 3;
+            cfg.itemLifetime = 13f;
+            cfg.mysterySpawnIntervalRange = new Vector2(30f, 40f);
             cfg.keepItemsInRect = true;
             cfg.flyBoundsCenter = flyCenter;
             cfg.flyBoundsSize = flySize;

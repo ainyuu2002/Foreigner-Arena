@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 869d9b006626dfc409b88e350ab679b7, type: 3}
   m_Name: BlackHeart_InputConfig
   m_EditorClassIdentifier: FA.Core::FA.Core.InputConfigSO
-  bufferFrames: 10
+  bufferFrames: 24
+  doubleTapDownWindow: 20
+  dropThroughIgnoreSeconds: 0.35
   edgeWindow: 6
   motionWindow: 12
   tapMaxHold: 7

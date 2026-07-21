@@ -24,9 +24,13 @@ namespace FA.EditorTools
     {
         public const string HudName = "HUD_InMatch";
 
+        // (Item HUD integration) Prefab buff icon (feature/item-system) — instantiate làm con của canvas
+        // HUD mỗi lần Build() để KHÔNG rớt khi ai rebuild HUD sau này (UIHudBuilder dựng lại canvas từ
+        // đầu, object gắn tay ngoài code sẽ mất — bài học PoolBootstrap/onMatchStart trước đây).
+        private const string ItemBuffHudPrefabPath = "Assets/_Project/Prefabs/Items/ItemBuffHud.prefab";
+
         // ── Palette kiểu SF6 ──
-        private static readonly Color VitLow   = Color.white;                       // % = 0  (trắng)
-        private static readonly Color VitHigh  = new Color(0.92f, 0.16f, 0.18f, 1f);// % = max (đỏ)
+        private static readonly Color VitLow   = Color.white;                       // % = 0 (trắng — bậc màu runtime do PercentColorView.tierColors quyết, task 6)
         private static readonly Color DriveCol = new Color(1f, 0.55f, 0.10f, 1f);   // Nộ (CAM — team chốt tuần 3)
         private static readonly Color ManaP1Col = new Color(0.95f, 0.25f, 0.30f, 1f);   // Mana P1 (ĐỎ — màu phe)
         private static readonly Color ManaP2Col = new Color(0.25f, 0.58f, 0.98f, 1f);   // Mana P2 (XANH — màu phe)
@@ -78,7 +82,25 @@ namespace FA.EditorTools
             // mana 4 ô xuống góc dưới, giữ nguyên kích thước ô.
             BuildBottomMana(hud.transform, true, ch, maxSegments);
             BuildBottomMana(hud.transform, false, ch, maxSegments);
+            BuildItemBuffHud(hud.transform);
             return hud;
+        }
+
+        // ───────────────────── Item Buff HUD (feature/item-system) ─────────────────────
+
+        /// <summary>Gắn prefab ItemBuffHud (dãy icon buff P1/P2, tự tìm player theo layer + tự định vị
+        /// qua p1Position/p2Position của chính nó — KHÔNG cần wire thêm gì ở đây). Thiếu prefab (project
+        /// chưa merge item-system) → log cảnh báo, KHÔNG chặn build HUD còn lại (no-regression).</summary>
+        private static void BuildItemBuffHud(Transform hudParent)
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(ItemBuffHudPrefabPath);
+            if (prefab == null)
+            {
+                Debug.LogWarning($"[UIHudBuilder] Thiếu {ItemBuffHudPrefabPath} — bỏ qua Item Buff HUD.");
+                return;
+            }
+            var inst = (GameObject)PrefabUtility.InstantiatePrefab(prefab, hudParent);
+            inst.name = "ItemBuffHud";
         }
 
         // ───────────────────── Timer (trên-giữa) ─────────────────────
@@ -203,8 +225,8 @@ namespace FA.EditorTools
             UIKit.SetObj(so, "channel", channel);
             UIKit.SetObj(so, "barImage", barImg);
             UIKit.SetFloat(so, "maxRawValue", Mathf.Max(1f, maxRaw));
-            var lo = so.FindProperty("lowColor"); if (lo != null) lo.colorValue = VitLow;
-            var hi = so.FindProperty("highColor"); if (hi != null) hi.colorValue = VitHigh;
+            // (task 6) Màu theo BẬC trắng→xanh→vàng→cam→đỏ — dùng mặc định tierColors trong
+            // PercentColorView (1 nguồn), builder không đè lowColor/highColor như bản lerp cũ nữa.
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(view);
         }

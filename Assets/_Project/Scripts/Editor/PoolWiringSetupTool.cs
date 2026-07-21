@@ -50,7 +50,11 @@ namespace FA.EditorTools
             ("Assets/_Project/Prefabs/VFX/Emiya_Archer/Super2Explosion_VFX.prefab", 3, 8),
             ("Assets/_Project/Prefabs/VFX/Emiya_Archer/Super2Explosion_VFX_Layer2.prefab", 3, 8),
             ("Assets/_Project/Prefabs/VFX/Emiya_Archer/H_Muzzle_VFX.prefab", 3, 8),
-            // E) VFX ÍT INSTANCE vòng đời dài (overlay cut-in, nền UBW, gió Super2) — prewarm 1
+            // E) ITEM MAP: prefab chung + Mystery override đều tái sử dụng qua PrefabPool.
+            ("Assets/_Project/Prefabs/Items/Item.prefab", 3, 5),
+            ("Assets/_Project/Prefabs/Mystery_Block_66.prefab", 1, 5),
+            ("Assets/_Project/Prefabs/Items/RageOrb.prefab", 1, 1),
+            // F) VFX ÍT INSTANCE vòng đời dài (overlay cut-in, nền UBW, gió Super2) — prewarm 1
             ("Assets/_Project/Prefabs/VFX/Emiya_Archer/SuperFlashOverlay.prefab", 1, 2),
             ("Assets/_Project/Prefabs/VFX/Emiya_Archer/UBW_Background.prefab", 1, 2),
             ("Assets/_Project/Prefabs/VFX/Emiya_Archer/Super2Wind_VFX.prefab", 1, 4),

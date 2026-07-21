@@ -99,7 +99,7 @@ namespace FA.GameFlow
             if (onMatchEnded != null) onMatchEnded.OnEventRaised += OnMatchEnded;
             if (onRoundIntroFinished != null) onRoundIntroFinished.OnEventRaised += OnRoundIntroFinished;
             // DEBUG harness P12
-            Debug.Log($"[MatchManager] OnEnable subscribe P1={(onCharSelectedP1 != null)} P2={(onCharSelectedP2 != null)} Stage={(onStageSelected != null)}");
+            DebugLog.Log($"[MatchManager] OnEnable subscribe P1={(onCharSelectedP1 != null)} P2={(onCharSelectedP2 != null)} Stage={(onStageSelected != null)}");
         }
 
         private void OnDisable()
@@ -128,14 +128,14 @@ namespace FA.GameFlow
 
         private void GoToStageSelect()
         {
-            Debug.Log("[MatchManager] → StageSelect"); // DEBUG harness P12
+            DebugLog.Log("[MatchManager] → StageSelect"); // DEBUG harness P12
             _phase = MatchPhase.StageSelect;
             ShowOnly(stageSelectPanel);
         }
 
         private void GoToMatch()
         {
-            Debug.Log("[MatchManager] → Match (spawn players)"); // DEBUG harness P12
+            DebugLog.Log("[MatchManager] → Match (spawn players)"); // DEBUG harness P12
             _phase = MatchPhase.Match;
             ShowOnly(null);                 // ẩn mọi panel menu
             if (matchHud != null) matchHud.SetActive(true);
@@ -227,14 +227,14 @@ namespace FA.GameFlow
         private void SetCharP1(int idx)
         {
             _charP1 = idx;
-            Debug.Log($"[MatchManager] SetCharP1={idx} (P2={_charP2}) gate→{(_charP2 >= 0)}"); // DEBUG harness P12
+            DebugLog.Log($"[MatchManager] SetCharP1={idx} (P2={_charP2}) gate→{(_charP2 >= 0)}"); // DEBUG harness P12
             if (_charP2 >= 0) GoToStageSelect();   // cả 2 đã chọn → sang stage.
         }
 
         private void SetCharP2(int idx)
         {
             _charP2 = idx;
-            Debug.Log($"[MatchManager] SetCharP2={idx} (P1={_charP1}) gate→{(_charP1 >= 0)}"); // DEBUG harness P12
+            DebugLog.Log($"[MatchManager] SetCharP2={idx} (P1={_charP1}) gate→{(_charP1 >= 0)}"); // DEBUG harness P12
             if (_charP1 >= 0) GoToStageSelect();
         }
 

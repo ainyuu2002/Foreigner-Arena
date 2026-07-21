@@ -125,6 +125,7 @@ GameObject:
   - component: {fileID: 8185938671784161670}
   - component: {fileID: 3998289813332915396}
   - component: {fileID: 1184978784061725438}
+  - component: {fileID: 368152304503551936}
   m_Layer: 11
   m_Name: Emiya Archer
   m_TagString: Untagged
@@ -332,6 +333,8 @@ MonoBehaviour:
   inputConfig: {fileID: 11400000, guid: f4050133ba61d844999ac5527b932a2c, type: 2}
   inputScheme: 0
   gamepadIndex: 0
+  pairExtraGamepad: 0
+  extraGamepadIndex: 1
 --- !u!114 &3624986202743913585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -526,7 +529,7 @@ MonoBehaviour:
   onHitConfirmed: {fileID: 11400000, guid: c562eebe48484723967febf4e694280c, type: 2}
   onComboChanged: {fileID: 11400000, guid: 09c6384b97264b8f8a5056d377efc685, type: 2}
   root: {fileID: 0}
-  comboResetFrames: 24
+  comboResetFrames: 36
   milestone1: 10
   milestone2: 20
 --- !u!114 &8364922129431121209
@@ -563,6 +566,7 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 839d36856b5a9b34db9995a819ad63b4, type: 2}
   percent: {fileID: 8364922129431121209}
   knockback: {fileID: 143961383263140265}
+  hitstop: {fileID: 0}
   root: {fileID: 0}
   pendingGraceFrames: 100
 --- !u!114 &143961383263140265
@@ -738,7 +742,7 @@ AudioSource:
   m_GameObject: {fileID: 584454292511064029}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300003, guid: aa0df100aa0df100aa0df100aa0df101, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
@@ -1326,6 +1330,8 @@ MonoBehaviour:
   music: {fileID: 5370597810873021979}
   auraParticles: {fileID: 6006172854784040394}
   rageSpenderBehaviour: {fileID: 0}
+  onBgmDuckRequested: {fileID: 11400000, guid: 4da2ae0ffa5e1754187a924f97dc94cc, type: 2}
+  onBgmRestoreRequested: {fileID: 11400000, guid: d0ce2986ce200dd4d8fff9b580cb7adf, type: 2}
   damageDealtMult: 1.3
   damageTakenMult: 0.7
   drainSeconds: 12
@@ -1455,6 +1461,19 @@ MonoBehaviour:
   loseFx: {fileID: 11400000, guid: af8fcc4115eb4a446962effac2bd74c7, type: 2}
   drawFx: {fileID: 11400000, guid: b5ad8728eaf3104488fa3c9f532b1993, type: 2}
   drawFadeTime: 2
+--- !u!114 &368152304503551936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ec25df339c418945adee22bf6e911cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Movement::FA.Movement.PlatformDropThrough
+  bodyCollider: {fileID: 0}
 --- !u!1 &608847813806676017
 GameObject:
   m_ObjectHideFlags: 0

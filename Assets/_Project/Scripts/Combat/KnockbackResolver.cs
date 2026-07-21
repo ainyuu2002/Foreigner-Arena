@@ -57,6 +57,15 @@ namespace FA.Combat
         [Tooltip("KnockbackController (vào tumble + material nảy). BẮT BUỘC gán.")]
         [SerializeField] private KnockbackController knockback;
 
+        [Tooltip("(Fix race hitstop-chồng) HitstopController cùng prefab — hỏi IsFrozen TRƯỚC khi áp " +
+                 "velocity văng: đòn nhiều hit mà hit CUỐI causesLaunch/spike trúng trong lúc freeze của " +
+                 "hit TRƯỚC còn dư (freeze bị gia hạn dài hơn _applyDelay của riêng hit này) → không gate " +
+                 "thì set velocity văng NGAY LÚC hitstop vẫn đang chạy, bị FixedUpdate hitstop zero lại " +
+                 "(§ HitstopController), tới lúc hết freeze mới restore về _savedVelocity CŨ (nhỏ/lệch) " +
+                 "→ nạn nhân trôi chậm sai hướng thay vì văng thật. Bỏ trống = tự GetComponent (cùng " +
+                 "prefab, pattern CombatController).")]
+        [SerializeField] private HitstopController hitstop;
+
         [Tooltip("Root để so 'mình có phải victim không'. Bỏ trống = transform.root.")]
         [SerializeField] private Transform root;
 
@@ -103,6 +112,7 @@ namespace FA.Combat
             if (root == null) root = transform.root;
             _ctx = GetComponent<ICombatContext>();
             _body = root != null ? root.GetComponent<Rigidbody2D>() : GetComponent<Rigidbody2D>();
+            if (hitstop == null) hitstop = GetComponent<HitstopController>(); // null-safe: thiếu = bỏ gate (hành vi cũ).
             if (_ctx == null) Debug.LogError("[KnockbackResolver] Thiếu ICombatContext.", this);
             if (config == null) Debug.LogError("[KnockbackResolver] Thiếu KnockbackConfigSO.", this);
         }
@@ -211,6 +221,17 @@ namespace FA.Combat
             // Đã bỏ nhánh đếm release-timer (P7) — văng tại KnockbackPoint (Animation Event) thay thế.
             if (_applyDelay < 0) return;
             if (_applyDelay > 0) { _applyDelay--; return; }
+
+            // (Fix race hitstop-chồng) _applyDelay đếm RIÊNG theo hitstop của hit gây văng — nếu 1 hit
+            // TRƯỚC đó (cùng combo nhiều hit) đang giữ freeze DÀI HƠN (HitstopController gia hạn theo
+            // Max, không cộng dồn — §HitstopController) thì _applyDelay chạm 0 SỚM HƠN lúc hitstop thật
+            // sự kết thúc. Set velocity ngay lúc này sẽ bị FixedUpdate hitstop zero lại (đứng hình nuốt
+            // cú văng) → hết freeze restore về _savedVelocity CŨ (nhỏ/sai hướng) = "trôi chậm" thay vì
+            // văng thật. GIỮ NGUYÊN _applyDelay=0 (KHÔNG set -1, KHÔNG mất _applyVelocity đã tính) và
+            // thử lại frame sau — chỉ hoãn thêm đúng phần hitstop còn dư, case bình thường (không chồng)
+            // không bị ảnh hưởng vì lúc _applyDelay chạm 0 hitstop của chính hit này đã hết từ 1 frame trước.
+            if (hitstop != null && hitstop.IsFrozen) return;
+
             _applyDelay = -1;
             if (_body != null) _body.linearVelocity = _applyVelocity;
             if (knockback != null) knockback.EnterTumble();

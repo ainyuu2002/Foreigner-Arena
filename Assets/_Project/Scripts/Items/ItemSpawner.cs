@@ -5,44 +5,29 @@ using FA.Core;
 
 namespace FA.Items
 {
-    /// <summary>
-    /// (Hợp nhất item) SPAWNER ITEM DUY NHẤT — BAY quanh map (gộp từ MysteryBlockSpawner) rồi THẢ item từ vị
-    /// trí đang bay để rơi bằng physics. Code chỉ ĐIỀU PHỐI: coroutine timer theo spawnInterval, giữ list
-    /// item sống, cap maxConcurrent, chọn ItemData (weighted) rồi Instantiate prefab (data.prefabOverride ??
-    /// itemPrefab — Mystery dùng prefab riêng, bình dùng prefab chung). Vùng an toàn (giữ-trong-map) +
-    /// vùng BAY đều nằm trong <see cref="ItemSpawnConfigSO"/> (KHÔNG ref FA.Stage).
-    ///
-    /// VÒNG ĐỜI TRẬN: nghe VoidEventChannelSO onMatchStart → StartSpawning; onMatchEnded → StopSpawning
-    /// (subscribe OnEnable / unsubscribe OnDisable). autoStart giữ cho scene test độc lập.
-    /// </summary>
+    /// <summary>Bay trong map và spawn item từ pool theo cấu hình.</summary>
     [DisallowMultipleComponent]
     public sealed class ItemSpawner : MonoBehaviour
     {
         [Header("Cấu hình")]
-        [Tooltip("ItemSpawnConfigSO — nhịp/cap/lifetime/safe-rect/fly-bounds/pool. BẮT BUỘC gán.")]
         [SerializeField] private ItemSpawnConfigSO config;
 
-        [Tooltip("Prefab item CHUNG (có Item + Rigidbody2D + collider thân + child trigger Layer Item). " +
-                 "ItemData.prefabOverride (nếu có) ghi đè cho item đó.")]
         [SerializeField] private Item itemPrefab;
 
-        [Tooltip("Tự bắt đầu spawn khi scene chạy (test). Tắt nếu để onMatchStart điều khiển.")]
         [SerializeField] private bool autoStart = true;
 
         [Header("(Tùy) VFX spawn-in")]
-        [Tooltip("ParticleSystem phát tại chỗ khi item xuất hiện. Optional.")]
         [SerializeField] private ParticleSystem spawnVfxPrefab;
 
         [Header("Kênh vòng đời trận (Void Event Channel)")]
-        [Tooltip("onMatchStart — MatchManager raise khi vào Match → StartSpawning.")]
         [SerializeField] private VoidEventChannelSO onMatchStart;
-        [Tooltip("onMatchEnded — WinCondition/MatchManager raise → StopSpawning.")]
         [SerializeField] private VoidEventChannelSO onMatchEnded;
 
         private readonly List<Item> _alive = new List<Item>();
         private Coroutine _loop;
         private Vector2 _velocity;
         private float _directionTimer;
+        private float _nextMysterySpawnTime;
 
         private void OnEnable()
         {
@@ -71,6 +56,7 @@ namespace FA.Items
                 Debug.LogError("[ItemSpawner] Thiếu config hoặc itemPrefab.", this);
                 return;
             }
+            ScheduleNextMystery();
             _loop = StartCoroutine(SpawnLoop());
         }
 
@@ -89,28 +75,38 @@ namespace FA.Items
                 yield return wait;
                 PruneDead();
                 if (_alive.Count >= config.maxConcurrent) continue;
-                SpawnOne();
+                bool spawnMystery = Time.time >= _nextMysterySpawnTime;
+                SpawnOne(spawnMystery);
             }
         }
 
         private void PruneDead()
         {
             for (int i = _alive.Count - 1; i >= 0; i--)
-                if (_alive[i] == null) _alive.RemoveAt(i);
+            {
+                Item item = _alive[i];
+                if (item != null && item.gameObject.activeSelf) continue;
+                if (item != null) item.Finished -= OnItemFinished;
+                _alive.RemoveAt(i);
+            }
         }
 
-        private void SpawnOne()
+        private void SpawnOne(bool spawnMystery)
         {
-            ItemData data = config.PickWeighted();
+            ItemData data = spawnMystery ? config.PickMystery() : config.PickRegular();
+            if (data == null && spawnMystery) data = config.PickRegular();
             if (data == null) return;
 
             Vector3 pos = transform.position; // thả từ vị trí spawner đang bay → rơi bằng gravity.
 
-            Item item = InstantiateItem(data, pos);
+            Item item = SpawnItem(data, pos);
             if (item == null) return;
 
             item.Init(data, config.itemLifetime, config.SafeRect, config.keepItemsInRect);
+            item.Finished -= OnItemFinished;
+            item.Finished += OnItemFinished;
             _alive.Add(item);
+            if (spawnMystery) ScheduleNextMystery();
 
             if (spawnVfxPrefab != null)
             {
@@ -124,20 +120,33 @@ namespace FA.Items
             }
         }
 
-        private Item InstantiateItem(ItemData data, Vector3 pos)
+        private void ScheduleNextMystery()
         {
-            if (data.prefabOverride != null)
+            float min = Mathf.Min(config.mysterySpawnIntervalRange.x, config.mysterySpawnIntervalRange.y);
+            float max = Mathf.Max(config.mysterySpawnIntervalRange.x, config.mysterySpawnIntervalRange.y);
+            _nextMysterySpawnTime = Time.time + Random.Range(Mathf.Max(0.5f, min), Mathf.Max(0.5f, max));
+        }
+
+        private Item SpawnItem(ItemData data, Vector3 pos)
+        {
+            GameObject prefab = data.prefabOverride != null ? data.prefabOverride : itemPrefab.gameObject;
+            GameObject go = PrefabPool.Spawn(prefab, pos, Quaternion.identity);
+            if (go == null) return null;
+
+            Item item = go.GetComponent<Item>();
+            if (item == null)
             {
-                GameObject go = Instantiate(data.prefabOverride, pos, Quaternion.identity);
-                Item item = go.GetComponent<Item>();
-                if (item == null)
-                {
-                    Debug.LogError($"[ItemSpawner] prefabOverride của {data.name} thiếu component Item.", this);
-                    Destroy(go);
-                }
-                return item;
+                Debug.LogError($"[ItemSpawner] prefab của {data.name} thiếu component Item.", this);
+                PrefabPool.Despawn(go);
             }
-            return Instantiate(itemPrefab, pos, Quaternion.identity);
+            return item;
+        }
+
+        private void OnItemFinished(Item item)
+        {
+            if (item == null) return;
+            item.Finished -= OnItemFinished;
+            _alive.Remove(item);
         }
 
         // ---- Bay quanh map (gộp từ MysteryBlockSpawner) ----

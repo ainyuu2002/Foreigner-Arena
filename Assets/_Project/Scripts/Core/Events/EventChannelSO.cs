@@ -20,8 +20,6 @@ namespace FA.Core
         /// <summary>Module phát sự kiện gọi hàm này; mọi listener đã subscribe sẽ nhận payload.</summary>
         public void RaiseEvent(T value)
         {
-            // DEBUG harness P12
-            Debug.Log($"[EventChannel] {name} Raise({value}) listeners={(OnEventRaised == null ? 0 : OnEventRaised.GetInvocationList().Length)}");
             OnEventRaised?.Invoke(value);
         }
     }

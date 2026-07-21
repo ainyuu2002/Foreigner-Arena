@@ -19,6 +19,7 @@ MonoBehaviour:
   motion: 0
   button: 7
   chargeFrames: 0
+  chargedVariant: {fileID: 0}
   manaCostUnits: 0
   rageCost: 0
   requiresRageMode: 0
@@ -34,7 +35,7 @@ MonoBehaviour:
   onHitAdvantage: 0
   hitsLow: 1
   hitsHigh: 1
-  hitstunFrames: 22
+  hitstunFrames: 28
   hitstopFrames: 2
   motionImpulses: []
   driftSpeed: 0

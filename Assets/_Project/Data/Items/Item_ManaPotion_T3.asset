@@ -16,10 +16,11 @@ MonoBehaviour:
   tintColor: {r: 0.2, g: 0.5, b: 1, a: 1}
   visualScale: 2
   icon: {fileID: -7878718650673093578, guid: a87afb569607dc3468f6fe2d38e7517f, type: 3}
-  knockbackReducePercent: 0
-  manaAddFraction: 0.2
-  damageMultiplier: 1
-  damageBuffDuration: 10
+  displayName: MANA POTION
+  effect:
+    type: 1
+    value: 0.2
+    duration: 0
   spawnWeight: 1
   prefabOverride: {fileID: 0}
   mysteryOutcomeConfig: {fileID: 0}

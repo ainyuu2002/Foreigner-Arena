@@ -122,7 +122,7 @@ namespace FA.Stage
             if (animator != null) animator.SetFloat(_damageParamHash, 1f);
             if (crackedHitbox != null) crackedHitbox.SetActive(false);
             if (deathZoneObject != null) deathZoneObject.SetActive(true); // mở vùng chết sau tường.
-            Debug.Log($"[BreakableWall] '{name}' VỠ → mở death zone.", this);
+            DebugLog.Log($"[BreakableWall] '{name}' VỠ → mở death zone.", this);
         }
 
         /// <summary>Reset tường về nguyên vẹn (debug/test, hoặc P12 đầu trận). </summary>

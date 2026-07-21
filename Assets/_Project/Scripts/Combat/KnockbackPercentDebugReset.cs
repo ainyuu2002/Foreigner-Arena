@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using FA.Core;
 
 namespace FA.Combat
 {
@@ -30,7 +31,7 @@ namespace FA.Combat
             if (targets == null) return;
             foreach (var p in targets)
                 if (p != null) p.ResetPercent();
-            Debug.Log("[Knockback] Reset % về 0 (debug).");
+            DebugLog.Log("[Knockback] Reset % về 0 (debug).");
         }
     }
 }

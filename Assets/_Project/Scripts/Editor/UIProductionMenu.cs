@@ -116,6 +116,7 @@ namespace FA.EditorTools
             GameObject pauseMenu = UISettingsBuilder.BuildPauseMenu(ch, hud); // ESC trong trận (canvas 400).
             UILobbyBuilder.ToCameraSpace(menu);
             UILobbyBuilder.BuildSystems(ch, menu, hud, endScreen);
+            UILobbyBuilder.WireEscBack(ch, menu, mainMenu); // v10.11: ESC = back ở CharSelect/StageSelect.
             hud.SetActive(false); // MatchManager bật khi vào Match (matchHud).
 
             EnsurePrefabFolder();
@@ -131,8 +132,8 @@ namespace FA.EditorTools
             // Cảnh báo scene map thiếu trong Build Settings (LoadSceneAsync sẽ fail).
             var missing = UILobbyBuilder.MissingBuildScenes(ch.StageRegistry);
             var sb = new StringBuilder();
-            sb.AppendLine("[UIProduction] HOÀN TẤT dựng LOBBY v10.4 (ô nộ Filled dùng quad trắng sắc cạnh — hết bo tròn nhòe khi sáng; mana P2 đầy mirror từ phía portrait; startSegments 0 — mở trận mana trống).");
-            sb.AppendLine($"• Scene: {LobbyScenePath} — Play thử: START → chọn 2 nhân vật → chọn map (chỉnh luật) → vào trận → ESC.");
+            sb.AppendLine("[UIProduction] HOÀN TẤT dựng LOBBY v10.11 (ESC = BACK ở menu: CharSelect → MainMenu qua MenuTransitionFX.BackToMenu — fix v10.10 wire nhầm root canvas luôn-active; StageSelect → CharSelect).");
+            sb.AppendLine($"• Scene: {LobbyScenePath} — Play thử: START → chọn 2 nhân vật (ESC = về menu) → chọn map (ESC = chọn lại nhân vật) → vào trận → ESC = pause.");
             sb.AppendLine("• Art slot (thả PNG vào Assets/_Project/Art/UI/ rồi rebuild):");
             foreach (var s in UILobbyBuilder.ArtSlotStatus()) sb.AppendLine("    - " + s);
             foreach (var p in created) sb.AppendLine("• Prefab: " + p);

@@ -43,21 +43,6 @@ MonoBehaviour:
     value: 0.2
     durationSeconds: 0
     spawnWeight: 1
-  - type: 2
-    tier: 1
-    value: 0.05
-    durationSeconds: 12
-    spawnWeight: 1
-  - type: 2
-    tier: 2
-    value: 0.1
-    durationSeconds: 16
-    spawnWeight: 1
-  - type: 2
-    tier: 3
-    value: 0.2
-    durationSeconds: 20
-    spawnWeight: 1
   - type: 3
     tier: 1
     value: 3
