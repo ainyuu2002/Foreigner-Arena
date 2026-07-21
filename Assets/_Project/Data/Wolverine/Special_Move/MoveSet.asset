@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5e0806792f9b594ca303a5919975d6e, type: 3}
+  m_Name: MoveSet
+  m_EditorClassIdentifier: FA.Core::FA.Core.MoveSetData
+  entries:
+  - motion: 1
+    button: 2
+    move: {fileID: 11400000, guid: 8d1a98e5530e6fc6815d71af05ddd6ed, type: 2}
+    charged: {fileID: 0}
+  - motion: 2
+    button: 2
+    move: {fileID: 11400000, guid: 8d1a98e5530e6fc6815d71af05ddd6ed, type: 2}
+    charged: {fileID: 0}
+  - motion: 1
+    button: 3
+    move: {fileID: 11400000, guid: 36a7d0c73ef774b8ba87d415b136760a, type: 2}
+    charged: {fileID: 0}
+  - motion: 2
+    button: 3
+    move: {fileID: 11400000, guid: 36a7d0c73ef774b8ba87d415b136760a, type: 2}
+    charged: {fileID: 0}
+  - motion: 1
+    button: 4
+    move: {fileID: 11400000, guid: 101955215c99d0cb8f2f23665112274a, type: 2}
+    charged: {fileID: 0}
+  - motion: 2
+    button: 4
+    move: {fileID: 11400000, guid: 101955215c99d0cb8f2f23665112274a, type: 2}
+    charged: {fileID: 0}
+  - motion: 0
+    button: 5
+    move: {fileID: 11400000, guid: 488bda808468cc100de0d5d76d83bdce, type: 2}
+    charged: {fileID: 0}

@@ -171,7 +171,9 @@ namespace FA.Effects
                     left = _cam.WorldToViewportPoint(transform.position).x >= 0.5f;   // phía ĐỐI DIỆN caster.
                 Sprite portrait = (portraits != null && portraits.Length > 0)
                     ? portraits[Mathf.Clamp(portraitIndex, 0, portraits.Length - 1)] : null;
-                _overlay = Instantiate(overlayPrefab);
+                // POOLING (§3.1): overlay lấy từ pool thay Instantiate; Hide() xong tự Despawn.
+                _overlay = PrefabPool.Spawn(overlayPrefab.gameObject, Vector3.zero, Quaternion.identity)
+                    .GetComponent<SuperFlashOverlay>();
                 _overlay.Show(portrait, left);
             }
         }

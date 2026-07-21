@@ -85,3 +85,12 @@ MonoBehaviour:
   - prefab: {fileID: 697037576, guid: 8f6a8e4c4ccf4ef5a01f63a4d1e7c9a2, type: 3}
     prewarm: 1
     maxSize: 5
+  - prefab: {fileID: 8830822703294826535, guid: d2f23991de15bf04b9ad998600fa62b1, type: 3}
+    prewarm: 1
+    maxSize: 2
+  - prefab: {fileID: 7952312691512353090, guid: 101dd256ea535144782a6d06121cb5ad, type: 3}
+    prewarm: 1
+    maxSize: 2
+  - prefab: {fileID: 3606890439570376408, guid: 3a0bfb569bc0b034fbfad0456b0482cd, type: 3}
+    prewarm: 1
+    maxSize: 4

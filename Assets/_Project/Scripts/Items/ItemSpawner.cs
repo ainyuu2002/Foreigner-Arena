@@ -110,18 +110,13 @@ namespace FA.Items
 
             if (spawnVfxPrefab != null)
             {
-                GameObject vfxObject = PrefabPool.Spawn(spawnVfxPrefab.gameObject, pos, Quaternion.identity);
-                ParticleSystem vfx = vfxObject != null ? vfxObject.GetComponent<ParticleSystem>() : null;
-                if (vfx == null)
-                {
-                    if (vfxObject != null) PrefabPool.Despawn(vfxObject);
-                    return;
-                }
-                var main = vfx.main;
-                main.stopAction = ParticleSystemStopAction.None;
-                vfx.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-                vfx.Play();
-                StartCoroutine(ReturnSpawnVfxWhenFinished(vfx));
+                // POOLING (§3.1): VFX spawn qua pool. PooledParticleRelease tự Despawn khi hạt tắt —
+                // ensure lúc runtime để prefab gán vào field này không bắt buộc gắn sẵn component.
+                GameObject vfxGo = PrefabPool.Spawn(spawnVfxPrefab.gameObject, pos, Quaternion.identity);
+                if (vfxGo.GetComponent<PooledParticleRelease>() == null)
+                    vfxGo.AddComponent<PooledParticleRelease>();
+                var vfx = vfxGo.GetComponent<ParticleSystem>();
+                if (vfx != null) vfx.Play();
             }
         }
 
@@ -145,12 +140,6 @@ namespace FA.Items
                 PrefabPool.Despawn(go);
             }
             return item;
-        }
-
-        private static IEnumerator ReturnSpawnVfxWhenFinished(ParticleSystem vfx)
-        {
-            while (vfx != null && vfx.gameObject.activeSelf && vfx.IsAlive(true)) yield return null;
-            if (vfx != null && vfx.gameObject.activeSelf) PrefabPool.Despawn(vfx.gameObject);
         }
 
         private void OnItemFinished(Item item)

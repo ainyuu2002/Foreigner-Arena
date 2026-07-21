@@ -1,13 +1,7 @@
 fileFormatVersion: 2
-guid: 9ee9582a2b0d4ce88c868bf67d53e163
+guid: af2a0d86df7dcc3a81b31efaf531d43d
 TextureImporter:
-  internalIDToNameTable:
-  - first:
-      213: 8472898014052729759
-    second: Dash_05_0
-  - first:
-      213: 4204439714248924864
-    second: Dash_05_1
+  internalIDToNameTable: []
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -52,9 +46,9 @@ TextureImporter:
   spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
-  alignment: 9
-  spritePivot: {x: 0.4969, y: -0.0196}
-  spritePixelsToUnits: 200
+  alignment: 7
+  spritePivot: {x: 0.5, y: 0}
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -101,51 +95,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: Dash_05_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 3
-        width: 118
-        height: 48
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f93c9b93ad7c59570800000000000000
-      internalID: 8472898014052729759
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Dash_05_1
-      rect:
-        serializedVersion: 2
-        x: 116
-        y: 0
-        width: 205
-        height: 51
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0ce1a5fd4ab295a30800000000000000
-      internalID: 4204439714248924864
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
+    sprites: []
     outline: []
     customData: 
     physicsShape: []
@@ -159,9 +109,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      Dash_05_0: 8472898014052729759
-      Dash_05_1: 4204439714248924864
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

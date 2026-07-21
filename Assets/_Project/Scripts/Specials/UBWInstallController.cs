@@ -139,7 +139,8 @@ namespace FA.Specials
                 Vector3 center = _cam != null
                     ? new Vector3(_cam.transform.position.x, _cam.transform.position.y, 0f)
                     : transform.position;
-                _bg = Instantiate(backgroundPrefab, center, Quaternion.identity);
+                // POOLING (§3.1): nền UBW lấy từ pool — RevertNow Despawn trả lại thay Destroy.
+                _bg = PrefabPool.Spawn(backgroundPrefab, center, Quaternion.identity);
             }
 
             if (auraParticles != null) auraParticles.Play();
@@ -174,7 +175,7 @@ namespace FA.Specials
             _ending = false;
             bool wasDucked = _chantActive;
             _chantActive = false;
-            if (_bg != null) { Destroy(_bg); _bg = null; }
+            if (_bg != null) { PrefabPool.Despawn(_bg); _bg = null; }
             if (music != null) music.StopMusic();
             if (auraParticles != null) auraParticles.Stop();
             if (wasDucked) onBgmRestoreRequested?.RaiseEvent(); // chỉ trả BGM nếu trước đó thật sự đã duck.

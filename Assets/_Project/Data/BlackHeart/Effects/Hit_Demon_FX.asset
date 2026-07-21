@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5620cd6879778c7479bf0f299edbc953, type: 3}
+  m_Name: Hit_Demon_FX
+  m_EditorClassIdentifier: FA.Core::FA.Core.EffectData
+  vfxPrefab: {fileID: 0}
+  offset: {x: 0, y: 0}
+  attachToOwner: 0
+  sfxClips:
+  - {fileID: 8300000, guid: 9c269f37067317f048e969fa4209509b, type: 3}
+  - {fileID: 8300000, guid: 7332bbd8944cd43ce7eda80f2c125e4d, type: 3}
+  - {fileID: 8300000, guid: 1453ffe51e23ebffad0d61e73c307858, type: 3}
+  - {fileID: 8300000, guid: 89e25447683b8efcea55d44cd6ed97bb, type: 3}
+  volume: 1
+  scale: 1
