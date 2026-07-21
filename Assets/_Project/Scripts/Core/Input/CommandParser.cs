@@ -25,6 +25,10 @@ namespace FA.Core
         // "giữ→nhả" (P9): release-edge kích biến thể charged đúng 1 lần.
         private readonly int[] _consumedReleaseFrame;
 
+        // Cờ CONSUMED cho double-tap ↓ (drop-through platform): lưu Frame của down-edge MỚI NHẤT của
+        // cặp tap đã tiêu thụ → 1 cặp tap chỉ kích drop 1 lần (đối xứng _consumedEdgeFrame).
+        private int _consumedDoubleTapDownFrame = int.MinValue;
+
         public CommandParser(InputBuffer buffer)
         {
             _buffer = buffer;
@@ -137,6 +141,67 @@ namespace FA.Core
                 bool now = _buffer.Peek(ago).IsHeld(b);
                 bool prev = _buffer.Peek(ago + 1).IsHeld(b);
                 if (!now && prev) return _buffer.Peek(ago).Frame;
+            }
+            return int.MinValue;
+        }
+
+        // ===================== DOUBLE-TAP ↓ (drop-through platform) =====================
+
+        /// <summary>
+        /// True nếu người chơi vừa DOUBLE-TAP hướng Xuống (2 edge neutral→down của DirY) với 2 edge
+        /// cách nhau ≤ <paramref name="withinFrames"/> frame, VÀ cặp tap đó chưa bị tiêu thụ. Dùng cho
+        /// "rơi xuyên one-way platform" kiểu Smash. KHÔNG tự đánh dấu — caller gọi
+        /// <see cref="ConsumeDownDoubleTap"/> khi thực dùng (1 cặp tap = 1 lần kích). Đọc TỪ buffer
+        /// (§3.2), deterministic theo frame — KHÔNG dùng Time.time. GIỮ ↓ liên tục (Ngồi) chỉ tạo 1 edge
+        /// → KHÔNG kích (tránh xung đột Crouch).
+        /// </summary>
+        public bool WasDownDoubleTapped(int withinFrames)
+        {
+            int recentEdge = FindDownDoubleTapEdge(withinFrames);
+            if (recentEdge == int.MinValue) return false;
+            return _consumedDoubleTapDownFrame != recentEdge;
+        }
+
+        /// <summary>Đánh dấu cặp double-tap ↓ hiện tại ĐÃ tiêu thụ (đối xứng <see cref="ConsumePress"/>).</summary>
+        public void ConsumeDownDoubleTap(int withinFrames)
+        {
+            int recentEdge = FindDownDoubleTapEdge(withinFrames);
+            if (recentEdge != int.MinValue) _consumedDoubleTapDownFrame = recentEdge;
+        }
+
+        /// <summary>
+        /// Frame của down-edge MỚI NHẤT tạo thành double-tap hợp lệ (tồn tại down-edge cũ hơn cách nó
+        /// ≤ withinFrames), hoặc int.MinValue. Quét buffer mới→cũ tìm edge Xuống (DirY&lt;0 &amp;&amp; prev
+        /// DirY≥0). Edge = chuyển neutral/up → down nên GIỮ ↓ liên tục không đếm thành 2 tap.
+        /// </summary>
+        private int FindDownDoubleTapEdge(int withinFrames)
+        {
+            int count = _buffer.Count;
+            if (count < 2) return int.MinValue;
+            int limit = withinFrames < count ? withinFrames : count - 1;
+
+            // Edge Xuống MỚI NHẤT (tap thứ 2).
+            int firstEdgeAgo = -1;
+            int firstEdgeFrame = int.MinValue;
+            for (int ago = 0; ago < limit; ago++)
+            {
+                if (_buffer.Peek(ago).DirY < 0 && _buffer.Peek(ago + 1).DirY >= 0)
+                {
+                    firstEdgeAgo = ago;
+                    firstEdgeFrame = _buffer.Peek(ago).Frame;
+                    break;
+                }
+            }
+            if (firstEdgeAgo < 0) return int.MinValue;
+
+            // Edge Xuống KẾ TIẾP (cũ hơn — tap thứ 1). Phải nằm trong window frame.
+            for (int ago = firstEdgeAgo + 1; ago < limit; ago++)
+            {
+                if (_buffer.Peek(ago).DirY < 0 && _buffer.Peek(ago + 1).DirY >= 0)
+                {
+                    int secondFrame = _buffer.Peek(ago).Frame;
+                    return (firstEdgeFrame - secondFrame) <= withinFrames ? firstEdgeFrame : int.MinValue;
+                }
             }
             return int.MinValue;
         }

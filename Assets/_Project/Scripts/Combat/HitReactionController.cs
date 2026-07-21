@@ -104,7 +104,7 @@ namespace FA.Combat
 
                 float blocked = hit.DamagePercent * blockDamageMult;
 
-                Debug.Log($"[BLOCK] {hit.Attacker.name} → {me.name}  " +
+                DebugLog.Log($"[BLOCK] {hit.Attacker.name} → {me.name}  " +
                           $"chip +{blocked:0.#}% (full {hit.DamagePercent:0.#}%)  " +
                           $"type={(guardLow ? "Low" : "High")}", me);
 
@@ -122,7 +122,7 @@ namespace FA.Combat
             _ctx.Machine.ChangeState(combat.HurtState);
             SnapAnimatorNow(); // hiện pose Hurt_k NGAY frame trúng — cả re-hit đổi variant giữa hitstop.
 
-            Debug.Log($"[HIT] {hit.Attacker.name}(y={hit.Attacker.transform.position.y:0.00}) → " +
+            DebugLog.Log($"[HIT] {hit.Attacker.name}(y={hit.Attacker.transform.position.y:0.00}) → " +
                       $"{me.name}(y={me.transform.position.y:0.00})  +{hit.DamagePercent:0.#}%  " +
                       $"hitstun={hit.HitstunFrames}f  hitstop={hit.HitstopFrames}f  facing={hit.FacingSign}", me);
 

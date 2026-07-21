@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using FA.Core;
 
 namespace FA.Resources
 {
@@ -32,7 +33,7 @@ namespace FA.Resources
                 if (manaBars != null)
                     foreach (var m in manaBars)
                         if (m != null) m.DebugFillMax();
-                Debug.Log("[Resources] DEBUG nạp đầy Mana.");
+                DebugLog.Log("[Resources] DEBUG nạp đầy Mana.");
             }
 
             if (kb[fillRageKey].wasPressedThisFrame)
@@ -41,7 +42,7 @@ namespace FA.Resources
                 if (rageBars != null)
                     foreach (var r in rageBars)
                         if (r != null) r.RefundRage(1f);
-                Debug.Log("[Resources] DEBUG nạp đầy Rage.");
+                DebugLog.Log("[Resources] DEBUG nạp đầy Rage.");
             }
         }
     }

@@ -14,8 +14,20 @@ namespace FA.Core
     public sealed class InputConfigSO : ScriptableObject
     {
         [Header("Buffer")]
-        [Tooltip("Sức chứa ring buffer (số frame lưu). §3.2 chốt ~10. CẦN TEST.")]
-        [Min(1)] public int bufferFrames = 10;
+        [Tooltip("Sức chứa ring buffer (số frame lưu). §3.2 chốt ~10; nâng ~24 để chứa 2 nhịp tap ↓ " +
+                 "cách nhau doubleTapDownWindow (~20f) + frame 'prev' cho edge detection. Window nhỏ hơn " +
+                 "(edge/motion/tap) vẫn dùng min(window,count) → KHÔNG bị ảnh hưởng. CẦN TEST.")]
+        [Min(1)] public int bufferFrames = 24;
+
+        [Header("Double-tap ↓ Drop-through platform")]
+        [Tooltip("Cửa sổ (frame @60Hz fixed) để 2 nhịp tap Xuống tính là double-tap → rơi xuyên " +
+                 "one-way platform. Đo TRỌN chu kỳ nhấn→nhả→nhấn lại nên cần nới rộng hơn cảm giác " +
+                 "'0.25s' thô — ~20f ≈ 0.33s. CẦN TEST.")]
+        [Min(2)] public int doubleTapDownWindow = 20;
+
+        [Tooltip("Số giây TẠM tắt va chạm Player↔OneWayPlatform (Physics2D.IgnoreLayerCollision) để " +
+                 "nhân vật rơi khỏi platform trước khi bật lại. Khoảng 0.3-0.5. CẦN TEST.")]
+        [Min(0.05f)] public float dropThroughIgnoreSeconds = 0.35f;
 
         [Header("Edge (WasPressedWithin)")]
         [Tooltip("Cửa sổ tha-thứ cho edge nút (Jump/Dash...): nhập sớm trong N frame vẫn ăn. CẦN TEST.")]

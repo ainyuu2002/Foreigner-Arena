@@ -28,6 +28,7 @@ namespace FA.Items
         [Header("Thông số (CẦN TEST — mặc định lấy từ config khi spawn)")]
         [Min(1f)] [SerializeField] private float lifetime = 12f;
 
+        [Tooltip("Ngưỡng MoveY coi là 'đang ngồi/ấn xuống' (âm). Khớp CrouchDownThreshold của Motor.")]
         [Range(-1f, 0f)] [SerializeField] private float downThreshold = -0.5f;
 
         [Header("Hiệu ứng (CẦN TEST)")]

@@ -41,6 +41,8 @@ namespace FA.EditorTools
             public VoidEventChannelSO MatchStart;                  // OnMatchStartChannel (MatchManager → ItemSpawner khởi động item)
             public VoidEventChannelSO MatchEnded;                  // OnMatchEndedChannel (WinCondition → MatchManager)
             public VoidEventChannelSO TimeUp;                      // OnTimeUpChannel (MatchTimer → WinCondition)
+            public VoidEventChannelSO RoundIntroStart;             // OnRoundIntroStart (MatchManager → RoundIntroController — RỚT wiring này là mất intro!)
+            public VoidEventChannelSO RoundIntroFinished;          // OnRoundIntroFinished (RoundIntroController → MatchManager + FIGHT banner)
             public GameObjectEventChannelSO OutOfLives;            // OnPlayerOutOfLivesChannel (LivesSystem → WinCondition)
             public MatchSettingsSO MatchSettings;                  // matchSeconds/startingLives
 
@@ -94,6 +96,8 @@ namespace FA.EditorTools
             b.MatchStart = FindOrCreateVoid("OnMatchStartChannel", b);
             b.MatchEnded = Find<VoidEventChannelSO>("OnMatchEndedChannel", b);
             b.TimeUp = Find<VoidEventChannelSO>("OnTimeUpChannel", b);
+            b.RoundIntroStart = Find<VoidEventChannelSO>("OnRoundIntroStart", b);
+            b.RoundIntroFinished = Find<VoidEventChannelSO>("OnRoundIntroFinished", b);
             b.OutOfLives = Find<GameObjectEventChannelSO>("OnPlayerOutOfLivesChannel", b);
             b.MatchSettings = FindAny<MatchSettingsSO>();
 
@@ -119,7 +123,7 @@ namespace FA.EditorTools
             sb.AppendLine($"  Combo: P1={N(b.ComboP1)}  P2={N(b.ComboP2)}");
             sb.AppendLine($"  CharSel: P1={N(b.CharSelP1)}  P2={N(b.CharSelP2)}  | StageSel={N(b.StageSel)}");
             sb.AppendLine($"  MatchResult={N(b.MatchResult)}  Rematch={N(b.Rematch)}  Back={N(b.BackToCharSelect)}");
-            sb.AppendLine($"  GameFlow: MatchStart={N(b.MatchStart)}  MatchEnded={N(b.MatchEnded)}  TimeUp={N(b.TimeUp)}  OutOfLives={N(b.OutOfLives)}  Settings={N(b.MatchSettings)}");
+            sb.AppendLine($"  GameFlow: MatchStart={N(b.MatchStart)}  MatchEnded={N(b.MatchEnded)}  TimeUp={N(b.TimeUp)}  OutOfLives={N(b.OutOfLives)}  Settings={N(b.MatchSettings)}  IntroFinished={N(b.RoundIntroFinished)}");
             sb.AppendLine($"  Registry: Character={N(b.CharacterRegistry)}  Stage={N(b.StageRegistry)}  | PercentCap={b.PercentCap}");
             Debug.Log(sb.ToString());
         }

@@ -104,9 +104,10 @@ namespace FA.Specials
             }
             if (_rage != null) _rage.SetUltimateActive(false); // hết miễn nhiễm hitstop.
 
-            // UBW đang install → kết thúc install (fade đen revert bg/nhạc/aura).
-            if (_install != null && _install.IsInstalled)
-                _install.ForceEnd();
+            // Gọi VÔ ĐIỀU KIỆN (ForceEnd tự guard nội bộ): dọn UBW đang install (fade đen revert
+            // bg/nhạc/aura) LẪN ca chant bị huỷ giữa chừng trước khi kịp install (đã duck BGM map ở
+            // ChantStart nhưng chưa có bg/buff gì — chỉ cần trả BGM lại, không chuyển cảnh).
+            _install?.ForceEnd();
 
             // MỌI Ultimate: DÙNG XONG = HẾT SẠCH NỘ (user chốt 2026-07-11) — tắt buff không refund +
             // xóa thanh về 0. Trước đây chỉ nhánh UBW tắt buff và KHÔNG xóa thanh → rage hết hạn

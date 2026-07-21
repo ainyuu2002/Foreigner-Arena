@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 using FA.Core;
 using FA.Stage;
@@ -16,10 +19,42 @@ namespace FA.EditorTools
     {
         public const string SceneName = "Map_Fire";
 
+        /// <summary>Tên root object thuộc rig camera/intro — KHÔNG đụng khi restyle scene có sẵn
+        /// (dựng bởi StageCameraRigBuilder/IntroWinLoseSetupTool, chạy sau map builder này).</summary>
+        private static readonly HashSet<string> RigRootNames = new HashSet<string>
+        {
+            "CM_MatchCamera", "CM_TargetGroup", "CM_IntroP1", "CM_IntroP2", "RoundDirector",
+            "ItemSpawner",
+        };
+
         public static void Build()
         {
             var scene = StageSceneKit.NewScene();
+            PopulateScene(includeCameraRig: true);
+            StageSceneKit.SaveScene(scene, SceneName);
+            StageSceneKit.AddStageToRegistry("Lò Dung Nham (Lửa)", SceneName,
+                StageSceneKit.LoadSprite(StageArtFire.Platform));
+            Debug.Log("[Phase11] Đã dựng xong Map_Fire.");
+        }
 
+        /// <summary>Dựng lại NỘI DUNG map trên scene ĐÃ CÓ SẴN, giữ nguyên rig camera/intro
+        /// (<see cref="RigRootNames"/>) — xem StageMapBuilderIce.RestyleExistingScene. Idempotent.</summary>
+        [MenuItem("FA/Stage/Restyle map content only (keep camera+intro rig)/Map_Fire")]
+        public static void RestyleExistingScene()
+        {
+            var path = "Assets/_Project/Scenes/" + SceneName + ".unity";
+            var scene = EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+            foreach (var root in scene.GetRootGameObjects())
+                if (!RigRootNames.Contains(root.name)) Object.DestroyImmediate(root);
+
+            PopulateScene(includeCameraRig: false);
+
+            StageSceneKit.SaveScene(scene, SceneName);
+            Debug.Log("[StageMapBuilderFire] Đã restyle nội dung Map_Fire — giữ nguyên rig camera/intro.");
+        }
+
+        private static void PopulateScene(bool includeCameraRig)
+        {
             // ---- Nền parallax ----
             StageSceneKit.MakeBackdrop("BG_Sky", StageArtFire.Sky, new Vector3(0f, 4.5f, 0f), -100, 0.92f, null, 1.5f);
             // BIỂN LAVA XA + măng đá silhouette (redesign Norfair: hang động, lava là nguồn sáng duy nhất).
@@ -38,13 +73,14 @@ namespace FA.EditorTools
             Tile[] tops = { topA, topB, topC };
             Tile[] inners = { inA, inB };
             var tm = StageSceneKit.MakeGroundTilemap(null, null, -6);
-            StageSceneKit.FillGroundVaried(tm, tops, inners, -10, 9, -1, 3); // đảo 20 tile, sprite không lặp
+            // (Size up theo yêu cầu leader: đảo 20 → 24 tile — hợp cỡ Archer hiện tại.)
+            StageSceneKit.FillGroundVaried(tm, tops, inners, -12, 11, -1, 3);
             for (int x = -2; x <= 1; x++)
                 tm.SetTile(new Vector3Int(x, -1, 0), hotT);                    // dải đất dung nham nóng rực
 
             // MÉP BẬC DƯỚI 2 BÊN (feedback: "mép bên dưới cũng phải đứng được"): vai bazan nhô ra của
             // FloorFace giờ có COLLISION THẬT — bậc thấp hơn mặt đảo 1 unit, đứng/bám được như mép đài Smash.
-            foreach (int sx in new[] { -11, 10 })
+            foreach (int sx in new[] { -13, 12 })
             {
                 tm.SetTile(new Vector3Int(sx, -2, 0), StageSceneKit.PickVariant(tops, sx, -2));
                 tm.SetTile(new Vector3Int(sx, -3, 0), StageSceneKit.PickVariant(inners, sx, -3));
@@ -55,22 +91,23 @@ namespace FA.EditorTools
             // MẶT ĐẢO HỮU CƠ kiểu Norfair: vách bazan cột lởm chởm + nứt magma + măng đá rủ xuống lava.
             // Chỉ visual — collision vẫn là tilemap. Chừa hở hàng tile mặt (variant + dải nóng).
             StageSceneKit.MakeSpriteGO("Deco_FloorFace", StageSceneKit.LoadSprite(StageArtFire.FloorFace),
-                new Vector3(0f, -2.9f, 0f), -4, null);
+                new Vector3(0f, -2.9f, 0f), -4, null, new Vector3(1.17f, 1f, 1f)); // giãn ngang khớp đảo 24+bậc
 
             // (Đã XÓA 2 tháp đá silhouette Deco_RockSpire theo feedback — đứng trùng chỗ cột bám,
             // nhìn thành khối đen khó hiểu mà không có collision. Măng đá nền xa ở BG_LavaField đủ đẹp.)
 
             // ---- 3 platform bay 1 chiều (trái/phải thấp + giữa cao) ----
-            StageSceneKit.MakeOneWayPlatform("Platform_L", StageArtFire.Platform, new Vector2(-11f, 1.8f), null, -5, 1f, 0.33f); // mép trong platform chớm đè mép đảo → nhảy sang dễ
-            StageSceneKit.MakeOneWayPlatform("Platform_R", StageArtFire.Platform, new Vector2(11f, 1.8f), null, -5, 1f, 0.33f);
+            // (Size up: giãn X — ĐỘ CAO GIỮ NGUYÊN để tầm nhảy Archer không đổi.)
+            StageSceneKit.MakeOneWayPlatform("Platform_L", StageArtFire.Platform, new Vector2(-13f, 1.8f), null, -5, 1f, 0.33f); // mép trong platform chớm đè mép đảo → nhảy sang dễ
+            StageSceneKit.MakeOneWayPlatform("Platform_R", StageArtFire.Platform, new Vector2(13f, 1.8f), null, -5, 1f, 0.33f);
             StageSceneKit.MakeOneWayPlatform("Platform_Top", StageArtFire.Platform, new Vector2(0f, 3.6f), null, -5, 1f, 0.33f);
             // TẦNG CAO (feedback): leo lên camera nâng theo → thấy miệng núi lửa khổng lồ phun trào.
-            StageSceneKit.MakeOneWayPlatform("Platform_High_L", StageArtFire.Platform, new Vector2(-5.5f, 5.8f), null, -5, 1f, 0.33f);
-            StageSceneKit.MakeOneWayPlatform("Platform_High_R", StageArtFire.Platform, new Vector2(5.5f, 5.8f), null, -5, 1f, 0.33f);
+            StageSceneKit.MakeOneWayPlatform("Platform_High_L", StageArtFire.Platform, new Vector2(-6.5f, 5.8f), null, -5, 1f, 0.33f);
+            StageSceneKit.MakeOneWayPlatform("Platform_High_R", StageArtFire.Platform, new Vector2(6.5f, 5.8f), null, -5, 1f, 0.33f);
 
             // ---- Spawn + Death zones ----
-            var respawn = StageSceneKit.MakeSpawnPoints(null, new Vector2(-5f, 1.2f), new Vector2(5f, 1.2f), new Vector2(0f, 5.2f));
-            StageSceneKit.MakeDeathZones(null, 24f, 22f, -18f, respawn);
+            var respawn = StageSceneKit.MakeSpawnPoints(null, new Vector2(-6f, 1.2f), new Vector2(6f, 1.2f), new Vector2(0f, 5.2f));
+            StageSceneKit.MakeDeathZones(null, 27f, 22f, -18f, respawn);
 
             // ---- Dung nham dâng (RisingLava + DeathZone cùng object — CHẠM LÀ CHẾT, feedback test) ----
             var fireCfg = AssetDatabase.LoadAssetAtPath<StageConfigSO>(StageSceneKit.DataFolder + "/StageConfig_Fire.asset");
@@ -121,7 +158,7 @@ namespace FA.EditorTools
             biomeGo.transform.position = new Vector3(0f, 1f, 0f);
             var fireArea = biomeGo.AddComponent<BoxCollider2D>();
             fireArea.isTrigger = true;
-            fireArea.size = new Vector2(21f, 3.4f);
+            fireArea.size = new Vector2(25f, 3.4f);
             var biome = biomeGo.AddComponent<FireBiome>();
             StageSceneKit.SetObj(biome, "config", fireCfg);
             StageSceneKit.SetObj(biome, "fireArea", fireArea);
@@ -144,30 +181,28 @@ namespace FA.EditorTools
             // Treo CAO (chân cột cách mặt đảo ~4.2 — gấp đôi bản đầu, feedback): với tới từ tầng cao
             // (±5.5, 5.8); khi lava dâng đỉnh vẫn là chỗ bám né an toàn trên không.
             // (Feedback: dời tường XA platform tầng cao thêm 1 unit — hết dính sát nhau.)
-            StageSceneKit.MakeClingWall("ClingWall_L", StageArtFire.ClingWall, new Vector2(-9.3f, 6.2f), fireCfg);
-            StageSceneKit.MakeClingWall("ClingWall_R", StageArtFire.ClingWall, new Vector2(9.3f, 6.2f), fireCfg);
+            StageSceneKit.MakeClingWall("ClingWall_L", StageArtFire.ClingWall, new Vector2(-10.8f, 6.2f), fireCfg);
+            StageSceneKit.MakeClingWall("ClingWall_R", StageArtFire.ClingWall, new Vector2(10.8f, 6.2f), fireCfg);
 
             // ---- Tàn lửa + tia lửa ----
-            StageSceneKit.MakeParticles(null, "PS_Embers", new Vector2(0f, -3f), new Vector2(40f, 2f),
+            StageSceneKit.MakeParticles(null, "PS_Embers", new Vector2(0f, -3f), new Vector2(46f, 2f),
                 new Color32(255, 154, 34, 220), new Color32(255, 221, 85, 200),
-                26f, 5.5f, new Vector2(0.4f, 1.8f), 0.05f, 0.12f, -0.01f);
-            StageSceneKit.MakeParticles(null, "PS_LavaSparks", new Vector2(0f, -4.2f), new Vector2(38f, 1f),
+                28f, 5.5f, new Vector2(0.4f, 1.8f), 0.05f, 0.12f, -0.01f);
+            StageSceneKit.MakeParticles(null, "PS_LavaSparks", new Vector2(0f, -4.2f), new Vector2(44f, 1f),
                 new Color32(255, 221, 85, 255), new Color32(255, 122, 30, 230),
-                12f, 1.3f, new Vector2(0f, 3.6f), 0.06f, 0.14f, 0.06f);
+                13f, 1.3f, new Vector2(0f, 3.6f), 0.06f, 0.14f, 0.06f);
 
             // ---- Ánh sáng ----
             StageSceneKit.MakeGlobalLight(null, new Color(1f, 0.9f, 0.82f), 0.95f);
-            StageSceneKit.MakePointLight(null, "Light_Lava_L", new Vector2(-12f, -4.5f), new Color(1f, 0.48f, 0.12f), 0.9f, 8f);
+            StageSceneKit.MakePointLight(null, "Light_Lava_L", new Vector2(-14f, -4.5f), new Color(1f, 0.48f, 0.12f), 0.9f, 8f);
             StageSceneKit.MakePointLight(null, "Light_Lava_C", new Vector2(0f, -4.5f), new Color(1f, 0.48f, 0.12f), 0.9f, 8f);
-            StageSceneKit.MakePointLight(null, "Light_Lava_R", new Vector2(12f, -4.5f), new Color(1f, 0.48f, 0.12f), 0.9f, 8f);
+            StageSceneKit.MakePointLight(null, "Light_Lava_R", new Vector2(14f, -4.5f), new Color(1f, 0.48f, 0.12f), 0.9f, 8f);
 
-            // ---- Camera ----
-            StageSceneKit.MakeCameraRig(null, new Rect(-16f, -4f, 32f, 17f), 6.5f, new Color32(18, 3, 3, 255));
-
-            StageSceneKit.SaveScene(scene, SceneName);
-            StageSceneKit.AddStageToRegistry("Lò Dung Nham (Lửa)", SceneName,
-                StageSceneKit.LoadSprite(StageArtFire.Platform));
-            Debug.Log("[Phase11] Đã dựng xong Map_Fire.");
+            if (includeCameraRig)
+            {
+                // ---- Camera (size up: ortho 6.5 → 7.2 + confiner rộng theo đảo 24) ----
+                StageSceneKit.MakeCameraRig(null, new Rect(-19f, -4.5f, 38f, 19.5f), 7.2f, new Color32(18, 3, 3, 255));
+            }
         }
     }
 }

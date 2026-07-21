@@ -35,6 +35,16 @@ namespace FA.Stage
         [Tooltip("ParticleSystem tuyết — Play khi bão, Stop khi tạnh. Tùy chọn.")]
         [SerializeField] private ParticleSystem snowParticles;
 
+        [Tooltip("ParticleSystem tuyết RƠI NỀN (luôn bật) — bão tới thì hạt NGHIÊNG THEO GIÓ, tạnh thì " +
+                 "rơi thẳng lại (feedback test: 'gió thổi nhưng tuyết sẵn có vẫn rơi thẳng'). Tùy chọn.")]
+        [SerializeField] private ParticleSystem ambientSnow;
+
+        [Tooltip("Vận tốc ngang hạt tuyết nền khi TRỜI LẶNG (world/giây — số visual, không phải gameplay).")]
+        [SerializeField] private float ambientCalmVelX = -0.4f;
+
+        [Tooltip("Vận tốc ngang hạt tuyết nền khi CÓ BÃO (min..max, nhân hướng gió — visual).")]
+        [SerializeField] private Vector2 ambientStormVelX = new Vector2(4f, 7f);
+
         [Header("Trạng thái (đọc-only)")]
         [SerializeField] private bool stormActive;
 
@@ -70,7 +80,10 @@ namespace FA.Stage
         /// </summary>
         private void FixedUpdate()
         {
-            if (config == null || !stormActive) return;
+            // (Fix gió-đè-intro) CinematicGate đang mở (intro/chant/super-flash — RoundIntroController và
+            // các cinematic khác Acquire) → mọi hazard môi trường đứng yên, không đè lực lên nhân vật đang
+            // bị khoá diễn cảnh.
+            if (config == null || !stormActive || CinematicGate.IsActive) return;
             foreach (var rb in ResolveBodies())
             {
                 if (rb == null) continue;
@@ -108,7 +121,7 @@ namespace FA.Stage
             if (stormActive)
             {
                 _windDir = Random.value < 0.5f ? -1 : 1; // hướng gió random mỗi trận bão.
-                Debug.Log($"[SnowstormHazard] Bão tuyết BẮT ĐẦU — gió thổi sang {(_windDir > 0 ? "PHẢI" : "TRÁI")}.", this);
+                DebugLog.Log($"[SnowstormHazard] Bão tuyết BẮT ĐẦU — gió thổi sang {(_windDir > 0 ? "PHẢI" : "TRÁI")}.", this);
             }
             if (snowParticles != null)
             {
@@ -120,6 +133,16 @@ namespace FA.Stage
                     snowParticles.Play();
                 }
                 else snowParticles.Stop();
+            }
+            if (ambientSnow != null)
+            {
+                // TUYẾT NỀN cũng nghiêng theo gió khi bão / rơi thẳng lại khi tạnh (feedback test).
+                // Hạt cũ trên trời giữ vận tốc cũ, hạt mới sinh ăn vận tốc mới → chuyển mượt tự nhiên.
+                // LƯU Ý: giữ mode TwoConstants cho cả 3 trục (Unity bắt cùng mode — lỗi cũ P11).
+                var avel = ambientSnow.velocityOverLifetime;
+                avel.x = stormActive
+                    ? new ParticleSystem.MinMaxCurve(_windDir * ambientStormVelX.x, _windDir * ambientStormVelX.y)
+                    : new ParticleSystem.MinMaxCurve(ambientCalmVelX, ambientCalmVelX);
             }
             ScheduleNextPhase(stormActive);
         }

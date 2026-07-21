@@ -36,9 +36,9 @@ namespace FA.UI
 
         private const string GroupKeyboard = "Keyboard";
         private const string GroupGamepad = "Gamepad";
-        private const string HintKeyboard = "Bấm vào ô phím để đổi — bàn phím của P1.";
+        private const string HintKeyboard = "Click a key slot to rebind — P1 keyboard.";
         private const string HintGamepad =
-            "Bấm vào ô rồi nhấn nút tay cầm (P2). LÊN/XUỐNG/TRÁI/PHẢI là D-Pad — cần analog giữ nguyên.";
+            "Click a slot then press a gamepad button (P2). UP/DOWN/LEFT/RIGHT are D-Pad — analog stick is unchanged.";
 
         private static readonly Color WaitingCol = new Color(0.95f, 0.65f, 0.15f, 1f);
         private static readonly Color TabOnCol = new Color(0.17f, 0.33f, 0.55f, 1f);   // = UIKit.ColBtn
@@ -75,7 +75,7 @@ namespace FA.UI
             CancelRebind();
             KeyBindings.ResetAll();
             RefreshAll();
-            SetStatus("Đã khôi phục phím mặc định (cả bàn phím lẫn tay cầm).");
+            SetStatus("Defaults restored (both keyboard and gamepad).");
         }
 
         /// <summary>Ô phím hàng <paramref name="row"/> (persistent listener int do builder gắn).</summary>
@@ -86,7 +86,7 @@ namespace FA.UI
             int idx = action != null ? KeyBindings.BindingIndex(action, _group, rowParts[row]) : -1;
             if (idx < 0)
             {
-                SetStatus($"Không tìm thấy binding {_group} cho {LabelOf(row)}.");
+                SetStatus($"No {_group} binding found for {LabelOf(row)}.");
                 return;
             }
 
@@ -94,8 +94,8 @@ namespace FA.UI
             KeyBindings.RebindActive = true;
             bool gamepad = _group == GroupGamepad;
             SetStatus(gamepad
-                ? $"Nhấn NÚT TAY CẦM mới cho {LabelOf(row)}…  (ESC để hủy)"
-                : $"Nhấn phím mới cho {LabelOf(row)}…  (ESC để hủy)");
+                ? $"Press a new GAMEPAD button for {LabelOf(row)}…  (ESC to cancel)"
+                : $"Press a new key for {LabelOf(row)}…  (ESC to cancel)");
             TintBack(row, WaitingCol);
 
             var op = action.PerformInteractiveRebinding(idx)
@@ -135,8 +135,8 @@ namespace FA.UI
             {
                 KeyBindings.SaveAndApply();
                 string dup = DuplicateNote(row);
-                SetStatus($"Đã gán {LabelOf(row)} = {KeyNameOf(row)}." +
-                          (dup != null ? $"  Lưu ý: trùng với {dup}." : ""));
+                SetStatus($"Bound {LabelOf(row)} = {KeyNameOf(row)}." +
+                          (dup != null ? $"  Note: duplicates {dup}." : ""));
             }
             else
             {

@@ -110,7 +110,7 @@ namespace FA.Combat
             if (!_dbgOverlapLogged)
             {
                 _dbgOverlapLogged = true;
-                Debug.Log($"[HBX] {name}: overlap {victimRoot.name} " +
+                DebugLog.Log($"[HBX] {name}: overlap {victimRoot.name} " +
                           $"(move={( _move != null ? _move.moveId : "NULL")}, override={(moveOverride != null ? moveOverride.moveId : "-")})", this);
             }
 
