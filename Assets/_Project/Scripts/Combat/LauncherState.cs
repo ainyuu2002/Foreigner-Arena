@@ -37,6 +37,7 @@ namespace FA.Combat
         private int _groundedStuckFrames; // failsafe: đếm frame "trên đất + hết đà" khi chưa từng rời đất.
         private int _lyingFrames;         // trần nằm-trượt: đếm frame chạm đất SAU khi đã đáp.
         private int _airBlipFrames;       // đếm chuỗi frame rời đất — phân biệt "bay thật" vs blip trượt.
+        private int _totalFrames;         // TỔNG frame trong tumble (cả trên không) — safety-net hard-timeout.
 
         // Trượt tốc độ cao trên băng làm IsTouchingLayers CHỚP false 1-2 frame (qua mép tile/va li ti)
         // → nếu reset _lyingFrames mỗi blip thì trần nằm KHÔNG BAO GIỜ đầy (bug "xuôi gió không dậy
@@ -55,6 +56,7 @@ namespace FA.Combat
             _groundedStuckFrames = 0;
             _lyingFrames = 0;
             _airBlipFrames = 0;
+            _totalFrames = 0;
             // Cầu nối code↔Animator (§3.1): set StateId → transition Tumble cấu hình TRONG Animator.
             _ctx.Animator.SetInteger(CoreAnimatorParams.StateId, TumbleStateId);
             _ctx.SetHitstun(true); // tumble = đang bị juggle → Air Dodge bị chặn (chỉ Burst thoát).
@@ -68,6 +70,18 @@ namespace FA.Combat
 
         public void FixedTick(float dt)
         {
+            // SAFETY-NET tuyệt đối (fix kẹt nảy-vô-hạn): đếm TỔNG frame trong tumble kể cả trên không.
+            // Vượt trần cấu hình → thoát về Idle DÙ CHƯA grounded. Chặn ca "không bao giờ chạm đất": rơi
+            // trúng nấm bouncy + material FighterBounce → nảy mãi, hoặc collider lơ lửng (nhân vật WIP).
+            // Ngưỡng đặt rất rộng (StageConfig ~300 = 5s) nên juggle thật (thoát qua grounded sớm hơn
+            // nhiều) KHÔNG bao giờ chạm — không đổi cảm giác chơi; chỉ là lưới cuối chống kẹt vĩnh viễn.
+            int hardCap = _config != null ? _config.tumbleHardTimeoutFrames : 300;
+            if (hardCap > 0 && ++_totalFrames >= hardCap)
+            {
+                _ctx.Machine.ChangeState(_ctx.IdleState());
+                return;
+            }
+
             bool grounded = _ctx.IsGrounded;
 
             // Landing-gate: phải rời đất ≥1 frame rồi mới cho landing-check (tránh đáp ghost).

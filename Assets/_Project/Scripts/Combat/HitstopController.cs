@@ -33,6 +33,11 @@ namespace FA.Combat
         [Tooltip("Animator để set speed=0 trong hitstop. Bỏ trống = lấy trong children.")]
         [SerializeField] private Animator animator;
 
+        // ICombatContext (Core) cùng root — hỏi BaseGravityScale để restore gravity về BASELINE sau
+        // freeze (không dùng snapshot: snapshot dính giá trị 0 transient của Dash → kẹt bay, xem
+        // ICombatContext.BaseGravityScale). Null (test harness thiếu Motor) → fallback snapshot như cũ.
+        private ICombatContext _ctx;
+
         private int _framesLeft;            // số FixedUpdate còn freeze (0 = không freeze).
 
         /// <summary>Đang trong hitstop? HurtState/BlockState (cùng module) hỏi để ĐÓNG BĂNG đồng hồ
@@ -48,6 +53,7 @@ namespace FA.Combat
             if (root == null) root = transform.root;
             if (body == null) body = root != null ? root.GetComponent<Rigidbody2D>() : GetComponent<Rigidbody2D>();
             if (animator == null) animator = GetComponentInChildren<Animator>();
+            _ctx = root != null ? root.GetComponent<ICombatContext>() : GetComponent<ICombatContext>();
         }
 
         private void OnEnable()
@@ -134,10 +140,15 @@ namespace FA.Combat
             if (body != null)
             {
                 body.linearVelocity = _savedVelocity;
-                body.gravityScale = _savedGravityScale;
+                body.gravityScale = RestoreGravity();
             }
             if (animator != null) animator.speed = _savedAnimatorSpeed;
         }
+
+        /// <summary>gravity ĐÍCH khi hết freeze: BASELINE nhân vật (ICombatContext) — KHÔNG dùng
+        /// _savedGravityScale (snapshot có thể là 0 transient của Dash → kẹt bay không rơi). Thiếu
+        /// ICombatContext (harness test) → fallback snapshot cũ (no-regression).</summary>
+        private float RestoreGravity() => _ctx != null ? _ctx.BaseGravityScale : _savedGravityScale;
 
         // (P12 fix) RespawnSystem BroadcastMessage("OnRespawn"): chết ĐÚNG giữa hitstop → hủy freeze
         // nhưng KHÔNG hoàn velocity đã lưu (đó là đà của mạng trước — Motor.OnRespawn vừa zero).
@@ -145,7 +156,7 @@ namespace FA.Combat
         {
             if (_framesLeft <= 0) return;
             _framesLeft = 0;
-            if (body != null) body.gravityScale = _savedGravityScale;
+            if (body != null) body.gravityScale = RestoreGravity();
             if (animator != null) animator.speed = _savedAnimatorSpeed;
         }
     }

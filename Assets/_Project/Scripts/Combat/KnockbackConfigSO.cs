@@ -93,6 +93,13 @@ namespace FA.Combat
                  "0 = tắt (chỉ dậy tự động). CẦN TEST.")]
         [Min(0)] public int earlyWakeUpFrames = 10;
 
+        [Tooltip("SAFETY-NET tuyệt đối (fix kẹt nảy-vô-hạn): TỔNG fixed-step tối đa được ở trong Tumble " +
+                 "TÍNH CẢ lúc trên không (KHÔNG cần grounded). Vượt trần này → tự thoát về Idle dù chưa " +
+                 "đáp. Chặn ca 'không bao giờ grounded' (rơi trúng nấm bouncy + material nảy → nảy mãi, " +
+                 "hoặc collider lơ lửng). Đặt RẤT RỘNG (juggle thật kết thúc sớm hơn nhiều qua grounded) " +
+                 "để KHÔNG đổi cảm giác chơi bình thường — chỉ là lưới cuối. 0 = tắt. ~300 = 5s @50fps.")]
+        [Min(0)] public int tumbleHardTimeoutFrames = 300;
+
         /// <summary>+1%/hit milestone (khớp ComboCounter) — KnockbackPercent gọi để cộng đúng GDD.</summary>
         public int MilestoneBonus(int comboCount)
         {

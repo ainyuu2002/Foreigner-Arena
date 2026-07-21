@@ -119,9 +119,13 @@ namespace FA.Specials
 
             if (_ctx.IsGrounded) _airDodgeUsed = false; // nạp lại quota air-dodge khi chạm đất.
 
-            // THỨ TỰ ƯU TIÊN: Rage-button (Ultimate > Burst > Rage Mode) trước, rồi né (RC > AirDodge > GroundDodge).
+            // THỨ TỰ ƯU TIÊN: Rage-button (Ultimate > Rage Mode) trước, rồi né (RC > AirDodge > GroundDodge).
+            // BURST BREAKER ĐÃ BỎ (quyết định người dùng 2026-07-22): ấn Rage khi đang bị combo/block
+            // KHÔNG còn kích Burst. Trước đây TryBurst nuốt nút Rage ở state non-neutral + trừ 50% nộ rồi
+            // vào BurstState — mà clip Burst của nhân vật WIP chưa có Animation Event RecoveryEnd nên
+            // BurstState kẹt (_recoveryDone mãi false) → đơ nuốt input. Gỡ entry-point là hết. (BurstState/
+            // TryBurst giữ nguyên trong file, KHÔNG gọi tới — muốn khôi phục chỉ cần gọi lại TryBurst ở đây.)
             if (TryUltimate()) return;
-            if (TryBurst()) return;
             if (TryRageMode()) return;
             if (TryRCDash()) return;
             if (TryAirDodge()) return;

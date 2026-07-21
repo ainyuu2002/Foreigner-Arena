@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 8812000000000000002}
   - component: {fileID: 8812000000000000003}
   - component: {fileID: 8812000000000000004}
+  - component: {fileID: 368152304503551936}
   m_Layer: 11
   m_Name: Wolverine
   m_TagString: Untagged
@@ -254,6 +255,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FA.Movement::FA.Movement.GroundCheck
   bodyCollider: {fileID: 2017620239171231619}
+  body: {fileID: 0}
+  risingVelocityThreshold: 1.5
 --- !u!114 &2638868685957760552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -261,7 +264,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 584454292511064029}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 56a5e3bd14c230a4f945d1b053de1398, type: 3}
   m_Name: 
@@ -311,7 +314,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 584454292511064029}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4d8a38291b3056408f27e059b4c3b49, type: 3}
   m_Name: 
@@ -461,6 +464,7 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: a92643b210624f19bd8e2767e5297f8a, type: 2}
   percent: {fileID: 8364922129431121209}
   knockback: {fileID: 143961383263140265}
+  hitstop: {fileID: 0}
   root: {fileID: 0}
   pendingGraceFrames: 100
 --- !u!114 &143961383263140265
@@ -853,6 +857,19 @@ MonoBehaviour:
   holdSeconds: 1
   dimOrder: 90
   side: 0
+--- !u!114 &368152304503551936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ec25df339c418945adee22bf6e911cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Movement::FA.Movement.PlatformDropThrough
+  bodyCollider: {fileID: 0}
 --- !u!1 &1147203450710317211
 GameObject:
   m_ObjectHideFlags: 0

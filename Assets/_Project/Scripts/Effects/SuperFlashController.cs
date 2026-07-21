@@ -122,7 +122,17 @@ namespace FA.Effects
                 // HOLD: đóng băng pose caster holdSeconds đầu (thế giới đã freeze sẵn) — flash dài ra,
                 // người xem kịp thấy zoom + cut-in; hết hold pose chạy tiếp → SuperFlashEnd vẫn bắn.
                 _prevAnimSpeed = _animator.speed;
+                // FIX KẸT FLASH: nếu flash BẮT ĐẦU khi caster đang bị HITSTOP freeze (animator.speed=0 —
+                // vd cancel normal→super trong hitstop của chính mình, IsInHitstun=false nên guard entry
+                // không chặn), thì snapshot speed=0. Time.timeScale=0 của flash làm FixedUpdate của
+                // HitstopController NGỪNG → nó không bao giờ restore speed → clip super kẹt speed 0 →
+                // SuperFlashEnd (Animation Event) KHÔNG bao giờ bắn → EndFlash không chạy → đơ flash
+                // vĩnh viễn. Chuẩn hoá về baseline 1 để flash TỰ điều khiển speed và chắc chắn kết thúc.
+                if (_prevAnimSpeed <= 0.01f) _prevAnimSpeed = 1f;
+                // Đảm bảo clip CHẠY trong flash: hold → giữ speed 0 rồi Update thả sau holdSeconds; KHÔNG
+                // hold → set speed baseline NGAY (không để dính speed=0 của hitstop → SuperFlashEnd bắn).
                 if (holdSeconds > 0f) { _animator.speed = 0f; _holding = true; }
+                else { _animator.speed = _prevAnimSpeed; }
             }
 
             _cam = Camera.main;

@@ -22,6 +22,13 @@ namespace FA.Core
         /// <summary>Thân vật lý — AttackState zero vx mặt đất (đòn đứng tại chỗ); hitstop freeze velocity.</summary>
         Rigidbody2D Body { get; }
 
+        /// <summary>gravityScale BASELINE của nhân vật (= CharacterData.gravityScale). HitstopController
+        /// khôi phục gravity về ĐÂY sau khi hết freeze thay vì snapshot chụp lúc bắt đầu freeze — snapshot
+        /// có thể là giá trị TRANSIENT 0 (nạn nhân đang Dash lúc trúng đòn: DashState khóa gravityScale=0)
+        /// → EndHitstop restore nhầm 0 → nạn nhân bị launch nhưng gravity=0 nên bay mãi không rơi, kẹt
+        /// LauncherState vĩnh viễn (bug juggle "trôi lên trời"). CharacterMotor đã có sẵn getter này.</summary>
+        float BaseGravityScale { get; }
+
         /// <summary>Animator — AttackState set int StateId = MoveData.animatorStateId (cầu nối code↔Animator).</summary>
         Animator Animator { get; }
 

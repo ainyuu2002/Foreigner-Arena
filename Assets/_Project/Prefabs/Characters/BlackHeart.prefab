@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 8814000000000000002}
   - component: {fileID: 8814000000000000003}
   - component: {fileID: 8814000000000000004}
+  - component: {fileID: 368152304503551936}
   m_Layer: 11
   m_Name: BlackHeart
   m_TagString: Untagged
@@ -134,8 +135,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.44}
-  m_Size: {x: 0.3, y: 0.86}
+  m_Offset: {x: 0.023, y: 0.354}
+  m_Size: {x: 0.4825889, y: 0.70794165}
   m_Direction: 0
 --- !u!212 &5229451945257038344
 SpriteRenderer:
@@ -194,7 +195,7 @@ SpriteRenderer:
   m_Size: {x: 0.635, y: 0.88}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
 --- !u!95 &4840833399210449717
@@ -239,6 +240,8 @@ MonoBehaviour:
   inputConfig: {fileID: 11400000, guid: 7c19fdc11d724fe4a69e4045fad9b30a, type: 2}
   inputScheme: 0
   gamepadIndex: 0
+  pairExtraGamepad: 0
+  extraGamepadIndex: 1
 --- !u!114 &3624986202743913585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,6 +255,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FA.Movement::FA.Movement.GroundCheck
   bodyCollider: {fileID: 2017620239171231619}
+  body: {fileID: 8938354169403411849}
+  risingVelocityThreshold: 0.5
 --- !u!114 &2638868685957760552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -384,7 +389,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FA.Combat::FA.Combat.FacingController
   opponent: {fileID: 0}
-  combat: {fileID: 0}
   faceDeadzone: 0.05
 --- !u!114 &2814869207497151703
 MonoBehaviour:
@@ -460,7 +464,9 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 2cfecc5a8d8441c8a14b8b5eca462b82, type: 2}
   percent: {fileID: 8364922129431121209}
   knockback: {fileID: 143961383263140265}
+  hitstop: {fileID: 0}
   root: {fileID: 0}
+  pendingGraceFrames: 100
 --- !u!114 &143961383263140265
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -477,6 +483,7 @@ MonoBehaviour:
   bodyCollider: {fileID: 2017620239171231619}
   bounceMaterial: {fileID: 6200000, guid: e5bff30fdf8d0164c94c1889d2a98afe, type: 2}
   opponentBodyCollider: {fileID: 0}
+  relay: {fileID: 0}
 --- !u!114 &2938234063007403678
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -622,6 +629,253 @@ MonoBehaviour:
   blockMultiplier: 0.35
   scaleWithHitstop: 1
   referenceHitstopFrames: 6
+--- !u!82 &8354637190001112233
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &8354637190001112234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61340253f8ee67a46b43df27bb170fd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Effects::FA.Effects.HitEffectPlayer
+  hitConfirmedChannel: {fileID: 11400000, guid: c562eebe48484723967febf4e694280c, type: 2}
+  hitBlockedChannel: {fileID: 11400000, guid: 8efe8419d23f4c7db441836a8a184d44, type: 2}
+  hitEffect: {fileID: 11400000, guid: 2341fecb1d515c3c73115c7c6eb7893b, type: 2}
+  blockEffect: {fileID: 11400000, guid: 5073379ff77a504429562e26d8e7be78, type: 2}
+  audioSource: {fileID: 8354637190001112233}
+--- !u!114 &8354637190001112235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 750ba87edb3d46244bff6fe879cfd884, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Effects::FA.Effects.MovementEffectController
+  animator: {fileID: 4840833399210449717}
+  audioSource: {fileID: 8354637190001112233}
+  jumpGround: {fileID: 0}
+  jumpAir: {fileID: 11400000, guid: e4331f7f18996264997737d0687b467c, type: 2}
+  land: {fileID: 0}
+  dashGround: {fileID: 0}
+  dashAir: {fileID: 11400000, guid: 909c481031a97bd439709813728e5ebd, type: 2}
+  walkStep: {fileID: 0}
+  footContactPhases:
+  - 0.15
+  - 0.65
+--- !u!114 &8354637190001112236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 928cfe7c0700b0c4ba248f0299cb015b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Effects::FA.Effects.CharacterEffectPlayer
+  relay: {fileID: -6127148562445082577}
+  audioSource: {fileID: 8354637190001112233}
+  effects:
+  - {fileID: 11400000, guid: c915962e6f5a32467f95c876b1237e17, type: 2}
+  - {fileID: 11400000, guid: f16ee3fa306ffa9065d88b9049c2c0a0, type: 2}
+  - {fileID: 11400000, guid: c3ed5b04761773634a8b125785dd65cb, type: 2}
+  - {fileID: 11400000, guid: 12c18bc5837a09b968a2cfef58e9da33, type: 2}
+  - {fileID: 11400000, guid: 27113194f9701a4474950d27df814528, type: 2}
+  - {fileID: 11400000, guid: 22a58ac01d424b95e7c24e8592769cd4, type: 2}
+  - {fileID: 11400000, guid: 143ce678dfad22cde896a2a8e2f8e780, type: 2}
+  - {fileID: 11400000, guid: 6fac536ece38bb9276d1bc4caa356852, type: 2}
+  - {fileID: 11400000, guid: 56f89601cb7e0da71ecefa494358562d, type: 2}
+  - {fileID: 11400000, guid: 1001b255a26aaded8e03e4221b10920f, type: 2}
+  - {fileID: 11400000, guid: f2c280ee8faccfb81bf74de50b9f03fc, type: 2}
+  - {fileID: 11400000, guid: 7c1c80073ac535f2b6276d2327822f9c, type: 2}
+  - {fileID: 11400000, guid: 83bc5ab424315627fe53e0e9589f1bea, type: 2}
+--- !u!114 &8814000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dced4c1eb2c409c48b173fc393740530, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Core::FA.Core.BuffAggregator
+--- !u!114 &8814000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d3c1e39d376e8949a087fafe472cb1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Specials::FA.Specials.RageModeController
+  config: {fileID: 11400000, guid: eca297883db0e614bae6440d262444ac, type: 2}
+  animator: {fileID: 0}
+  auraParticles: {fileID: 8813000000000000003}
+  rageAnimatorBool: Rage
+  rageSpenderBehaviour: {fileID: 0}
+--- !u!114 &8814000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9aa2a6ba7d9586041ae9522d28aa729a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Specials::FA.Specials.DefenseController
+  relay: {fileID: -6127148562445082577}
+  config: {fileID: 11400000, guid: eca297883db0e614bae6440d262444ac, type: 2}
+  rageMode: {fileID: 8814000000000000002}
+  ultimateMove: {fileID: 11400000, guid: b4b6fa3963fad5784fdd98c1f4366dd0, type: 2}
+  hitboxController: {fileID: 1356918369982899276}
+  burstPushMove: {fileID: 0}
+--- !u!114 &8814000000000000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a3f7a88170380b4ebfb259c0afacf0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Effects::FA.Effects.SuperFlashController
+  relay: {fileID: -6127148562445082577}
+  overlayPrefab: {fileID: 4910509479565200991, guid: d2f23991de15bf04b9ad998600fa62b1, type: 3}
+  portraits:
+  - {fileID: 21300000, guid: be449bc459ace1e9ff5feb11a5fec67d, type: 3}
+  zoomOrthoSize: 0.5
+  zoomInSeconds: 0.3
+  aimHeight: 1.2
+  holdSeconds: 1
+  dimOrder: 90
+  side: 0
+--- !u!114 &368152304503551936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 584454292511064029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ec25df339c418945adee22bf6e911cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FA.Movement::FA.Movement.PlatformDropThrough
+  bodyCollider: {fileID: 0}
 --- !u!1 &1147203450710317211
 GameObject:
   m_ObjectHideFlags: 0
@@ -716,6 +970,7 @@ MonoBehaviour:
   attackerRoot: {fileID: 5807218119454530032}
   hitChannel: {fileID: 11400000, guid: 08c5467211d11d347a546463f7ceb315, type: 2}
   box: {fileID: 0}
+  moveOverride: {fileID: 0}
 --- !u!1 &4992296658301123370
 GameObject:
   m_ObjectHideFlags: 0
@@ -810,6 +1065,7 @@ MonoBehaviour:
   attackerRoot: {fileID: 5807218119454530032}
   hitChannel: {fileID: 11400000, guid: 08c5467211d11d347a546463f7ceb315, type: 2}
   box: {fileID: 0}
+  moveOverride: {fileID: 0}
 --- !u!1 &5060988087649165433
 GameObject:
   m_ObjectHideFlags: 0
@@ -876,7 +1132,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.005, y: 0.715}
+  m_Offset: {x: 0.004999995, y: 0.8240694}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -886,7 +1142,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.53, y: 1.45}
+  m_Size: {x: 0.53, y: 1.2318614}
   m_EdgeRadius: 0
 --- !u!1 &5659613930739667647
 GameObject:
@@ -982,6 +1238,7 @@ MonoBehaviour:
   attackerRoot: {fileID: 5807218119454530032}
   hitChannel: {fileID: 11400000, guid: 08c5467211d11d347a546463f7ceb315, type: 2}
   box: {fileID: 0}
+  moveOverride: {fileID: 0}
 --- !u!1 &7554520765522932916
 GameObject:
   m_ObjectHideFlags: 0
@@ -1091,171 +1348,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.52, y: 1.37}
   m_EdgeRadius: 0
---- !u!82 &8354637190001112233
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 584454292511064029}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 0
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
---- !u!114 &8354637190001112234
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 584454292511064029}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 61340253f8ee67a46b43df27bb170fd6, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FA.Effects::FA.Effects.HitEffectPlayer
-  hitConfirmedChannel: {fileID: 11400000, guid: c562eebe48484723967febf4e694280c, type: 2}
-  hitBlockedChannel: {fileID: 11400000, guid: 8efe8419d23f4c7db441836a8a184d44, type: 2}
-  hitEffect: {fileID: 11400000, guid: 2341fecb1d515c3c73115c7c6eb7893b, type: 2}
-  blockEffect: {fileID: 11400000, guid: 5073379ff77a504429562e26d8e7be78, type: 2}
-  audioSource: {fileID: 8354637190001112233}
---- !u!114 &8354637190001112235
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 584454292511064029}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 750ba87edb3d46244bff6fe879cfd884, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FA.Effects::FA.Effects.MovementEffectController
-  animator: {fileID: 4840833399210449717}
-  audioSource: {fileID: 8354637190001112233}
-  jumpGround: {fileID: 0}
-  jumpAir: {fileID: 11400000, guid: e4331f7f18996264997737d0687b467c, type: 2}
-  land: {fileID: 0}
-  dashGround: {fileID: 0}
-  dashAir: {fileID: 11400000, guid: 909c481031a97bd439709813728e5ebd, type: 2}
-  walkStep: {fileID: 0}
-  footContactPhases:
-  - 0.15
-  - 0.65
---- !u!114 &8354637190001112236
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 584454292511064029}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 928cfe7c0700b0c4ba248f0299cb015b, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FA.Effects::FA.Effects.CharacterEffectPlayer
-  relay: {fileID: -6127148562445082577}
-  audioSource: {fileID: 8354637190001112233}
-  effects:
-  - {fileID: 11400000, guid: c915962e6f5a32467f95c876b1237e17, type: 2}
-  - {fileID: 11400000, guid: f16ee3fa306ffa9065d88b9049c2c0a0, type: 2}
-  - {fileID: 11400000, guid: c3ed5b04761773634a8b125785dd65cb, type: 2}
-  - {fileID: 11400000, guid: 12c18bc5837a09b968a2cfef58e9da33, type: 2}
-  - {fileID: 11400000, guid: 27113194f9701a4474950d27df814528, type: 2}
-  - {fileID: 11400000, guid: 22a58ac01d424b95e7c24e8592769cd4, type: 2}
-  - {fileID: 11400000, guid: 143ce678dfad22cde896a2a8e2f8e780, type: 2}
-  - {fileID: 11400000, guid: 6fac536ece38bb9276d1bc4caa356852, type: 2}
-  - {fileID: 11400000, guid: 56f89601cb7e0da71ecefa494358562d, type: 2}
-  - {fileID: 11400000, guid: 1001b255a26aaded8e03e4221b10920f, type: 2}
-  - {fileID: 11400000, guid: f2c280ee8faccfb81bf74de50b9f03fc, type: 2}
-  - {fileID: 11400000, guid: 7c1c80073ac535f2b6276d2327822f9c, type: 2}
-  - {fileID: 11400000, guid: 83bc5ab424315627fe53e0e9589f1bea, type: 2}
 --- !u!1 &8813000000000000001
 GameObject:
   m_ObjectHideFlags: 0
@@ -6092,72 +6184,3 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
---- !u!114 &8814000000000000001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 584454292511064029}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dced4c1eb2c409c48b173fc393740530, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FA.Core::FA.Core.BuffAggregator
---- !u!114 &8814000000000000002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 584454292511064029}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d3c1e39d376e8949a087fafe472cb1d, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FA.Specials::FA.Specials.RageModeController
-  config: {fileID: 11400000, guid: eca297883db0e614bae6440d262444ac, type: 2}
-  animator: {fileID: 0}
-  auraParticles: {fileID: 8813000000000000003}
-  rageAnimatorBool: Rage
-  rageSpenderBehaviour: {fileID: 0}
---- !u!114 &8814000000000000003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 584454292511064029}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9aa2a6ba7d9586041ae9522d28aa729a, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FA.Specials::FA.Specials.DefenseController
-  relay: {fileID: -6127148562445082577}
-  config: {fileID: 11400000, guid: eca297883db0e614bae6440d262444ac, type: 2}
-  rageMode: {fileID: 8814000000000000002}
-  ultimateMove: {fileID: 11400000, guid: b4b6fa3963fad5784fdd98c1f4366dd0, type: 2}
-  hitboxController: {fileID: 1356918369982899276}
-  burstPushMove: {fileID: 0}
---- !u!114 &8814000000000000004
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 584454292511064029}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a3f7a88170380b4ebfb259c0afacf0e, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FA.Effects::FA.Effects.SuperFlashController
-  relay: {fileID: -6127148562445082577}
-  overlayPrefab: {fileID: 4910509479565200991, guid: d2f23991de15bf04b9ad998600fa62b1, type: 3}
-  portraits:
-  - {fileID: 21300000, guid: be449bc459ace1e9ff5feb11a5fec67d, type: 3}
-  zoomOrthoSize: 0.5
-  zoomInSeconds: 0.3
-  aimHeight: 1.2
-  holdSeconds: 1
-  dimOrder: 90
-  side: 0

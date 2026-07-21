@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9c8e1446bd6a6d4f90774f1f6283237, type: 3}
   m_Name: Wolverine_Data
   m_EditorClassIdentifier: FA.Movement::FA.Movement.CharacterData
-  walkSpeed: 4
+  walkSpeed: 8
   mass: 1
   gravityScale: 3
-  jumpSpeed: 10
+  jumpSpeed: 15
   maxAirJumps: 1
   airControl: 0.8
   dashSpeed: 10
-  dashDuration: 0.18
+  dashDuration: 0.3
   allowAirDash: 1
   maxAirDashes: 1
   wallSlideSpeed: 2
