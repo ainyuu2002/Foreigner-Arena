@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4b9168800b97d4eb5191c6042d08ba, type: 3}
+  m_Name: Super_1
+  m_EditorClassIdentifier: FA.Core::FA.Core.MoveData
+  moveId: weapon_x
+  category: 3
+  animatorStateId: 36
+  clip: {fileID: 7400000, guid: dcb425ba5e7aad3aef2f5f69f077eff8, type: 2}
+  motion: 0
+  button: 5
+  chargeFrames: 0
+  chargedVariant: {fileID: 0}
+  manaCostUnits: 2
+  rageCost: 0
+  requiresRageMode: 0
+  manaGainMultiplier: 0
+  baseDamagePercent: 4
+  launchAngle: 75
+  baseKnockback: 1.2
+  knockbackGrowth: 0.02
+  isSpike: 0
+  causesLaunch: 0
+  role: 0
+  onBlockAdvantage: 0
+  onHitAdvantage: 0
+  hitsLow: 0
+  hitsHigh: 1
+  hitstunFrames: 30
+  hitstopFrames: 4
+  motionImpulses:
+  - {x: 8, y: 0}
+  driftSpeed: 0
+  followUps: []
+  hitEffect: {fileID: 11400000, guid: a24e48b04f60df96835c7b8e4f775b52, type: 2}
+  blockEffect: {fileID: 11400000, guid: 5073379ff77a504429562e26d8e7be78, type: 2}

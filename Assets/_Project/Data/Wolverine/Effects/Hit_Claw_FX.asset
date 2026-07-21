@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5620cd6879778c7479bf0f299edbc953, type: 3}
+  m_Name: Hit_Claw_FX
+  m_EditorClassIdentifier: FA.Core::FA.Core.EffectData
+  vfxPrefab: {fileID: 0}
+  offset: {x: 0, y: 0}
+  attachToOwner: 0
+  sfxClips:
+  - {fileID: 8300000, guid: 2b645741ecfa06849bd31e9527dbe85f, type: 3}
+  - {fileID: 8300000, guid: ad4fd0938850375468be51e01d6dcebd, type: 3}
+  - {fileID: 8300000, guid: 5eb351f19b72f1a4bb755a5316ca7c2a, type: 3}
+  - {fileID: 8300000, guid: b82261c4382559f45b8804437ee4b16a, type: 3}
+  volume: 1
+  scale: 1
