@@ -50,7 +50,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: FA.Items::FA.Items.ItemBuffHudView
   damageBuffSprite: {fileID: 4328230642590393256, guid: 514f0965b6ed5074d96df93c8d43b5d0, type: 3}
   slowFallSprite: {fileID: -4556186126613005712, guid: 514f0965b6ed5074d96df93c8d43b5d0, type: 3}
-  weatherImmunitySprite: {fileID: 2010801514119917767, guid: 514f0965b6ed5074d96df93c8d43b5d0, type: 3}
   labelFont: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
   statusIconPrefab: {fileID: 697100001, guid: d253a33c63cb4f8bb94fd19b062d4075, type: 3}
   p1Position: {x: 28, y: 68}

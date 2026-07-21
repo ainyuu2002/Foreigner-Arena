@@ -1,4 +1,5 @@
 using System.Collections;
+using FA.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -33,6 +34,38 @@ namespace FA.Items
         {
             if (s_instance == null || string.IsNullOrWhiteSpace(message)) return;
             s_instance.Display(message);
+        }
+
+        /// <summary>Hiện người nhặt, tên item và effect vừa nhận.</summary>
+        public static void ShowPickup(Transform player, ItemData data, ItemEffect effect)
+        {
+            if (player == null || data == null) return;
+
+            string playerName = player.gameObject.layer == GameLayers.Player2 ? "P2" : "P1";
+            string separator = data.type == ItemType.MysteryBlock ? " → " : " • ";
+            Show($"{playerName} PICKED UP: {data.DisplayName}{separator}{FormatEffect(effect)}");
+        }
+
+        private static string FormatEffect(ItemEffect effect)
+        {
+            string duration = effect.duration > 0f ? $" • {effect.duration:0.#} SECONDS" : string.Empty;
+            switch (effect.type)
+            {
+                case ItemEffectType.ResistanceRecovery:
+                    return $"RECOVER {effect.value:0.#}% RESISTANCE";
+                case ItemEffectType.ManaRecovery:
+                    return $"+{effect.value * 100f:0.#}% MANA";
+                case ItemEffectType.ResistanceIncreaseDebuff:
+                    return $"+{effect.value:0.#}% KNOCKBACK";
+                case ItemEffectType.SlowFall:
+                    return $"-{effect.value * 100f:0.#}% GRAVITY{duration}";
+                case ItemEffectType.DamageBuff:
+                    return $"+{effect.value * 100f:0.#}% DAMAGE{duration}";
+                case ItemEffectType.TrapBall:
+                    return $"KNOCKBACK TRAP +{effect.value * 100f:0.#}%";
+                default:
+                    return effect.type.ToString();
+            }
         }
 
         private void Display(string message)

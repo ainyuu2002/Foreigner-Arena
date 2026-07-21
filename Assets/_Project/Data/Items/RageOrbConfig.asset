@@ -12,13 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa130003da7a000000000000000000d3, type: 3}
   m_Name: RageOrbConfig
   m_EditorClassIdentifier: FA.Items::FA.Items.RageOrbConfigSO
-  hitsToBreak: 15
+  hitsToBreak: 5
   counterDecayPerSecond: 0.4
-  speedMin: 4
-  speedMax: 9
-  redirectInterval: 1.5
+  counterDecayDelay: 2
+  speedMin: 2
+  speedMax: 4
+  redirectInterval: 2.5
   hitstunFramesOnHit: 6
+  visualSpinDegreesPerSecond: 35
   boundsCenter: {x: 0, y: 2}
   boundsSize: {x: 20, y: 10}
+  worldCollisionRadius: 0.72
+  worldCollisionSkin: 0.04
   lifetime: 20
   minScaleAtEnd: 0.3

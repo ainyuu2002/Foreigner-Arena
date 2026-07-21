@@ -3,68 +3,17 @@ using UnityEngine;
 
 namespace FA.Items
 {
-    public enum MysteryBlockOutcomeType
-    {
-        ResistanceRecovery = 0,
-        ManaRecovery = 1,
-        WeatherImmunity = 2,
-        ResistanceIncreaseDebuff = 3,
-        SlowFall = 4,
-        DamageBuff = 5,
-        TrapBall = 6,
-    }
-
     [System.Serializable]
     public sealed class MysteryBlockOutcome
     {
-        public MysteryBlockOutcomeType type = MysteryBlockOutcomeType.ResistanceRecovery;
+        public ItemEffectType type = ItemEffectType.ResistanceRecovery;
         [Range(1, 3)] public int tier = 1;
         [Min(0f)] public float value = 0.05f;
         [Min(0f)] public float durationSeconds = 0f;
         [Min(0f)] public float spawnWeight = 1f;
 
-        public string DisplayName
-        {
-            get
-            {
-                switch (type)
-                {
-                    case MysteryBlockOutcomeType.ResistanceRecovery: return "Resistance recovery";
-                    case MysteryBlockOutcomeType.ManaRecovery: return "Mana recovery";
-                    case MysteryBlockOutcomeType.WeatherImmunity: return "Weather immunity";
-                    case MysteryBlockOutcomeType.ResistanceIncreaseDebuff: return "Resistance increase";
-                    case MysteryBlockOutcomeType.SlowFall: return "Slow fall";
-                    case MysteryBlockOutcomeType.DamageBuff: return "Damage buff";
-                    case MysteryBlockOutcomeType.TrapBall: return "Trap ball";
-                    default: return type.ToString();
-                }
-            }
-        }
-
-        public string TierName
-        {
-            get
-            {
-                switch (tier)
-                {
-                    case 1: return "Small";
-                    case 2: return "Medium";
-                    case 3: return "Large";
-                    default: return $"Tier {tier}";
-                }
-            }
-        }
-
-        public string DebugSummary()
-        {
-            string amount = value > 0f ? $" - {value * 100f:0.#}%" : string.Empty;
-            string duration = durationSeconds > 0f ? $" / {durationSeconds:0.#}s" : string.Empty;
-            return $"{DisplayName} - Tier {tier} ({TierName}){amount}{duration}";
-        }
-
-        /// <summary>(Hợp nhất item) Chuyển 1 outcome (dữ liệu asset) sang <see cref="ItemEffect"/> DÙNG CHUNG.
-        /// int của <see cref="MysteryBlockOutcomeType"/> TRÙNG <see cref="ItemEffectType"/> nên cast an toàn.</summary>
-        public ItemEffect ToEffect() => new ItemEffect((ItemEffectType)(int)type, value, durationSeconds);
+        /// <summary>Chuyển dữ liệu Mystery thành effect runtime.</summary>
+        public ItemEffect ToEffect() => new ItemEffect(type, value, durationSeconds);
     }
 
     [CreateAssetMenu(menuName = "FA/Items/Mystery Block Outcome Config", fileName = "MysteryBlockOutcomeConfig")]
@@ -74,42 +23,17 @@ namespace FA.Items
 
         public MysteryBlockOutcome PickRandom()
         {
-            if (outcomes == null || outcomes.Count == 0)
-                return FallbackOutcome();
-
-            float total = 0f;
-            for (int i = 0; i < outcomes.Count; i++)
-            {
-                if (outcomes[i] == null) continue;
-                total += Mathf.Max(0f, outcomes[i].spawnWeight);
-            }
-
-            if (total <= 0f)
-                return outcomes[0] ?? FallbackOutcome();
-
-            float roll = Random.value * total;
-            for (int i = 0; i < outcomes.Count; i++)
-            {
-                MysteryBlockOutcome outcome = outcomes[i];
-                if (outcome == null) continue;
-
-                roll -= Mathf.Max(0f, outcome.spawnWeight);
-                if (roll <= 0f)
-                    return outcome;
-            }
-
-            return outcomes[outcomes.Count - 1] ?? FallbackOutcome();
+            return WeightedRandom.Pick(outcomes, outcome => outcome.spawnWeight) ?? FallbackOutcome();
         }
 
-        /// <summary>(Hợp nhất item) Roll 1 outcome rồi trả về <see cref="ItemEffect"/> DÙNG CHUNG — Item gọi
-        /// khi nhặt Mystery Block. Không bao giờ null (PickRandom có fallback).</summary>
+        /// <summary>Chọn ngẫu nhiên effect; dùng giá trị mặc định nếu bảng rỗng.</summary>
         public ItemEffect PickRandomEffect() => PickRandom().ToEffect();
 
         private static MysteryBlockOutcome FallbackOutcome()
         {
             return new MysteryBlockOutcome
             {
-                type = MysteryBlockOutcomeType.ResistanceRecovery,
+                type = ItemEffectType.ResistanceRecovery,
                 tier = 1,
                 value = 0.05f,
                 durationSeconds = 0f,

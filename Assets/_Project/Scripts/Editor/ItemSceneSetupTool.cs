@@ -24,6 +24,7 @@ namespace FA.EditorTools
         private const string ItemsDataDir = "Assets/_Project/Data/Items";
         private const string GameFlowDataDir = "Assets/_Project/Data/GameFlow";
         private const string ItemPrefabPath = "Assets/_Project/Prefabs/Items/Item.prefab";
+        private const string ItemSpawnerPrefabPath = "Assets/_Project/Prefabs/Items/ItemSpawner.prefab";
         private const string OnMatchStartPath = GameFlowDataDir + "/OnMatchStartChannel.asset";
         private const string OnMatchEndedPath = GameFlowDataDir + "/OnMatchEndedChannel.asset";
 
@@ -31,10 +32,21 @@ namespace FA.EditorTools
         public static void Run()
         {
             WireLobby();
-            AddSpawner("Ice", new Vector3(0f, 4f, 0f));
-            AddSpawner("Fire", new Vector3(0f, 3.5f, 0f));
-            AddSpawner("Swamp", new Vector3(0f, 4.5f, 0f));
+            PackItemSpawnersIntoPrefab();
             Debug.Log("[ItemSceneSetup] DONE — lobby onMatchStart wired + ItemSpawner added to 3 maps.");
+        }
+
+        [MenuItem("FA/Tools/Items/6. Pack Item Spawners Into Prefab %&p")]
+        public static void PackItemSpawnersIntoPrefab()
+        {
+            GameObject spawnerPrefab = CreateItemSpawnerPrefab();
+            if (spawnerPrefab == null) return;
+
+            PackMapSpawner("Ice", spawnerPrefab);
+            PackMapSpawner("Fire", spawnerPrefab);
+            PackMapSpawner("Swamp", spawnerPrefab);
+            AssetDatabase.SaveAssets();
+            Debug.Log("[ItemSceneSetup] ItemSpawner của 3 map đã dùng chung prefab.");
         }
 
         /// <summary>(fa-fix) Gỡ child "PortalVisual" cũ khỏi ItemSpawner trong CẢ 3 map (idempotent — no-op
@@ -116,46 +128,80 @@ namespace FA.EditorTools
             return n;
         }
 
-        private static void AddSpawner(string biome, Vector3 pos)
+        private static GameObject CreateItemSpawnerPrefab()
         {
-            string scenePath = $"Assets/_Project/Scenes/Map_{biome}.unity";
-
-            // MỞ scene TRƯỚC rồi nạp asset (tránh OpenScene hủy native asset đã nạp → fake-null).
-            Scene scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
-
-            var config = AssetDatabase.LoadAssetAtPath<ItemSpawnConfigSO>($"{ItemsDataDir}/ItemSpawnConfig_{biome}.asset");
             var itemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ItemPrefabPath);
             var onStart = AssetDatabase.LoadAssetAtPath<VoidEventChannelSO>(OnMatchStartPath);
             var onEnded = AssetDatabase.LoadAssetAtPath<VoidEventChannelSO>(OnMatchEndedPath);
-            if (config == null || itemPrefab == null)
+            if (itemPrefab == null || onStart == null || onEnded == null)
             {
-                Debug.LogError($"[ItemSceneSetup] {biome}: thiếu config/Item.prefab (chạy tool 2+3 trước).");
+                Debug.LogError("[ItemSceneSetup] Thiếu Item prefab hoặc event channel.");
+                return null;
+            }
+
+            var root = new GameObject("ItemSpawner");
+            try
+            {
+                var spawner = root.AddComponent<ItemSpawner>();
+                var so = new SerializedObject(spawner);
+                so.FindProperty("itemPrefab").objectReferenceValue = itemPrefab.GetComponent<Item>();
+                so.FindProperty("autoStart").boolValue = false;
+                so.FindProperty("onMatchStart").objectReferenceValue = onStart;
+                so.FindProperty("onMatchEnded").objectReferenceValue = onEnded;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                return PrefabUtility.SaveAsPrefabAsset(root, ItemSpawnerPrefabPath);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        private static void PackMapSpawner(string biome, GameObject spawnerPrefab)
+        {
+            string scenePath = $"Assets/_Project/Scenes/Map_{biome}.unity";
+            Scene scene = SceneManager.GetSceneByPath(scenePath);
+            bool openedHere = !scene.isLoaded;
+            if (openedHere) scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+
+            GameObject existing = null;
+            foreach (GameObject root in scene.GetRootGameObjects())
+            {
+                if (root.name != "ItemSpawner") continue;
+                existing = root;
+                break;
+            }
+
+            Vector3 position = existing != null ? existing.transform.position : Vector3.zero;
+            GameObject source = existing != null
+                ? PrefabUtility.GetCorrespondingObjectFromSource(existing)
+                : null;
+            if (existing == null || source != spawnerPrefab)
+            {
+                if (existing != null) Object.DestroyImmediate(existing);
+                existing = PrefabUtility.InstantiatePrefab(spawnerPrefab, scene) as GameObject;
+            }
+
+            var config = AssetDatabase.LoadAssetAtPath<ItemSpawnConfigSO>(
+                $"{ItemsDataDir}/ItemSpawnConfig_{biome}.asset");
+            if (existing == null || config == null)
+            {
+                Debug.LogError($"[ItemSceneSetup] {biome}: không thể tạo spawner prefab.");
+                if (openedHere) EditorSceneManager.CloseScene(scene, true);
                 return;
             }
-            Item itemComp = itemPrefab.GetComponent<Item>();
 
-            GameObject go = GameObject.Find("ItemSpawner");
-            if (go == null) go = new GameObject("ItemSpawner");
-            go.transform.position = pos;
-
-            var spawner = go.GetComponent<ItemSpawner>();
-            if (spawner == null) spawner = go.AddComponent<ItemSpawner>();
-
-            // Feedback TẠM (Chặng 2): drawer OnGUI phải TỒN TẠI trong scene mới vẽ được text từ Item.ShowImportant.
-            if (go.GetComponent<MysteryBlockPickupDebugText>() == null)
-                go.AddComponent<MysteryBlockPickupDebugText>();
-
+            existing.transform.position = position;
+            var spawner = existing.GetComponent<ItemSpawner>();
             var so = new SerializedObject(spawner);
             so.FindProperty("config").objectReferenceValue = config;
-            so.FindProperty("itemPrefab").objectReferenceValue = itemComp;
-            so.FindProperty("autoStart").boolValue = false;      // chạy bằng OnMatchStart.
-            so.FindProperty("onMatchStart").objectReferenceValue = onStart;
-            so.FindProperty("onMatchEnded").objectReferenceValue = onEnded;
             so.ApplyModifiedPropertiesWithoutUndo();
-            EditorUtility.SetDirty(spawner);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(spawner);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(existing.transform);
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
+            if (openedHere) EditorSceneManager.CloseScene(scene, true);
         }
     }
 }

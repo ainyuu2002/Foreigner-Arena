@@ -104,18 +104,21 @@ namespace FA.Combat
 
         private void HandleOverlap(Collider2D other)
         {
+            GameObject victimRoot = ResolveVictimRoot(other);
+            if (victimRoot == null) return;
+
             if (!_dbgOverlapLogged)
             {
                 _dbgOverlapLogged = true;
-                DebugLog.Log($"[HBX] {name}: overlap {other.transform.root.name} " +
+                DebugLog.Log($"[HBX] {name}: overlap {victimRoot.name} " +
                           $"(move={( _move != null ? _move.moveId : "NULL")}, override={(moveOverride != null ? moveOverride.moveId : "-")})", this);
             }
 
             MoveData move = ActiveMove;
             if (move == null || hitChannel == null) return;
 
-            // 'other' luôn là Hurtbox (Matrix đã lọc). Tìm root người nhận.
-            GameObject victimRoot = other.transform.root.gameObject;
+            // Pooled object nằm dưới [PrefabPool], nên transform.root không còn là gameplay root.
+            // Rigidbody2D sở hữu collider là root vật lý/gameplay đúng của player, projectile target và Rage Orb.
             GameObject atkRoot = attackerRoot != null ? attackerRoot.gameObject : gameObject;
 
             // Guard self-hit (fallback nếu Matrix Player1↔Player1 chưa tách) — P1 không tự trúng mình.
@@ -154,6 +157,14 @@ namespace FA.Combat
                 manaGainMult: move.manaGainMultiplier); // Balance: kinh tế mana per-move (ManaBar nhân).
 
             hitChannel.RaiseEvent(hit);
+        }
+
+        private static GameObject ResolveVictimRoot(Collider2D other)
+        {
+            if (other == null) return null;
+            return other.attachedRigidbody != null
+                ? other.attachedRigidbody.gameObject
+                : other.transform.root.gameObject;
         }
     }
 }

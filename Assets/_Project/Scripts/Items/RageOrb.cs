@@ -1,55 +1,54 @@
 using UnityEngine;
 using FA.Core;
+using RageOrbFinished = System.Action<FA.Items.RageOrb>;
 
 namespace FA.Items
 {
-    /// <summary>
-    /// (P13) RAGE ORB (legendary, clone Smash Ball — research §3.6). Bay random trong map; cần 15 HIT CHUNG
-    /// (cả 2 người cộng dồn) để phá → người gây hit thứ 15 nhận FULL nộ. Bị đánh → hitstun nhẹ + đổi hướng;
-    /// counter DECAY clamp 0 (counter 0 KHÔNG biến mất — sống tới hết lifetime); tồn tại 20s thu nhỏ dần.
-    ///
-    /// UNITY-NATIVE (§1.1):
-    ///  • Bay: Rigidbody2D Kinematic (gravityScale 0) + đặt linearVelocity random; đổi hướng định kỳ + khi
-    ///    bị đánh; nảy ở mép vùng (đảo velocity) — KHÔNG tích phân vị trí tay.
-    ///  • Nhận hit từ CẢ 2 người: child collider Layer Hurtbox → hitbox player va (Collision Matrix P0 lo).
-    ///    Orb KHÔNG ref FA.Combat: subscribe <see cref="HitEventChannelSO"/> (OnHitLandedChannel — HitboxAuthoring
-    ///    P5 raise cho MỌI hurtbox) và LỌC hit.Victim == orb (research §3.6). Đếm chung → +full nộ cho
-    ///    hit.Attacker qua IRageSpender.RefundRage(1f) (Core interface, null-safe).
-    ///  • Decay/lifetime/shrink: dùng Time.deltaTime trong Update cho hành vi MÔI TRƯỜNG (giống lava-rise P11,
-    ///    NGOẠI LỆ hợp lệ — không phải frame-data clip nhân vật). Hitstun nhẹ đếm bằng timer.
-    /// </summary>
+    /// <summary>Orb bay trong map, nhận hit và nạp đầy nộ cho người phá.</summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Rigidbody2D))]
-    public sealed class RageOrb : MonoBehaviour
+    public sealed class RageOrb : MonoBehaviour, IPoolable
     {
         [Header("Cấu hình")]
-        [Tooltip("RageOrbConfigSO — 15 hit/decay/tốc/lifetime... BẮT BUỘC gán.")]
         [SerializeField] private RageOrbConfigSO config;
 
-        [Tooltip("OnHitLanded (HitEventChannelSO 'OnHitLandedChannel') — CÙNG asset HitboxAuthoring raise. " +
-                 "Orb lọc Victim==mình để đếm hit chung. BẮT BUỘC gán.")]
         [SerializeField] private HitEventChannelSO onHitLanded;
 
-        [Tooltip("(Tùy) ParticleSystem phát khi PHÁ orb (Unity-native VFX). Optional.")]
         [SerializeField] private ParticleSystem breakVfx;
 
+        [SerializeField] private SpriteRenderer visual;
+
+        [SerializeField] private RageOrbVfx vfx;
+
         private Rigidbody2D _body;
-        private float _hitCount;          // counter CHUNG (float để decay mượt).
+        private float _hitCount;
         private float _redirectTimer;
-        private float _hitstunTimer;      // >0 = đang hitstun nhẹ (đứng yên).
+        private float _hitstunTimer;
+        private float _decayDelayTimer;
+        private float _hitPulseTimer;
+        private float _finishDelayTimer;
         private float _ageTimer;
         private bool _broken;
         private Vector3 _baseScale;
 
+        public event RageOrbFinished Finished;
+        public float HitProgress => config != null ? Mathf.Clamp01(_hitCount / config.hitsToBreak) : 0f;
+
         private void Awake()
         {
             _body = GetComponent<Rigidbody2D>();
-            _body.gravityScale = 0f;            // bay tự do, không rơi.
+            _body.gravityScale = 0f;
             _baseScale = transform.localScale;
+            if (visual == null) visual = GetComponentInChildren<SpriteRenderer>();
+            if (vfx == null) vfx = GetComponent<RageOrbVfx>();
             if (config == null) Debug.LogError("[RageOrb] Thiếu RageOrbConfigSO.", this);
         }
 
-        private void Start() => Redirect();
+        private void Start()
+        {
+            // Instance tạo trực tiếp (không qua pool) vẫn khởi tạo đúng.
+            if (_redirectTimer <= 0f) Redirect();
+        }
 
         private void OnEnable()
         {
@@ -63,20 +62,36 @@ namespace FA.Items
 
         private void Update()
         {
+            if (_finishDelayTimer > 0f)
+            {
+                _finishDelayTimer -= Time.deltaTime;
+                if (_finishDelayTimer <= 0f) FinishImmediately();
+                return;
+            }
             if (config == null || _broken) return;
 
-            // Lifetime + thu nhỏ dần (cảnh báo) → hết thì Destroy (không ai phá).
+            // Thu nhỏ dần theo thời gian tồn tại.
             _ageTimer += Time.deltaTime;
             float t = Mathf.Clamp01(_ageTimer / config.lifetime);
-            float scale = Mathf.Lerp(1f, config.minScaleAtEnd, t);
-            transform.localScale = _baseScale * scale;
-            if (_ageTimer >= config.lifetime) { Destroy(gameObject); return; }
+            float lifetimeScale = Mathf.Lerp(1f, config.minScaleAtEnd, t);
+            float hitPulse = _hitPulseTimer > 0f ? 1f + 0.12f * (_hitPulseTimer / 0.12f) : 1f;
+            transform.localScale = _baseScale * lifetimeScale * hitPulse;
+            if (_hitPulseTimer > 0f) _hitPulseTimer -= Time.deltaTime;
+            if (visual != null)
+            {
+                visual.transform.Rotate(0f, 0f, config.visualSpinDegreesPerSecond * Time.deltaTime);
+                visual.color = Color.Lerp(Color.white, new Color(1f, 0.35f, 0.2f, 1f), HitProgress);
+            }
+            if (vfx != null) vfx.SetProgress(HitProgress);
+            if (_ageTimer >= config.lifetime) { FinishImmediately(); return; }
 
-            // Counter decay (clamp đáy 0; ở 0 KHÔNG biến mất).
-            if (_hitCount > 0f)
+            // Giảm tiến độ nếu orb lâu không bị đánh.
+            if (_decayDelayTimer > 0f)
+                _decayDelayTimer -= Time.deltaTime;
+            else if (_hitCount > 0f)
                 _hitCount = Mathf.Max(0f, _hitCount - config.counterDecayPerSecond * Time.deltaTime);
 
-            // Hitstun nhẹ: đứng yên một lúc khi vừa bị đánh, rồi bay lại.
+            // Dừng ngắn sau khi trúng đòn.
             if (_hitstunTimer > 0f)
             {
                 _hitstunTimer -= Time.deltaTime;
@@ -93,16 +108,43 @@ namespace FA.Items
         private void FixedUpdate()
         {
             if (config == null || _broken) return;
-            // Nảy ở mép vùng bay (đảo velocity) — giữ orb trong map (KHÔNG ref FA.Stage).
+
             Vector2 p = _body.position;
-            Vector2 half = config.boundsSize * 0.5f;
+            Vector2 v = _body.linearVelocity;
+            ResolveWorldCollision(ref p, ref v);
+
+            // Trừ bán kính để toàn bộ orb luôn nằm trong map.
+            float radius = Mathf.Max(0.05f, config.worldCollisionRadius);
+            Vector2 half = Vector2.Max(config.boundsSize * 0.5f - Vector2.one * radius,
+                                      Vector2.one * 0.01f);
             Vector2 min = config.boundsCenter - half;
             Vector2 max = config.boundsCenter + half;
-            Vector2 v = _body.linearVelocity;
-            if ((p.x <= min.x && v.x < 0f) || (p.x >= max.x && v.x > 0f)) v.x = -v.x;
-            if ((p.y <= min.y && v.y < 0f) || (p.y >= max.y && v.y > 0f)) v.y = -v.y;
+            Vector2 projected = p + v * Time.fixedDeltaTime;
+            if ((projected.x <= min.x && v.x < 0f) || (projected.x >= max.x && v.x > 0f)) v.x = -v.x;
+            if ((projected.y <= min.y && v.y < 0f) || (projected.y >= max.y && v.y > 0f)) v.y = -v.y;
             _body.linearVelocity = v;
             _body.position = new Vector2(Mathf.Clamp(p.x, min.x, max.x), Mathf.Clamp(p.y, min.y, max.y));
+        }
+
+        private void ResolveWorldCollision(ref Vector2 position, ref Vector2 velocity)
+        {
+            float speed = velocity.magnitude;
+            if (speed <= 0.001f) return;
+
+            Vector2 direction = velocity / speed;
+            float radius = Mathf.Max(0.05f, config.worldCollisionRadius);
+            float skin = Mathf.Max(0f, config.worldCollisionSkin);
+            float distance = speed * Time.fixedDeltaTime + skin;
+            int worldMask = GameLayers.GroundMask | GameLayers.WallMask;
+            RaycastHit2D hit = Physics2D.CircleCast(position, radius, direction, distance, worldMask);
+            if (hit.collider == null) return;
+
+            Vector2 normal = hit.normal.sqrMagnitude > 0.001f ? hit.normal.normalized : -direction;
+            if (Vector2.Dot(velocity, normal) >= 0f) return;
+
+            position += direction * Mathf.Max(0f, hit.distance - skin);
+            position += normal * skin;
+            velocity = Vector2.Reflect(velocity, normal);
         }
 
         private void Redirect()
@@ -117,20 +159,22 @@ namespace FA.Items
         private void OnHit(HitData hit)
         {
             if (_broken || config == null) return;
-            // CHỈ đếm hit vào CHÍNH orb (research §3.6). Victim đã là root (HitboxAuthoring set victimRoot).
+            // Chỉ nhận hit hướng tới chính orb này.
             if (!ReferenceEquals(hit.Victim, gameObject)) return;
 
-            _hitCount += 1f;                         // +1 hit CHUNG (không phân biệt ai).
-            _hitstunTimer = config.hitstunFramesOnHit / 60f; // hitstun nhẹ (frame→giây, 60fps fixed).
+            _hitCount += 1f;
+            _hitstunTimer = config.hitstunFramesOnHit / 60f;
+            _decayDelayTimer = config.counterDecayDelay;
+            _hitPulseTimer = 0.12f;
+            if (vfx != null) vfx.PlayHit(HitProgress);
 
             if (_hitCount >= config.hitsToBreak)
-                Break(hit.Attacker);                 // tie-break frame: người gây hit thứ 15 = nhặt.
+                Break(hit.Attacker);
         }
 
         private void Break(GameObject attacker)
         {
             _broken = true;
-            // FULL nộ cho người phá (research §3.4): RefundRage(1f) đã clamp ≤ max = đổ đầy.
             if (attacker != null)
                 attacker.GetComponentInChildren<IRageSpender>()?.RefundRage(1f);
 
@@ -139,7 +183,45 @@ namespace FA.Items
                 breakVfx.transform.SetParent(null, true);
                 breakVfx.Play();
             }
-            Destroy(gameObject);
+            if (vfx != null) vfx.PlayBreak();
+            _body.linearVelocity = Vector2.zero;
+            _finishDelayTimer = 0.45f;
+        }
+
+        /// <summary>Spawner gọi khi trận kết thúc/rematch để dọn orb đang hoạt động.</summary>
+        public void Despawn() => FinishImmediately();
+
+        private void FinishImmediately()
+        {
+            if (!_broken) _broken = true;
+            _body.linearVelocity = Vector2.zero;
+            Finished?.Invoke(this);
+            Finished = null;
+            PrefabPool.Despawn(gameObject);
+        }
+
+        public void OnSpawned()
+        {
+            _hitCount = 0f;
+            _redirectTimer = 0f;
+            _hitstunTimer = 0f;
+            _decayDelayTimer = 0f;
+            _hitPulseTimer = 0f;
+            _finishDelayTimer = 0f;
+            _ageTimer = 0f;
+            _broken = false;
+            transform.localScale = _baseScale;
+            if (visual != null) visual.color = Color.white;
+            if (vfx != null) vfx.ResetVfx();
+            Redirect();
+        }
+
+        public void OnDespawned()
+        {
+            _body.linearVelocity = Vector2.zero;
+            _finishDelayTimer = 0f;
+            if (vfx != null) vfx.StopVfx();
+            Finished = null;
         }
     }
 }
