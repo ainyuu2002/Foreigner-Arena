@@ -16,10 +16,11 @@ MonoBehaviour:
   tintColor: {r: 0, g: 0.8, b: 0.2, a: 1}
   visualScale: 1.6
   icon: {fileID: 1848169893352058049, guid: a87afb569607dc3468f6fe2d38e7517f, type: 3}
-  knockbackReducePercent: 5
-  manaAddFraction: 0
-  damageMultiplier: 1
-  damageBuffDuration: 10
+  displayName: RESISTANCE POTION
+  effect:
+    type: 0
+    value: 5
+    duration: 0
   spawnWeight: 3
   prefabOverride: {fileID: 0}
   mysteryOutcomeConfig: {fileID: 0}

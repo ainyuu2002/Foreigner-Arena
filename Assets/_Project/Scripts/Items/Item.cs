@@ -5,61 +5,35 @@ using FA.Core;
 
 namespace FA.Items
 {
-    /// <summary>
-    /// (Hợp nhất item) ITEM TRÊN MAP — 1 hệ DUY NHẤT cho bình thuốc LẪN Mystery Block (Mystery chỉ là item
-    /// type đặc biệt roll hiệu ứng). Gắn lên prefab item: Rigidbody2D (Dynamic khi rơi) + collider thân +
-    /// child trigger Layer Item.
-    ///
-    /// VÒNG ĐỜI: rơi ĐỨNG (FreezeRotation) → chạm đất đủ điều kiện (normal.y ≥ minGroundNormalY, |vy| ≤
-    /// maxLandingSpeedY) → <see cref="Land"/>: velocity 0, gravity 0, Kinematic, FreezeAll, bật anim đáp
-    /// (visualAnimator, nếu có — Mystery flip). CLAMP giữ-trong-map CHỈ khi CÒN Dynamic (bỏ sau khi Kinematic).
-    ///
-    /// PICKUP (VÁ BUG SLEEP): dùng OnTriggerEnter2D/OnTriggerExit2D giữ ref player đang overlap + POLL crouch
-    /// trong Update() (đọc IMoveInput.MoveY mỗi frame) ⇒ miễn nhiễm body-sleep (KHÔNG dùng OnTriggerStay).
-    /// Người nhặt phải: đè trigger + giữ ↓ (MoveY ≤ downThreshold) + KHÔNG ICombatContext.IsInHitstun.
-    /// Consume-once (_consumed) = 1 người/item. Áp hiệu ứng qua <see cref="ItemEffectApplier"/> CHUNG:
-    /// item thường = <see cref="ItemData.BuildEffect"/> cố định; Mystery = roll bảng.
-    ///
-    /// DESPAWN: coroutine WaitForSeconds(lifetime) → Destroy. Đọc ý định ↓ qua IMoveInput (KHÔNG ref
-    /// FA.Movement, KHÔNG raw input). Hiệu ứng qua interface Core (KHÔNG ref module gameplay).
-    /// </summary>
+    /// <summary>Điều khiển rơi, nhặt, áp effect và trả item về pool.</summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Rigidbody2D))]
-    public sealed class Item : MonoBehaviour
+    public sealed class Item : MonoBehaviour, IPoolable
     {
         [Header("Dữ liệu")]
-        [Tooltip("ItemData (loại/tier/giá trị). ItemSpawner gán qua Init; có thể gán tay để test 1 item.")]
         [SerializeField] private ItemData data;
 
         [Header("Tham chiếu")]
-        [Tooltip("SpriteRenderer item — đặt màu (loại) + scale (tier) theo ItemData. Bỏ trống = lấy children.")]
         [SerializeField] private SpriteRenderer spriteRenderer;
 
-        [Tooltip("(Tùy) Animator anim ĐÁP (Mystery flip). Bỏ trống = lấy child. Tắt tới khi Land().")]
         [SerializeField] private Animator visualAnimator;
 
-        [Tooltip("(Tùy) ParticleSystem phát khi NHẶT (Unity-native VFX). Optional.")]
         [SerializeField] private ParticleSystem pickupVfx;
 
         [Header("Đáp đất (CẦN TEST)")]
-        [Tooltip("normal.y tối thiểu của mặt va chạm để coi là 'đất' (≥ = sàn phẳng). CẦN TEST: 0.5.")]
         [Range(0f, 1f)] [SerializeField] private float minGroundNormalY = 0.5f;
 
-        [Tooltip("|vận tốc y| tối đa khi chạm để khoá (tránh khoá lúc còn nảy mạnh). CẦN TEST: 0.2.")]
         [Min(0f)] [SerializeField] private float maxLandingSpeedY = 0.2f;
 
         [Header("Thông số (CẦN TEST — mặc định lấy từ config khi spawn)")]
-        [Tooltip("Tự biến mất sau N giây nếu không ai nhặt. Spawner ghi đè bằng config.")]
         [Min(1f)] [SerializeField] private float lifetime = 12f;
 
         [Tooltip("Ngưỡng MoveY coi là 'đang ngồi/ấn xuống' (âm). Khớp CrouchDownThreshold của Motor.")]
         [Range(-1f, 0f)] [SerializeField] private float downThreshold = -0.5f;
 
         [Header("Hiệu ứng (CẦN TEST)")]
-        [Tooltip("Màu tint cho status có thời hạn từ Mystery (DMG/slow/weather). Item DMG thường dùng ItemData.tintColor.")]
         [SerializeField] private Color statusTint = new Color(1f, 0.35f, 0.25f, 1f);
 
-        [Tooltip("Lực đẩy khi trúng bẫy Mystery (TrapBall). x lật theo hướng mặt nhân vật. CẦN TEST.")]
         [SerializeField] private Vector2 trapKnockbackForce = new Vector2(5f, 8f);
 
         private Rigidbody2D _body;
@@ -68,11 +42,18 @@ namespace FA.Items
         private bool _clampEnabled;
         private Rect _safeRect;
         private Coroutine _lifeRoutine;
+        private bool _returningToPool;
+        private Transform _pickupVfxParent;
+        private Vector3 _pickupVfxLocalPosition;
+        private Quaternion _pickupVfxLocalRotation;
+        private Vector3 _pickupVfxLocalScale;
+        private Sprite _defaultSprite;
 
-        // Người chơi đang đè trigger — refcount theo root (miễn nhiễm body-sleep vs OnTriggerStay).
-        private readonly Dictionary<Transform, int> _overlaps = new Dictionary<Transform, int>();
+        public event System.Action<Item> Finished;
 
-        /// <summary>ItemSpawner gọi NGAY sau Instantiate: gán data + cấu hình giữ-trong-map + lifetime.</summary>
+        private readonly List<PickupCandidate> _overlaps = new List<PickupCandidate>(2);
+
+        /// <summary>ItemSpawner gọi NGAY sau PrefabPool.Spawn: gán data + cấu hình giữ-trong-map + lifetime.</summary>
         public void Init(ItemData itemData, float itemLifetime, Rect keepInRect, bool clampToRect)
         {
             data = itemData;
@@ -89,13 +70,15 @@ namespace FA.Items
             _body = GetComponent<Rigidbody2D>();
             if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             if (visualAnimator == null) visualAnimator = GetComponentInChildren<Animator>(true);
+            if (spriteRenderer != null) _defaultSprite = spriteRenderer.sprite;
+            CachePickupVfxTransform();
             ApplyVisual();
             ResetForDrop();
         }
 
-        private void OnEnable()
+        private void Start()
         {
-            if (_lifeRoutine == null) RestartLifetime();
+            if (data != null && _lifeRoutine == null) RestartLifetime();
         }
 
         // ---- Rơi / đáp (Unity-native physics) ----
@@ -171,7 +154,7 @@ namespace FA.Items
         {
             if (data == null || spriteRenderer == null) return;
             spriteRenderer.color = data.tintColor;              // loại = màu (GDD).
-            if (data.icon != null) spriteRenderer.sprite = data.icon;
+            spriteRenderer.sprite = data.icon != null ? data.icon : _defaultSprite;
             transform.localScale = Vector3.one * data.visualScale; // tier = size (GDD).
         }
 
@@ -186,7 +169,8 @@ namespace FA.Items
         private IEnumerator LifetimeRoutine()
         {
             yield return new WaitForSeconds(lifetime);
-            if (!_consumed) Destroy(gameObject);
+            _lifeRoutine = null;
+            if (!_consumed) Despawn();
         }
 
         // ---- Pickup (Enter/Exit + poll trong Update — miễn nhiễm body-sleep) ----
@@ -195,17 +179,25 @@ namespace FA.Items
         {
             Transform root = ResolvePlayerRoot(other);
             if (root == null) return;
-            _overlaps.TryGetValue(root, out int n);
-            _overlaps[root] = n + 1;
+
+            PickupCandidate candidate = FindCandidate(root);
+            if (candidate == null)
+            {
+                candidate = new PickupCandidate(root);
+                _overlaps.Add(candidate);
+            }
+            candidate.OverlapCount++;
         }
 
         private void OnTriggerExit2D(Collider2D other)
         {
             Transform root = ResolvePlayerRoot(other);
             if (root == null) return;
-            if (!_overlaps.TryGetValue(root, out int n)) return;
-            if (n <= 1) _overlaps.Remove(root);
-            else _overlaps[root] = n - 1;
+
+            PickupCandidate candidate = FindCandidate(root);
+            if (candidate == null) return;
+            candidate.OverlapCount--;
+            if (candidate.OverlapCount <= 0) _overlaps.Remove(candidate);
         }
 
         private void Update()
@@ -218,33 +210,28 @@ namespace FA.Items
 
         private Transform FindQualifyingPicker()
         {
-            // Prune root đã bị Destroy + tìm người đầu tiên: giữ ↓ và KHÔNG hitstun.
-            Transform result = null;
-            List<Transform> stale = null;
-
-            foreach (var kv in _overlaps)
+            for (int i = _overlaps.Count - 1; i >= 0; i--)
             {
-                Transform root = kv.Key;
-                if (root == null)
+                PickupCandidate candidate = _overlaps[i];
+                if (candidate.Root == null)
                 {
-                    (stale ??= new List<Transform>()).Add(root);
+                    _overlaps.RemoveAt(i);
                     continue;
                 }
 
-                var moveInput = root.GetComponentInChildren<IMoveInput>();
-                if (moveInput == null || moveInput.MoveY > downThreshold) continue;
-
-                var combat = root.GetComponentInChildren<ICombatContext>();
-                if (combat != null && combat.IsInHitstun) continue;
-
-                result = root;
-                break;
+                if (candidate.MoveInput == null || candidate.MoveInput.MoveY > downThreshold) continue;
+                if (candidate.Combat != null && candidate.Combat.IsInHitstun) continue;
+                return candidate.Root;
             }
 
-            if (stale != null)
-                for (int i = 0; i < stale.Count; i++) _overlaps.Remove(stale[i]);
+            return null;
+        }
 
-            return result;
+        private PickupCandidate FindCandidate(Transform root)
+        {
+            for (int i = 0; i < _overlaps.Count; i++)
+                if (_overlaps[i].Root == root) return _overlaps[i];
+            return null;
         }
 
         private static Transform ResolvePlayerRoot(Collider2D other)
@@ -264,10 +251,68 @@ namespace FA.Items
 
             if (pickupVfx != null)
             {
-                pickupVfx.transform.SetParent(null, true); // tách để particle sống tiếp sau Destroy.
+                pickupVfx.transform.SetParent(null, true); // tách để particle sống tiếp khi root trở về pool.
                 pickupVfx.Play();
             }
-            Destroy(gameObject);
+            Despawn();
+        }
+
+        public void Despawn()
+        {
+            if (_returningToPool) return;
+            _returningToPool = true;
+            if (_lifeRoutine != null) StopCoroutine(_lifeRoutine);
+            _lifeRoutine = null;
+            Finished?.Invoke(this);
+            Finished = null;
+            PrefabPool.Despawn(gameObject);
+        }
+
+        public void OnSpawned()
+        {
+            _returningToPool = false;
+            _consumed = false;
+            _landed = false;
+            _clampEnabled = false;
+            _overlaps.Clear();
+            if (_lifeRoutine != null) StopCoroutine(_lifeRoutine);
+            _lifeRoutine = null;
+            RestorePickupVfx();
+            ResetForDrop();
+        }
+
+        public void OnDespawned()
+        {
+            if (_lifeRoutine != null) StopCoroutine(_lifeRoutine);
+            _lifeRoutine = null;
+            _overlaps.Clear();
+            if (_body != null)
+            {
+                _body.linearVelocity = Vector2.zero;
+                _body.angularVelocity = 0f;
+            }
+            Finished = null;
+        }
+
+        private void CachePickupVfxTransform()
+        {
+            if (pickupVfx == null) return;
+            Transform t = pickupVfx.transform;
+            _pickupVfxParent = t.parent;
+            _pickupVfxLocalPosition = t.localPosition;
+            _pickupVfxLocalRotation = t.localRotation;
+            _pickupVfxLocalScale = t.localScale;
+        }
+
+        private void RestorePickupVfx()
+        {
+            if (pickupVfx == null) return;
+            pickupVfx.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            Transform t = pickupVfx.transform;
+            t.SetParent(_pickupVfxParent != null ? _pickupVfxParent : transform, false);
+            t.localPosition = _pickupVfxLocalPosition;
+            t.localRotation = _pickupVfxLocalRotation;
+            t.localScale = _pickupVfxLocalScale;
         }
 
         private void ApplyEffect(Transform root)
@@ -276,46 +321,21 @@ namespace FA.Items
             ItemEffect effect = data.BuildEffect();
             Color tint = data.type == ItemType.DamageBuff ? data.tintColor : statusTint;
             ItemEffectApplier.Apply(root, effect, tint, trapKnockbackForce);
-            ShowPickupFeedback(root, effect);
+            ItemPickupNotice.ShowPickup(root, data, effect);
         }
 
-        /// <summary>Thông báo HUD: người chơi, item và kết quả roll nếu là Mystery Block.</summary>
-        private void ShowPickupFeedback(Transform root, ItemEffect effect)
+        private sealed class PickupCandidate
         {
-            string who = root.gameObject.layer == GameLayers.Player2 ? "P2" : "P1";
-            string itemName = data.type switch
-            {
-                ItemType.KnockbackPotion => $"BÌNH HỒI {effect.value:0.#}% KHÁNG LỰC",
-                ItemType.ManaPotion => $"BÌNH MANA +{effect.value * 100f:0.#}%",
-                ItemType.DamageBuff => $"BÙA TĂNG SÁT THƯƠNG +{effect.value * 100f:0.#}%" +
-                                       (effect.duration > 0f ? $" • {effect.duration:0.#} GIÂY" : string.Empty),
-                ItemType.MysteryBlock => $"KHỐI BÍ ẨN  →  {DescribeMysteryEffect(effect)}",
-                _ => data.name.Replace('_', ' '),
-            };
-            ItemPickupNotice.Show($"{who} NHẶT: {itemName}");
-        }
+            public readonly Transform Root;
+            public readonly IMoveInput MoveInput;
+            public readonly ICombatContext Combat;
+            public int OverlapCount;
 
-        private static string DescribeMysteryEffect(ItemEffect effect)
-        {
-            string duration = effect.duration > 0f ? $" • {effect.duration:0.#} GIÂY" : string.Empty;
-            switch (effect.type)
+            public PickupCandidate(Transform root)
             {
-                case ItemEffectType.ResistanceRecovery:
-                    return $"BUFF • HỒI {effect.value:0.#}% KHÁNG LỰC";
-                case ItemEffectType.ManaRecovery:
-                    return $"BUFF • +{effect.value * 100f:0.#}% MANA";
-                case ItemEffectType.WeatherImmunity:
-                    return $"BUFF • MIỄN NHIỄM THỜI TIẾT{duration}";
-                case ItemEffectType.ResistanceIncreaseDebuff:
-                    return $"DEBUFF • +{effect.value:0.#}% KNOCKBACK";
-                case ItemEffectType.SlowFall:
-                    return $"BUFF • GIẢM {effect.value * 100f:0.#}% TRỌNG LỰC{duration}";
-                case ItemEffectType.DamageBuff:
-                    return $"BUFF • +{effect.value * 100f:0.#}% SÁT THƯƠNG{duration}";
-                case ItemEffectType.TrapBall:
-                    return $"DEBUFF • BẪY HẤT VĂNG +{effect.value * 100f:0.#}%";
-                default:
-                    return effect.type.ToString();
+                Root = root;
+                MoveInput = root.GetComponentInChildren<IMoveInput>();
+                Combat = root.GetComponentInChildren<ICombatContext>();
             }
         }
     }

@@ -2,23 +2,20 @@ using UnityEngine;
 
 namespace FA.Items
 {
-    /// <summary>
-    /// (Hợp nhất item) Trạng thái RƠI CHẬM có thời hạn — giảm gravityScale của Rigidbody2D người nhặt
-    /// (×(1-value), sàn 0.1). Kế thừa <see cref="TimedCharacterStatus"/> (cache renderer + tint + nháy +
-    /// countdown chung). Dedup theo TYPE = GetComponent&lt;SlowFallStatus&gt;() (1 component/nhân vật).
-    /// </summary>
+    /// <summary>Giảm trọng lực của nhân vật trong một khoảng thời gian.</summary>
     [DisallowMultipleComponent]
     public sealed class SlowFallStatus : TimedCharacterStatus
     {
         private float _value;
         private Rigidbody2D _body;
         private float _originalGravityScale;
+        private float _slowGravityScale;
         private bool _gravityModified;
 
-        /// <summary>Gravity reduction fraction (0.4 means -40%) for the HUD.</summary>
+        /// <summary>Tỉ lệ giảm trọng lực cho HUD.</summary>
         public float GravityReductionFraction => _active ? _value : 0f;
 
-        /// <summary>Overload: đặt độ giảm rồi refresh (base lo tint/countdown). value ∈ [0..1].</summary>
+        /// <summary>Áp mới hoặc làm mới hiệu ứng rơi chậm.</summary>
         public void ApplyOrRefresh(float value, float duration, Color tint)
         {
             _value = Mathf.Clamp01(value);
@@ -27,14 +24,47 @@ namespace FA.Items
 
         protected override void OnStatusApplied()
         {
-            RestoreGravityIfNeeded(); // refresh: trả về gốc trước khi áp lại (không nhân chồng).
-
-            _body = GetComponentInChildren<Rigidbody2D>();
+            if (_body == null) _body = GetComponentInChildren<Rigidbody2D>();
             if (_body == null) return;
 
+            if (!_gravityModified)
+            {
+                TryStartSlowFall();
+                return;
+            }
+
+            UpdateSlowGravity();
+            if (_body.gravityScale > 0f) _body.gravityScale = _slowGravityScale;
+        }
+
+        private void FixedUpdate()
+        {
+            if (!_active || _body == null) return;
+            if (!_gravityModified)
+            {
+                TryStartSlowFall();
+                return;
+            }
+
+            // Movement có thể reset gravity khi đổi state. Gravity 0 được giữ nguyên cho Dash.
+            if (_body.gravityScale > 0f && !Mathf.Approximately(_body.gravityScale, _slowGravityScale))
+                _body.gravityScale = _slowGravityScale;
+        }
+
+        private void TryStartSlowFall()
+        {
+            // Đợi Dash kết thúc nếu effect được nhặt đúng lúc gravity đang bị khóa về 0.
+            if (_body == null || _body.gravityScale <= 0f) return;
+
             _originalGravityScale = _body.gravityScale;
-            _body.gravityScale = Mathf.Max(0.1f, _originalGravityScale * (1f - _value));
             _gravityModified = true;
+            UpdateSlowGravity();
+            _body.gravityScale = _slowGravityScale;
+        }
+
+        private void UpdateSlowGravity()
+        {
+            _slowGravityScale = Mathf.Max(0.1f, _originalGravityScale * (1f - _value));
         }
 
         protected override void OnStatusRemoved() => RestoreGravityIfNeeded();
@@ -43,7 +73,8 @@ namespace FA.Items
         {
             if (!_gravityModified || _body == null) return;
 
-            _body.gravityScale = _originalGravityScale;
+            // Nếu đang Dash, để state Movement tự trả gravity về baseline khi Dash kết thúc.
+            if (_body.gravityScale > 0f) _body.gravityScale = _originalGravityScale;
             _gravityModified = false;
         }
 

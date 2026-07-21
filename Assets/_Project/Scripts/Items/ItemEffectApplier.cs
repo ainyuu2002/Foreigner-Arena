@@ -3,20 +3,10 @@ using FA.Core;
 
 namespace FA.Items
 {
-    /// <summary>
-    /// (Hợp nhất item) ÁP 1 <see cref="ItemEffect"/> lên nhân vật — DÙNG CHUNG cho item bình thường LẪN
-    /// Mystery (tổng quát hoá MysteryBlockOutcomeApplier cũ). Mọi tương tác qua INTERFACE CORE
-    /// (IPercentReceiver/IManaSpender) hoặc component cùng module (ItemDamageBuff/SlowFallStatus/
-    /// WeatherImmunityStatus) — KHÔNG ref chéo module gameplay. Null-safe: thiếu interface thì bỏ qua.
-    ///
-    /// Quy ước value giữ NGUYÊN từ hệ Mystery cũ (xem <see cref="ItemEffect"/>) để không hồi quy balance.
-    /// </summary>
+    /// <summary>Áp effect item lên nhân vật qua interface hoặc status tương ứng.</summary>
     public static class ItemEffectApplier
     {
-        /// <summary>
-        /// <paramref name="statusTint"/> = màu tint cho status có thời hạn (DMG/slow/weather).
-        /// <paramref name="trapKnockbackForce"/> = lực đẩy bẫy (x sẽ lật theo hướng nhân vật).
-        /// </summary>
+        /// <summary>Chọn cách áp dựa trên loại effect.</summary>
         public static void Apply(Transform playerRoot, ItemEffect effect, Color statusTint, Vector2 trapKnockbackForce)
         {
             if (playerRoot == null) return;
@@ -41,10 +31,6 @@ namespace FA.Items
 
                 case ItemEffectType.SlowFall:
                     ApplySlowFall(playerRoot, effect, statusTint);
-                    break;
-
-                case ItemEffectType.WeatherImmunity:
-                    ApplyWeatherImmunity(playerRoot, effect, statusTint);
                     break;
 
                 case ItemEffectType.TrapBall:
@@ -77,13 +63,6 @@ namespace FA.Items
             var status = root.GetComponentInChildren<SlowFallStatus>();
             if (status == null) status = root.gameObject.AddComponent<SlowFallStatus>();
             status.ApplyOrRefresh(effect.value, effect.duration, tint);
-        }
-
-        private static void ApplyWeatherImmunity(Transform root, ItemEffect effect, Color tint)
-        {
-            var status = root.GetComponentInChildren<WeatherImmunityStatus>();
-            if (status == null) status = root.gameObject.AddComponent<WeatherImmunityStatus>();
-            status.ApplyOrRefresh(effect.duration, tint);
         }
 
         private static void ApplyTrap(Transform root, ItemEffect effect, Vector2 trapKnockbackForce)

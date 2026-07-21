@@ -111,3 +111,6 @@ InitTestScene*.unity*
 
 # Không track file Markdown (CLAUDE.md, .claude skill/agent, docs...) — giữ local
 *.md
+
+# Tài liệu bàn giao item/HUD cần đi cùng nhánh để người tích hợp đọc được.
+!Docs/ItemHud_ItemsScene_Integration.md
