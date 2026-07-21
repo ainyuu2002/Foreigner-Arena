@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using FA.Core;
 
 namespace FA.Effects
 {
@@ -7,7 +8,7 @@ namespace FA.Effects
     /// LỚP PHỦ super flash (prefab Canvas Screen-Space-Overlay, sortingOrder cao → che cả HUD):
     /// nền tối + CUT-IN chân dung trượt vào từ trái/phải (theo phía của người ra chiêu — kiểu MUGEN
     /// helper 9935). Chạy bằng UNSCALED time vì flash đi kèm Time.timeScale=0
-    /// (<see cref="SuperFlashController"/> điều khiển vòng đời: Show → Hide → tự Destroy).
+    /// (<see cref="SuperFlashController"/> điều khiển vòng đời: Show → Hide → tự Despawn về pool).
     /// </summary>
     public sealed class SuperFlashOverlay : MonoBehaviour
     {
@@ -58,7 +59,7 @@ namespace FA.Effects
             _hiding = false;
         }
 
-        /// <summary>SuperFlashController gọi khi flash kết thúc → tan biến rồi tự Destroy.</summary>
+        /// <summary>SuperFlashController gọi khi flash kết thúc → tan biến rồi tự Despawn.</summary>
         public void Hide()
         {
             _hiding = true;
@@ -86,7 +87,7 @@ namespace FA.Effects
             float f = 1f - Mathf.Clamp01(_t / fadeOutSeconds);
             if (dim != null) dim.color = new Color(0f, 0f, 0f, dimAlpha * f);
             if (portrait != null) { var c = portrait.color; c.a = f; portrait.color = c; }
-            if (f <= 0f) Destroy(gameObject);
+            if (f <= 0f) PrefabPool.Despawn(gameObject);   // POOLING: trả về pool thay Destroy.
         }
     }
 }

@@ -114,8 +114,13 @@ namespace FA.Items
 
             if (spawnVfxPrefab != null)
             {
-                var vfx = Instantiate(spawnVfxPrefab, pos, Quaternion.identity);
-                vfx.Play();
+                // POOLING (§3.1): VFX spawn qua pool. PooledParticleRelease tự Despawn khi hạt tắt —
+                // ensure lúc runtime để prefab gán vào field này không bắt buộc gắn sẵn component.
+                GameObject vfxGo = PrefabPool.Spawn(spawnVfxPrefab.gameObject, pos, Quaternion.identity);
+                if (vfxGo.GetComponent<PooledParticleRelease>() == null)
+                    vfxGo.AddComponent<PooledParticleRelease>();
+                var vfx = vfxGo.GetComponent<ParticleSystem>();
+                if (vfx != null) vfx.Play();
             }
         }
 
