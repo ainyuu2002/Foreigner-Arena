@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using FA.Core;
 
 namespace FA.Combat
@@ -33,6 +34,12 @@ namespace FA.Combat
 
         [Tooltip("HitboxController cùng prefab — set MoveData hiện hành khi kích đòn (trước HitboxOn).")]
         [SerializeField] private HitboxController hitboxController;
+
+        [Tooltip("(P16) OnKnockbackLaunch (GameObjectEventChannelSO) — AttackState RAISE tại Animation Event " +
+                 "KnockbackPoint (frame hit cuối) khi KHÔNG nối → victim VĂNG pending. CÙNG asset gán vào " +
+                 "KnockbackResolver (listen). Bỏ trống = đòn thường KHÔNG văng (chỉ spike/launcher văng).")]
+        [FormerlySerializedAs("onComboContinues")]
+        [SerializeField] private GameObjectEventChannelSO onKnockbackLaunch;
 
         [Header("Bảng đòn thường (button → MoveData). Thêm đòn = thêm asset (extensible).")]
         [Tooltip("Đòn nút L (Light).")] [SerializeField] private MoveData nL;
@@ -69,9 +76,21 @@ namespace FA.Combat
             // prefab P5/P6 chưa gắn → HurtState giữ hành vi cũ. Truyền vào để HurtState không về Idle
             // sớm khi còn knockback chờ áp (neutral-gap).
             var pendingKnockback = GetComponent<IPendingKnockback>();
-            _attackState = new AttackState(_ctx, relay);
-            _hurtState = new HurtState(_ctx, hurtPushback, hurtVariantCount, pendingKnockback);
-            _blockState = new BlockState(_ctx);
+            // (P14) MoveMotionController cùng prefab (Core) — uỷ quyền vx cho đòn CÓ chuyển động. Null ở
+            // prefab cũ → AttackState giữ hành vi đứng yên (no-regression).
+            var motion = GetComponent<MoveMotionController>();
+            // (P15) HitConfirmTracker cùng prefab (Core) — cho follow-up điều kiện OnHit (block không tính).
+            // Null ở prefab cũ → follow-up OnHit luôn coi như chưa-trúng (an toàn — không nối bậy).
+            var hitConfirm = GetComponent<HitConfirmTracker>();
+            // (P16) Root attacker truyền vào AttackState để raise OnKnockbackLaunch (so HitData.Attacker bên victim).
+            GameObject attackerRoot = transform.root.gameObject;
+            // (Fix mượt combat) HitstopController cùng prefab — Hurt/Block ĐỨNG đồng hồ stun + hoãn
+            // pushback trong hitstop (IsFrozen). Null (prefab/test thiếu) → hành vi đếm-liên-tục cũ.
+            var hitstop = GetComponent<HitstopController>();
+            _attackState = new AttackState(_ctx, relay, motion, hitboxController, hitConfirm,
+                                           onKnockbackLaunch, attackerRoot);
+            _hurtState = new HurtState(_ctx, hurtPushback, hurtVariantCount, pendingKnockback, hitstop);
+            _blockState = new BlockState(_ctx, hitstop);
         }
 
         // ===== Getter state combat (cùng module — HitReaction/Facing dùng) =====
@@ -87,6 +106,7 @@ namespace FA.Combat
         private void Update()
         {
             if (_ctx == null || _ctx.Parser == null) return;
+            if (CinematicGate.IsActive) return;   // đang chant/flash — không kích đòn giữa cinematic.
 
             // BLOCK reactive: KHÔNG vào block từ input ở đây (giữ lùi = đi lùi). HitReactionController
             // đẩy vào BlockState khi bị đòn trúng lúc đang giữ lùi (away). Frame này chỉ xét attack.
@@ -121,8 +141,8 @@ namespace FA.Combat
 
             _ctx.Parser.ConsumePress(b, win); // 1 lần nhấn = 1 đòn (không re-trigger suốt window).
 
-            // Set MoveData hiện hành TRƯỚC khi clip chạy tới HitboxOn → HitDetection đọc đúng tham số đòn.
-            if (hitboxController != null) hitboxController.SetCurrentMove(move);
+            // (P15) Set MoveData đòn ĐẦU chuỗi; AttackState.BeginMove (trong Enter) lo re-point HitboxController
+            // (+ MoveMotionController + reset hit-confirm) → HitDetection đọc đúng tham số đòn trước HitboxOn.
             _attackState.SetMove(move);
             _ctx.Machine.ChangeState(_attackState);
             return true;

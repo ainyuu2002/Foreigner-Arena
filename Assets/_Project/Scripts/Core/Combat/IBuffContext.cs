@@ -30,6 +30,10 @@ namespace FA.Core
         /// <summary>Hệ số nhân TỐC ĐỘ di chuyển (×1.0 thường; &gt;1 khi Rage). Motor đọc nếu wire.</summary>
         float MoveSpeedMult { get; }
 
+        /// <summary>Hệ số nhân % DAMAGE NHẬN VÀO (&lt;1 = chịu đòn trâu hơn — UBW install). Victim-side,
+        /// KnockbackPercent nhân khi cộng %. Default ×1.0 để implementer cũ không phải sửa.</summary>
+        float DamageTakenMult => 1f;
+
         /// <summary>Đang trong Rage Mode (buff active). Burst KHÔNG dùng được khi true (GDD).</summary>
         bool IsRageActive { get; }
 

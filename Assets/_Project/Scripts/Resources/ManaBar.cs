@@ -99,7 +99,9 @@ namespace FA.Resources
             GameObject me = root != null ? root.gameObject : gameObject;
             if (!ReferenceEquals(hit.Attacker, me)) return; // victim KHÔNG hồi mana.
 
-            float gain = config.ManaGainPerDamage * hit.DamagePercent;
+            // Balance: hệ số per-move (MoveData.manaGainMultiplier qua HitData) — đòn tiêu mana hồi
+            // ít/không hồi (nH 0.7, special 0.5, super 0); đòn cũ không khai = 1 (không đổi).
+            float gain = config.ManaGainPerDamage * hit.DamagePercent * hit.ManaGainMult;
             if (blocked) gain *= config.ManaBlockMultiplier;
             if (gain <= 0f) return;
 

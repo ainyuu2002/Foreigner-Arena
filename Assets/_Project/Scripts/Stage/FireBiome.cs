@@ -91,6 +91,9 @@ namespace FA.Stage
             if (rb == null) rb = go.GetComponentInParent<Rigidbody2D>();
             if (rb == null) return;
 
+            var inv = rb.GetComponent<IInvulnerable>(); // bất tử hồi sinh → môi trường bỏ qua.
+            if (inv != null && inv.IsInvulnerable) return;
+
             // "Đứng yên" = vx nhỏ.
             if (Mathf.Abs(rb.linearVelocity.x) > config.fireStillSpeedEpsilon) return;
 

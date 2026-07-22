@@ -41,7 +41,41 @@ namespace FA.GameFlow
             _playerP1 = SpawnOne(charIndexP1, PlayerSlot.P1, mapScene, spawns);
             _playerP2 = SpawnOne(charIndexP2, PlayerSlot.P2, mapScene, spawns);
 
+            // Chốt nguồn điều khiển đúng một lần khi spawn. Hot-plug giữa trận không đổi CPU/human;
+            // rematch spawn object mới nên tự đánh giá lại thiết bị.
+            bool cpuP2 = ShouldEnableCpu(PlayerSlot.P2, LocalInputDevices.HasGamepad);
+            if (_playerP2 != null)
+                _playerP2.BroadcastMessage("SetCpuControl", cpuP2, SendMessageOptions.DontRequireReceiver);
+
+            WireOpponents(_playerP1, _playerP2);
+            WireOpponents(_playerP2, _playerP1);
+
+            // (Feedback test) 2 người chọn TRÙNG nhân vật → P2 đổi bộ màu alt (PaletteSwapper —
+            // FA.Effects; gọi qua BroadcastMessage như SetOpponent, không ref chéo §1.3).
+            if (charIndexP1 == charIndexP2 && _playerP2 != null)
+                _playerP2.BroadcastMessage("ApplyAltPalette", SendMessageOptions.DontRequireReceiver);
+
             RegisterToWinCondition();
+        }
+
+        public static bool ShouldEnableCpu(PlayerSlot slot, bool hasGamepad)
+            => slot == PlayerSlot.P2 && !hasGamepad;
+
+        /// <summary>
+        /// Gán chéo đối thủ sau spawn — FacingController.SetOpponent (auto-face P6) +
+        /// KnockbackController.SetOpponentCollider (pushbox/tumble P7). Hai component nằm ở FA.Combat
+        /// mà GameFlow không ref (§1.3) → gọi qua BroadcastMessage (pattern SetCurrentMove/SetAttacker
+        /// đã dùng trong codebase). Chỉ cần gọi 1 lần/trận: respawn là reposition, không spawn lại.
+        /// </summary>
+        private static void WireOpponents(GameObject self, GameObject other)
+        {
+            if (self == null || other == null) return;
+
+            self.BroadcastMessage("SetOpponent", other.transform, SendMessageOptions.DontRequireReceiver);
+
+            Collider2D body = other.GetComponent<Collider2D>(); // capsule thân trên root prefab
+            if (body != null)
+                self.BroadcastMessage("SetOpponentCollider", body, SendMessageOptions.DontRequireReceiver);
         }
 
         /// <summary>Hủy 2 player (MatchManager gọi trước khi unload map / rematch reload).</summary>

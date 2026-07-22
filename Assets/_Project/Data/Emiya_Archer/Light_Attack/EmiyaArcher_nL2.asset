@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4b9168800b97d4eb5191c6042d08ba, type: 3}
+  m_Name: EmiyaArcher_nL2
+  m_EditorClassIdentifier: FA.Core::FA.Core.MoveData
+  moveId: move
+  category: 0
+  animatorStateId: 14
+  clip: {fileID: 7400000, guid: 986e53d736c69b149a16fc19804bf842, type: 2}
+  motion: 0
+  button: 2
+  chargeFrames: 0
+  chargedVariant: {fileID: 0}
+  manaCostUnits: 0
+  rageCost: 0
+  requiresRageMode: 0
+  manaGainMultiplier: 1
+  baseDamagePercent: 0.4
+  launchAngle: 20
+  baseKnockback: 7.5
+  knockbackGrowth: 0.25
+  isSpike: 0
+  causesLaunch: 0
+  role: 0
+  onBlockAdvantage: 0
+  onHitAdvantage: 0
+  hitsLow: 1
+  hitsHigh: 1
+  hitstunFrames: 28
+  hitstopFrames: 6
+  motionImpulses: []
+  driftSpeed: 4.5
+  followUps:
+  - button: 2
+    motion: 0
+    condition: 1
+    nextMove: {fileID: 11400000, guid: 44763366885cd894f94f6e9bffc7a40b, type: 2}
+  hitEffect: {fileID: 11400000, guid: 612c1b3b55fd287448d91b12ce872b46, type: 2}
+  blockEffect: {fileID: 11400000, guid: 5073379ff77a504429562e26d8e7be78, type: 2}

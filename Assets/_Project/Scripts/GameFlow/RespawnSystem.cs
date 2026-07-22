@@ -34,6 +34,16 @@ namespace FA.GameFlow
                  "Khi vào map thật → MatchManager/Spawner set qua SetRespawnPoint.")]
         [SerializeField] private Transform fallbackRespawnPoint;
 
+        [Header("Đĩa hồi sinh (Smash-style, feedback test P12)")]
+        [Tooltip("Nâng vị trí hồi sinh lên cao hơn spawn point (world unit) — bệ lơ lửng không trùng map. CẦN TEST.")]
+        [SerializeField, Min(0f)] private float respawnHeightOffset = 6f;
+
+        [Tooltip("Trần tồn tại của bệ (giây) — chống đứng chiếm bệ vô hạn; rời bệ là bệ biến mất sớm hơn. CẦN TEST.")]
+        [SerializeField, Min(1f)] private float platformMaxSeconds = 10f;
+
+        [Tooltip("(Tùy) sprite đĩa bay/bệ hồi sinh. Bỏ trống = placeholder tự sinh (CẦN art).")]
+        [SerializeField] private Sprite platformSprite;
+
         private Transform _respawnPoint;
 
         private void Awake()
@@ -54,8 +64,10 @@ namespace FA.GameFlow
         /// </summary>
         public void Respawn()
         {
-            // 1. Reposition (Unity-native — qua Rigidbody2D).
+            // 1. Reposition (Unity-native — qua Rigidbody2D). Nâng cao hơn spawn point: đứng trên
+            //    ĐĨA HỒI SINH lơ lửng, không trùng địa hình map (feedback test).
             Vector3 pos = _respawnPoint != null ? _respawnPoint.position : new Vector3(0f, 5f, 0f);
+            pos += Vector3.up * respawnHeightOffset;
             if (body != null)
             {
                 body.linearVelocity = Vector2.zero;
@@ -65,6 +77,16 @@ namespace FA.GameFlow
             {
                 transform.position = pos;
             }
+
+            // 1b. RESET TRẠNG THÁI (feedback test: chết giữa knockback mà respawn vẫn dính state cũ —
+            //     "teleport về rồi knockback tiếp"). BroadcastMessage để mỗi module tự dọn phần mình
+            //     (Motor về Idle + zero velocity, KnockbackResolver hủy pending, Hitstop hủy freeze...)
+            //     — pattern SendMessage sẵn có của dự án, KHÔNG ref chéo module (§1.3).
+            BroadcastMessage("OnRespawn", SendMessageOptions.DontRequireReceiver);
+
+            // 1c. Spawn đĩa hồi sinh dưới chân — đứng tới khi player tự rời (Smash-style).
+            Collider2D playerBody = body != null ? body.GetComponent<Collider2D>() : GetComponent<Collider2D>();
+            RespawnPlatform.Spawn(pos, playerBody, platformSprite, platformMaxSeconds);
 
             // 2. % về 0 qua interface Core (không ref Combat). GetComponentInChildren vì KnockbackPercent
             //    có thể nằm trên root/child tuỳ prefab.

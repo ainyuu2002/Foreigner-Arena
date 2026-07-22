@@ -51,6 +51,31 @@ namespace FA.GameFlow
         [Tooltip("MatchEnded (VoidEventChannelSO) — WinCondition raise → vào End.")]
         [SerializeField] private VoidEventChannelSO onMatchEnded;
 
+        [Header("Kênh sự kiện (PHÁT)")]
+        [Tooltip("MatchStart (VoidEventChannelSO) — RAISE ở CUỐI LoadMapAndStart (sau load+spawn+timer, sau 1 " +
+                 "frame). ItemSpawner nghe để StartSpawning. Void KHÔNG replay → object map phải subscribe trước.")]
+        [SerializeField] private VoidEventChannelSO onMatchStart;
+
+        [Header("MỤC D — Intro vào trận (tuần tự P1→P2, zoom camera)")]
+        [Tooltip("OnRoundIntroStart (VoidEventChannelSO) — RAISE sau SpawnPlayers; RoundIntroController " +
+                 "(FA.Stage) nghe để khóa input + zoom camera + diễn intro. NULL = bỏ qua intro (test scene).")]
+        [SerializeField] private VoidEventChannelSO onRoundIntroStart;
+        [Tooltip("OnRoundIntroFinished (VoidEventChannelSO) — RoundIntroController raise khi intro P1+P2 xong. " +
+                 "MatchManager CHỜ kênh này rồi mới chạy đồng hồ + raise MatchStart (item không rơi lúc pose).")]
+        [SerializeField] private VoidEventChannelSO onRoundIntroFinished;
+        [Tooltip("Timeout an toàn (giây): nếu KHÔNG có RoundIntroController phản hồi (vd map thiếu RoundDirector) " +
+                 "thì vẫn vào trận sau ngần này. LƯỚI AN TOÀN — phải LUÔN > tổng timeout nội bộ của " +
+                 "RoundIntroController (2×perPersonTimeout + margin scan) để tránh race khóa input đầu trận. " +
+                 "(playtest #2, điểm 1) perPersonTimeout nới lên 9s (intro act191 đầy đủ 3 vòng múa) → " +
+                 "introTimeout nới theo 20s. CẦN TEST.")]
+        [SerializeField] private float introTimeout = 20f;
+
+        [Header("MỤC D — Giữ pose kết trận trước End screen")]
+        [Tooltip("Giữ pose Win/Lose (giây) trước khi hiện End screen. CẦN TEST (~2.5s).")]
+        [SerializeField] private float outroHold = 2.5f;
+
+        private bool _introFinished;
+
         private MatchPhase _phase;
         private int _charP1 = -1, _charP2 = -1;
         private int _stageIndex = -1;
@@ -72,8 +97,9 @@ namespace FA.GameFlow
             if (onRematchPressed != null) onRematchPressed.OnEventRaised += OnRematch;
             if (onBackToCharSelect != null) onBackToCharSelect.OnEventRaised += OnBackToCharSelect;
             if (onMatchEnded != null) onMatchEnded.OnEventRaised += OnMatchEnded;
+            if (onRoundIntroFinished != null) onRoundIntroFinished.OnEventRaised += OnRoundIntroFinished;
             // DEBUG harness P12
-            Debug.Log($"[MatchManager] OnEnable subscribe P1={(onCharSelectedP1 != null)} P2={(onCharSelectedP2 != null)} Stage={(onStageSelected != null)}");
+            DebugLog.Log($"[MatchManager] OnEnable subscribe P1={(onCharSelectedP1 != null)} P2={(onCharSelectedP2 != null)} Stage={(onStageSelected != null)}");
         }
 
         private void OnDisable()
@@ -84,7 +110,10 @@ namespace FA.GameFlow
             if (onRematchPressed != null) onRematchPressed.OnEventRaised -= OnRematch;
             if (onBackToCharSelect != null) onBackToCharSelect.OnEventRaised -= OnBackToCharSelect;
             if (onMatchEnded != null) onMatchEnded.OnEventRaised -= OnMatchEnded;
+            if (onRoundIntroFinished != null) onRoundIntroFinished.OnEventRaised -= OnRoundIntroFinished;
         }
+
+        private void OnRoundIntroFinished() => _introFinished = true;
 
         private void Start() => GoToCharSelect();
 
@@ -99,14 +128,14 @@ namespace FA.GameFlow
 
         private void GoToStageSelect()
         {
-            Debug.Log("[MatchManager] → StageSelect"); // DEBUG harness P12
+            DebugLog.Log("[MatchManager] → StageSelect"); // DEBUG harness P12
             _phase = MatchPhase.StageSelect;
             ShowOnly(stageSelectPanel);
         }
 
         private void GoToMatch()
         {
-            Debug.Log("[MatchManager] → Match (spawn players)"); // DEBUG harness P12
+            DebugLog.Log("[MatchManager] → Match (spawn players)"); // DEBUG harness P12
             _phase = MatchPhase.Match;
             ShowOnly(null);                 // ẩn mọi panel menu
             if (matchHud != null) matchHud.SetActive(true);
@@ -144,15 +173,42 @@ namespace FA.GameFlow
             if (playerSpawner != null)
                 playerSpawner.SpawnPlayers(_charP1, _charP2, mapScene, spawns);
 
-            if (matchTimer != null)
+            // Reset đồng hồ TRƯỚC intro (số hiển thị đúng), NHƯNG chưa cho chạy — chạy sau intro để đồng
+            // hồ không đếm & item không rơi trong lúc pose intro. (MỤC D)
+            if (matchTimer != null && resetTimerOnMatch) matchTimer.ResetTimer();
+
+            // MỤC D — INTRO vào trận: raise OnRoundIntroStart rồi CHỜ OnRoundIntroFinished (RoundIntroController
+            // khóa input + zoom camera P1→P2). Có timeout an toàn nếu map không có RoundDirector phản hồi.
+            yield return RunRoundIntro();
+
+            // CHỈ SAU intro: chạy đồng hồ + (chờ 1 frame để object map subscribe) + raise MatchStart.
+            if (matchTimer != null) matchTimer.SetRunning(true);
+            yield return null;
+            if (onMatchStart != null) onMatchStart.RaiseEvent();
+        }
+
+        /// <summary>(MỤC D) Phát OnRoundIntroStart rồi chờ OnRoundIntroFinished (hoặc timeout). Kênh chưa
+        /// wire (null) → bỏ qua intro ngay (test scene không có RoundDirector).</summary>
+        private IEnumerator RunRoundIntro()
+        {
+            if (onRoundIntroStart == null) yield break;
+            _introFinished = false;
+            onRoundIntroStart.RaiseEvent();
+            float t = 0f;
+            while (!_introFinished && t < introTimeout)
             {
-                if (resetTimerOnMatch) matchTimer.ResetTimer();
-                matchTimer.SetRunning(true);
+                t += Time.unscaledDeltaTime;
+                yield return null;
             }
+            if (!_introFinished)
+                Debug.LogWarning("[MatchManager] Intro timeout — vào trận (map thiếu RoundIntroController?).", this);
         }
 
         private IEnumerator UnloadMapIfAny()
         {
+            // OBJECT POOLING (§3.1): dọn pool VFX/projectile TRƯỚC khi despawn player + unload map — tránh
+            // giữ ref object bị Destroy theo scene sang trận sau. PoolBootstrap prewarm lại ở onMatchStart.
+            PrefabPool.Clear();
             if (playerSpawner != null) playerSpawner.DespawnPlayers();
             if (!string.IsNullOrEmpty(_loadedMapScene))
             {
@@ -171,14 +227,14 @@ namespace FA.GameFlow
         private void SetCharP1(int idx)
         {
             _charP1 = idx;
-            Debug.Log($"[MatchManager] SetCharP1={idx} (P2={_charP2}) gate→{(_charP2 >= 0)}"); // DEBUG harness P12
+            DebugLog.Log($"[MatchManager] SetCharP1={idx} (P2={_charP2}) gate→{(_charP2 >= 0)}"); // DEBUG harness P12
             if (_charP2 >= 0) GoToStageSelect();   // cả 2 đã chọn → sang stage.
         }
 
         private void SetCharP2(int idx)
         {
             _charP2 = idx;
-            Debug.Log($"[MatchManager] SetCharP2={idx} (P1={_charP1}) gate→{(_charP1 >= 0)}"); // DEBUG harness P12
+            DebugLog.Log($"[MatchManager] SetCharP2={idx} (P1={_charP1}) gate→{(_charP1 >= 0)}"); // DEBUG harness P12
             if (_charP1 >= 0) GoToStageSelect();
         }
 
@@ -207,7 +263,16 @@ namespace FA.GameFlow
             GoToCharSelect();
         }
 
-        private void OnMatchEnded() => GoToEnd();
+        // MỤC D — GIỮ pose Win/Lose vài giây trước End screen. onMatchResult & onMatchEnded raise CÙNG
+        // frame (WinCondition.Resolve) → MatchOutroController kịp set pose trước khi ta hold. GoToEnd (ẩn
+        // HUD/hiện End) chỉ chạy SAU khi hold xong nên pose trình diễn trọn vẹn trên map còn hiển thị.
+        private void OnMatchEnded() => StartCoroutine(EndRoutine());
+
+        private IEnumerator EndRoutine()
+        {
+            if (outroHold > 0f) yield return new WaitForSeconds(outroHold);
+            GoToEnd();
+        }
 
         // ---- Tiện ích panel ----
 

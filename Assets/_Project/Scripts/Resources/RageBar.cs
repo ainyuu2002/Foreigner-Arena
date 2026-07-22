@@ -10,6 +10,7 @@ namespace FA.Resources
     ///   • gây dmg trúng (attacker, Confirmed)  → +rageGainDealt × DamagePercent (NHIỀU).
     ///   • bị đánh (victim, Confirmed)          → +rageGainTaken × DamagePercent (ÍT → comeback).
     ///   • block (cả attacker-block & victim-block, Blocked) → nhân thêm rageBlockMultiplier (RẤT ÍT).
+    /// TRONG RAGE MODE (IBuffContext.IsRageActive): mọi gain ĐÓNG BĂNG (balance — chống chain rage).
     ///
     /// Subscribe OnHitConfirmed + OnHitBlocked (CÙNG asset Combat raise). Phân vai bằng
     /// ReferenceEquals(hit.Attacker/Victim, me) — đúng pattern KnockbackPercent/ComboCounter. Raise
@@ -38,6 +39,26 @@ namespace FA.Resources
         [SerializeField] private Transform root;
 
         private float _rage;
+
+        // (Balance ADD) Buff context trên root (RageModeController FA.Specials implement, đọc qua
+        // interface Core §1.3). Đang Rage Mode → ĐÓNG BĂNG mọi gain (dealt/taken/block) — chặn vòng lặp
+        // dương "buff dmg nuôi lại nộ" (player giỏi chain rage vô hạn). RefundRage khi rage KẾT THÚC
+        // không bị ảnh hưởng (lúc đó IsRageActive đã false). null-safe: prefab không gắn = gain như cũ.
+        private IBuffContext _buff;
+        private bool _buffResolved;
+
+        private IBuffContext Buff
+        {
+            get
+            {
+                if (!_buffResolved)
+                {
+                    _buffResolved = true;
+                    _buff = root != null ? root.GetComponent<IBuffContext>() : GetComponent<IBuffContext>();
+                }
+                return _buff;
+            }
+        }
 
         /// <summary>Nộ hiện tại (đơn vị nội bộ). P10 đọc.</summary>
         public float Current => _rage;
@@ -106,6 +127,12 @@ namespace FA.Resources
         private void Accumulate(HitData hit, bool blocked)
         {
             if (config == null) return;
+
+            // Đang Rage Mode → KHÔNG hồi nộ từ bất kỳ nguồn nào (chỉ đóng băng thanh của MÌNH —
+            // đối thủ bị đánh vẫn hồi bình thường vì mỗi RageBar tự check buff của root mình).
+            IBuffContext buff = Buff;
+            if (buff != null && buff.IsRageActive) return;
+
             GameObject me = root != null ? root.gameObject : gameObject;
 
             float gain;
@@ -124,12 +151,15 @@ namespace FA.Resources
             if (!Mathf.Approximately(before, _rage)) RaiseChanged();
         }
 
-        /// <summary>DEBUG/test only — đặt lại nộ về 0. P12 RespawnSystem KHÔNG gọi (giữ qua chết).</summary>
-        public void ResetRage()
+        /// <summary>IRageSpender — xóa SẠCH nộ về 0 (Ultimate dùng xong = hết nộ, user chốt 2026-07-11).</summary>
+        public void ClearRage()
         {
             _rage = 0f;
             RaiseChanged();
         }
+
+        /// <summary>DEBUG/test only — đặt lại nộ về 0. P12 RespawnSystem KHÔNG gọi (giữ qua chết).</summary>
+        public void ResetRage() => ClearRage();
 
         private void RaiseChanged()
         {

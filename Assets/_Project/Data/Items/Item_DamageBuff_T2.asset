@@ -14,10 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: FA.Items::FA.Items.ItemData
   type: 2
   tintColor: {r: 1, g: 0.2, b: 0.2, a: 1}
-  visualScale: 1.0
-  icon: {fileID: 0}
-  knockbackReducePercent: 0
-  manaAddFraction: 0
-  damageMultiplier: 1.5
-  damageBuffDuration: 10
+  visualScale: 1.8
+  icon: {fileID: 2212900563798748471, guid: a87afb569607dc3468f6fe2d38e7517f, type: 3}
+  displayName: DAMAGE CHARM
+  effect:
+    type: 5
+    value: 0.5
+    duration: 10
   spawnWeight: 2
+  prefabOverride: {fileID: 0}
+  mysteryOutcomeConfig: {fileID: 0}

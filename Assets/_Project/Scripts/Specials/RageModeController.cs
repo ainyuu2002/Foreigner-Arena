@@ -76,6 +76,24 @@ namespace FA.Specials
         /// <summary>UltimateState Enter/Exit gọi → khóa/mở tick timer Rage (Ultimate không bị "hết giờ giữa chừng").</summary>
         public void SetUltimateActive(bool active) => _ultimateActive = active;
 
+        /// <summary>Tắt Rage Mode NGAY, KHÔNG hoàn nộ — dùng khi Ultimate kết thúc UBW ("dùng chiêu là
+        /// hết nộ luôn", user chốt): nộ đã cháy trọn cho đòn kết, không refund như hết-giờ tự nhiên.</summary>
+        public void DeactivateNoRefund()
+        {
+            if (!_rageActive) return;
+            _rageActive = false;
+            SetAura(false);
+        }
+
+        /// <summary>Ultimate DÙNG XONG = HẾT SẠCH NỘ (user chốt 2026-07-11): tắt buff không refund +
+        /// xóa thanh nộ về 0 — chặn exploit "rage → ulti → thoát vẫn còn nộ" (gain sót trong lúc ulti
+        /// hoặc refund khi rage hết hạn tự nhiên sau đó). UltimateState.Exit gọi cho MỌI ultimate.</summary>
+        public void DeactivateAndClear()
+        {
+            DeactivateNoRefund();
+            _rageSpender?.ClearRage();
+        }
+
         private void Update()
         {
             if (!_rageActive) return;

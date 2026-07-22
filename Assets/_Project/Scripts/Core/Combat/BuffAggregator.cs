@@ -74,6 +74,7 @@ namespace FA.Core
         public float KnockbackDealtMult => Product(s => s.KnockbackDealtMult);
         public float HitstunTakenMult => Product(s => s.HitstunTakenMult);
         public float MoveSpeedMult => Product(s => s.MoveSpeedMult);
+        public float DamageTakenMult => Product(s => s.DamageTakenMult);
         public bool IsRageActive => AnyFlag(s => s.IsRageActive);
         public bool IsUltimateActive => AnyFlag(s => s.IsUltimateActive);
     }

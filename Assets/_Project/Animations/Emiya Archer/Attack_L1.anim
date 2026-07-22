@@ -1,0 +1,261 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!74 &7400000
+AnimationClip:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Attack_L1
+  serializedVersion: 8
+  m_Legacy: 0
+  m_Compressed: 0
+  m_UseHighQualityCurve: 1
+  m_RotationCurves: []
+  m_CompressedRotationCurves: []
+  m_EulerCurves: []
+  m_PositionCurves: []
+  m_ScaleCurves: []
+  m_FloatCurves: []
+  m_PPtrCurves:
+  - serializedVersion: 2
+    curve:
+    - time: 0
+      value: {fileID: 21300000, guid: 0ce2941ada1c12f46aa2c54d8faecd44, type: 3}
+    - time: 0.016666668
+      value: {fileID: 21300000, guid: 9426219e15233d64d92f4d4dca8726d5, type: 3}
+    - time: 0.033333335
+      value: {fileID: 21300000, guid: 753825f88a3b7144588c9cca831f3d78, type: 3}
+    - time: 0.05
+      value: {fileID: 21300000, guid: 31a9c8881fadd854ea72aebe63e426d5, type: 3}
+    - time: 0.083333336
+      value: {fileID: 21300000, guid: 4781b105afc73654fb7bb22ccc169b00, type: 3}
+    - time: 0.15
+      value: {fileID: 21300000, guid: 711ce9af75570e8468ec91f1a6f438cb, type: 3}
+    - time: 0.2
+      value: {fileID: 21300000, guid: b2a9874df4dfa204d865a77ace7465da, type: 3}
+    - time: 0.21666667
+      value: {fileID: 21300000, guid: 409ad78741f979847b27e16d2b21dab7, type: 3}
+    - time: 0.23333333
+      value: {fileID: 21300000, guid: 62b1c2cb0580d934c8257d70bdd51149, type: 3}
+    - time: 0.26666668
+      value: {fileID: 21300000, guid: 2e88e85f1373c494a9125e082364fdae, type: 3}
+    - time: 0.3
+      value: {fileID: 21300000, guid: b782e9320d30b074394fae72d0cb849d, type: 3}
+    - time: 0.36666667
+      value: {fileID: 21300000, guid: a13ea49c7f99d2246877bc085a4545c3, type: 3}
+    - time: 0.41666666
+      value: {fileID: 21300000, guid: c68521ab33be24249b38ffcc5a197e88, type: 3}
+    - time: 0.45
+      value: {fileID: 21300000, guid: abbd8910fc0137e4898bfa0936841364, type: 3}
+    - time: 0.48333332
+      value: {fileID: 21300000, guid: b80bf9f79df284446b4dd6f0c5f6bdd3, type: 3}
+    - time: 0.51666665
+      value: {fileID: 21300000, guid: 1c39ee2fb80b25544a87fe2c4dfc6485, type: 3}
+    - time: 0.5416667
+      value: {fileID: 21300000, guid: 1c39ee2fb80b25544a87fe2c4dfc6485, type: 3}
+    attribute: m_Sprite
+    path: 
+    classID: 212
+    script: {fileID: 0}
+    flags: 2
+  m_SampleRate: 60
+  m_WrapMode: 0
+  m_Bounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
+  m_ClipBindingConstant:
+    genericBindings:
+    - serializedVersion: 2
+      path: 0
+      attribute: 0
+      script: {fileID: 0}
+      typeID: 212
+      customType: 23
+      isPPtrCurve: 1
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
+      metaData: 0
+    pptrCurveMapping:
+    - {fileID: 21300000, guid: 0ce2941ada1c12f46aa2c54d8faecd44, type: 3}
+    - {fileID: 21300000, guid: 9426219e15233d64d92f4d4dca8726d5, type: 3}
+    - {fileID: 21300000, guid: 753825f88a3b7144588c9cca831f3d78, type: 3}
+    - {fileID: 21300000, guid: 31a9c8881fadd854ea72aebe63e426d5, type: 3}
+    - {fileID: 21300000, guid: 4781b105afc73654fb7bb22ccc169b00, type: 3}
+    - {fileID: 21300000, guid: 711ce9af75570e8468ec91f1a6f438cb, type: 3}
+    - {fileID: 21300000, guid: b2a9874df4dfa204d865a77ace7465da, type: 3}
+    - {fileID: 21300000, guid: 409ad78741f979847b27e16d2b21dab7, type: 3}
+    - {fileID: 21300000, guid: 62b1c2cb0580d934c8257d70bdd51149, type: 3}
+    - {fileID: 21300000, guid: 2e88e85f1373c494a9125e082364fdae, type: 3}
+    - {fileID: 21300000, guid: b782e9320d30b074394fae72d0cb849d, type: 3}
+    - {fileID: 21300000, guid: a13ea49c7f99d2246877bc085a4545c3, type: 3}
+    - {fileID: 21300000, guid: c68521ab33be24249b38ffcc5a197e88, type: 3}
+    - {fileID: 21300000, guid: abbd8910fc0137e4898bfa0936841364, type: 3}
+    - {fileID: 21300000, guid: b80bf9f79df284446b4dd6f0c5f6bdd3, type: 3}
+    - {fileID: 21300000, guid: 1c39ee2fb80b25544a87fe2c4dfc6485, type: 3}
+    - {fileID: 21300000, guid: 1c39ee2fb80b25544a87fe2c4dfc6485, type: 3}
+  m_AnimationClipSettings:
+    serializedVersion: 2
+    m_AdditiveReferencePoseClip: {fileID: 0}
+    m_AdditiveReferencePoseTime: 0
+    m_StartTime: 0
+    m_StopTime: 0.55833334
+    m_OrientationOffsetY: 0
+    m_Level: 0
+    m_CycleOffset: 0
+    m_HasAdditiveReferencePose: 0
+    m_LoopTime: 0
+    m_LoopBlend: 0
+    m_LoopBlendOrientation: 0
+    m_LoopBlendPositionY: 0
+    m_LoopBlendPositionXZ: 0
+    m_KeepOriginalOrientation: 0
+    m_KeepOriginalPositionY: 1
+    m_KeepOriginalPositionXZ: 0
+    m_HeightFromFeet: 0
+    m_Mirror: 0
+  m_EditorCurves: []
+  m_EulerEditorCurves: []
+  m_HasGenericRootTransform: 0
+  m_HasMotionFloatCurves: 0
+  m_Events:
+  - time: 0.033333335
+    functionName: MoveImpulse
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.083333336
+    functionName: MoveImpulse
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 1
+    messageOptions: 0
+  - time: 0.083333336
+    functionName: HitboxOn
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 3
+    messageOptions: 0
+  - time: 0.083333336
+    functionName: PlayVfx
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 38
+    messageOptions: 0
+  - time: 0.083333336
+    functionName: PlaySfx
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 38
+    messageOptions: 0
+  - time: 0.083333336
+    functionName: PlaySfx
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 40
+    messageOptions: 0
+  - time: 0.083333336
+    functionName: PlayVfx
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 42
+    messageOptions: 0
+  - time: 0.15
+    functionName: HitboxOff
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 3
+    messageOptions: 0
+  - time: 0.23333333
+    functionName: MoveImpulse
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.3
+    functionName: MoveImpulse
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 1
+    messageOptions: 0
+  - time: 0.3
+    functionName: HitboxOn
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 3
+    messageOptions: 0
+  - time: 0.3
+    functionName: PlayVfx
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 39
+    messageOptions: 0
+  - time: 0.3
+    functionName: PlaySfx
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 39
+    messageOptions: 0
+  - time: 0.3
+    functionName: PlaySfx
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 41
+    messageOptions: 0
+  - time: 0.3
+    functionName: PlayVfx
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 42
+    messageOptions: 0
+  - time: 0.33333334
+    functionName: CancelWindowOpen
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.36666667
+    functionName: HitboxOff
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 3
+    messageOptions: 0
+  - time: 0.45
+    functionName: CancelWindowClose
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.46666667
+    functionName: KnockbackPoint
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.53333336
+    functionName: RecoveryEnd
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0

@@ -31,7 +31,7 @@ namespace FA.UI
         private void Raise()
         {
             // DEBUG harness P12
-            Debug.Log($"[IntButtonRaiser] {name} click → value={value} channel={(channel != null ? channel.name : "NULL")}", this);
+            DebugLog.Log($"[IntButtonRaiser] {name} click → value={value} channel={(channel != null ? channel.name : "NULL")}", this);
             if (channel == null) { Debug.LogWarning($"[IntButtonRaiser] {name} channel CHƯA WIRE (NULL) — click bị bỏ qua.", this); return; } // DEBUG harness P12
             channel.RaiseEvent(value);
         }

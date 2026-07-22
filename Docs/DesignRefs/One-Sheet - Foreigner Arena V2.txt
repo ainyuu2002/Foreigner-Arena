@@ -1,0 +1,68 @@
+ENGLISH VERSION
+ONE-SHEET: FIGHTING X ARENA BATTLE HYBRID
+Title: Foreigner Arena
+Tagline: “Master the Combo. Rule the Arena”, “Fight with Technique. Win with Chaos”, “The Further You Fall, The Harder You Hit Back.”
+1) High Concept
+A fast-paced 2D fighting game hybrid that seamlessly bridges the technical motion inputs, frame data, and combo strings of traditional fighting games with the high-octane chaos and open platform layouts of arena fighters. Instead of grinding down a health bar, players inflict strings of attacks to accumulate their opponent's Resistance %, multiplying the kinetic forces until a final launcher blasts them completely out of the 4-sided Death Zones.
+2) Target Player & Platform
+Target Player: Fans of technical combat and action games who love managing fast-paced resource mechanics, optimizing directional inputs, and executing clutch plays on dynamic, hazardous terrain.
+Platform: PC Standalone; optimized primarily for Local 2-Player Versus play using either a shared split-keyboard layout or connected external gamepads.
+3) Emotional Intent (North Star)
+High Tension (Tense): Because Resistance % climbs continuously with each hit, the psychological pressure escalates rapidly; survival or instant elimination rests entirely on a single split-second directional influence or defensive choice.
+Flow Mastery (Cool / Flow): Chaining seamless combos, managing perfect cancels, and utilizing a precise Burst Breaker to escape deadly situations empowers players with stylish, "that was sick" highlight moments.
+4) Experience Pillars (3)
+Technical Meets Chaotic: Success requires mastering precise Traditional Fighting execution (motion inputs, high/low blocking) while surviving unpredictable Arena Battle layout threats.
+Resource Tension: Players must constantly balance a tight economy of resources—spending Mana for lướt nhanh hủy chiêu (RC Dash) or Special Moves, and managing Rage to unleash decisive comebacks.
+Dynamic Environmental Adaptation: Sàn đấu changes the meta; players must shift their strategy to leverage or combat the physics alterations of dynamic biomes.
+5) Core Loop
+Select Character & Biome Map → Engage in Local 2-Player Combat → Execute Combos to Accumulate Opponent's Resistance % → Scramble for Random Item Spawns & Adapt to Biome Physics → Blast Enemy into the Death Zone to Deplete Stocks → Win Match & View End Screen Stats → Repeat.
+6) Signature Mechanics
+Resistance % Knockback Scaling: There are no traditional health bars. Every hit adds to the target's Resistance %. The higher the %, the further the character flies when hit by a finishing or launcher move.
+Pushback Block System: Blocking attacks is completely free of resource costs, but blocking successive attacks applies a heavy pushback force, gradually forcing a defensive player closer to the deadly edge of the map.
+The Legendary Rage Core: Spawns exactly once per match at a random time, flying around the screen with unpredictable vectors. Both players must attack it to chip away a shared 15-hit counter; the player who lands the 15th hit shatters the core and instantly gains 100% Rage for an immediate Ultimate attack.
+7) Core Systems (MVP States)
+Character State Machine (FSM): Manages all foundational states cleanly: Idle, Walk/Run, Crouch, Jump, Dash, Attack, Hitstun, Wall Splat, Ground Bounce, and Respawn.
+Match Flow Director: Governs stock life depletion (3–5 stocks), handles mid-stage respawning with temporary invincibility, updates the 10-minute timer, and processes score tie-breakers.
+Dynamic Biome Physics: Coordinates map-wide physics alterations, handling low-friction sliding on Ice Maps, reduced mobility/jumps on Swamp Maps, and passive resistance degradation on Lava Maps.
+8) MVP Scope Box (4-Week Constraints)
+9) Top Risks & Prototype Plan
+Risk 1: Split-Keyboard Input Ghosting: Standard consumer keyboards lock up when too many keys are pressed simultaneously by two active players. Prototype Plan: Test input boundaries in Week 1 on the actual presentation hardware, separate player layouts, and write a rebindable input layout script to sidestep hardware key jamming.
+Risk 2: Weightless or Float Like Combat Feel: If attacks do not provide an immediate tactile response, the fighting mechanics will feel unresponsive. Prototype Plan: Code a dedicated Hitstop framework during Week 1 to freeze the action for 4–8 frames upon any clean hit, instantly validating impact force.
+10) Success Metrics
+Input responsiveness and action execution from the Input Buffer must process with an unnoticeable latency of < 3 frames.
+Roster and map pick rates during blind playtests should sit near equilibrium, ensuring no single character or biome exceeds a 50% dominant selection rate.
+At least 80% of playtesters should naturally recognize match climax moments based on HUD warning colors and dynamic biome events without prior instructions.
+BẢN TIẾNG VIỆT
+ONE-SHEET: FIGHTING X ARENA BATTLE HYBRID
+Title: Foreigner Arena
+Tagline: “Master the Combo. Rule the Arena”, “Fight with Technique. Win with Chaos”, “The Further You Fall, The Harder You Hit Back.”
+1) High Concept
+Một tựa game đối kháng 2D tốc độ cao giao thoa hoàn hảo giữa hệ thống combo, nhập lệnh chuẩn xác của dòng game Fighting truyền thống và tính hỗn loạn sôi động cùng sàn đấu mở của thể loại Arena Battle. Thay vì cấu trúc trừ máu gục ngã thông thường, người chơi tích lũy chuỗi đòn đánh nhằm gia tăng chỉ số Resistance % của đối thủ, đẩy mạnh lực tác động cơ học để trực tiếp thổi bay kẻ địch ra khỏi 4 phía của vùng tử địa (Death Zone).
+2) Target Player & Platform
+Đối tượng người chơi mục tiêu: Những game thủ đam mê các tựa game hành động đối kháng kỹ thuật, đòi hỏi tư duy quản lý tài nguyên căng thẳng kết hợp phản xạ nhanh nhạy với địa hình động thay đổi liên tục.
+Nền tảng vận hành: PC Standalone; hỗ trợ tối đa trải nghiệm chơi cục bộ 2 người (Local Versus) thông qua phương án chia đôi bàn phím linh hoạt hoặc kết nối tay cầm ngoại vi.
+3) Emotional Intent (North Star)
+Kịch tính dâng trào (Tense): Chỉ số Resistance % tăng dần theo từng giây chiến đấu tạo nên áp lực tâm lý khủng khiếp; ranh giới giữa việc sống sót lội ngược dòng và bị loại bỏ vĩnh viễn chỉ cách nhau bằng một cú bẻ góc va chạm.
+Làm chủ tiết tấu (Flow): Các chuỗi combo không bị ngắt quãng, sự can thiệp chuẩn xác của cơ chế Burst Breaker giải cứu tình huống hiểm nghèo mang lại những pha highlight mãn nhãn.
+4) Experience Pillars (3 Lĩnh vực trải nghiệm cốt lõi)
+Kỹ thuật giao thoa Hỗn loạn: Người chơi vừa phải làm quen với hệ thống Frame Data và Motion Input khắt khe, vừa phải xử lý tốt những biến số ngẫu nhiên từ bản đồ.
+Cân não quản lý tài nguyên: Mọi hành động từ né đòn, lướt nhanh hủy chiêu (RC Dash) đến kích hoạt Siêu Tuyệt Chiêu đều tiêu tốn nguồn tài nguyên hữu hạn (Mana, Nộ) đòi hỏi sự tính toán chiến thuật cao.
+Thích ứng địa hình biến động: Hiệu ứng thời tiết khắc nghiệt từ các Map Biome trực tiếp định hình lại lối di chuyển và tấn công của cả hai đấu thủ.
+5) Core Loop
+Lựa chọn Nhân vật/Bản đồ Biome → Vào trận đấu tranh chấp Local → Tấn công dồn Combo găm sát thương và quản lý chỉ số → Thu thập Item cường hóa và thích ứng thời tiết → Thổi bay kẻ địch vào vùng Death Zone hạ gục Stock → Kết thúc trận/So sánh điểm số → Rút kinh nghiệm nâng cao trình độ.
+6) Signature Mechanics
+Hệ thống Tính Lực Đẩy Knockback theo % Resistance: Không có thanh máu. Càng nhận nhiều đòn đánh, % Resistance càng cao. Khi kết thúc combo bằng một đòn launcher mạnh, phản lực cơ học sẽ bắn nhân vật bay xa tương ứng.
+Cơ chế Giữ Khối và Đẩy Rìa (Pushback Block): Cơ chế đỡ đòn không tốn tài nguyên nhưng nếu lạm dụng đỡ liên tục, lực phản chấn sẽ đẩy lùi người chơi dịch chuyển dần ra mép vực nguy hiểm.
+Viên Hồi Nộ Truyền Thuyết (Rage Core): Một vật phẩm bay ngẫu nhiên xuất hiện một lần duy nhất giữa trận. Cả hai đấu thủ phải cùng tham gia tấn công dồn đủ 15 hit để bẻ gãy lõi bảo vệ, ai tung đòn quyết định thứ 15 sẽ lập tức hồi đầy 100% nộ để tung Ultimate.
+7) Core Systems (Các hệ thống MVP cơ sở)
+Character State Machine (FSM): Đồng bộ hóa chặt chẽ các hành động: Idle, Di chuyển, Nhảy, Đỡ đòn, Khựng đòn, Wall Splat, Ground Bounce.
+Hệ thống Luật Trận đấu (Match Rules): Quản lý vòng đời hồi sinh (Respawn), bộ đếm ngược thời gian giới hạn 10 phút, quản lý số lượng mạng sống (Stock từ 1-5) và tính toán điểm số tổng hợp khi hòa trận.
+Hệ thống Môi trường và Biome động: Áp dụng lực ma sát thấp trên mặt Băng, hiệu ứng làm chậm tại Đầm lầy và cơ chế sát thương thiêu đốt dâng cao của Lava.
+8) MVP Scope Box (Phân định phạm vi dự án 4 tuần)
+9) Top Risks & Prototype Plan
+Rủi ro 1: Hiện tượng Ghosting phím phần cứng. Giải pháp: Tổ chức kiểm tra tần suất nhận diện nút bấm ngay trên chiếc bàn phím sẽ dùng để demo từ Tuần 1, sắp đặt các cụm phím cách xa nhau và ưu tiên chuẩn hóa chức năng thay đổi phím bind.
+Rủi ro 2: Cảm giác tác động đòn đánh bị hời hợt. Giải pháp: Tập trung dồn toàn bộ nguồn lực lập trình bộ tạo độ khựng hình (Hitstop Prototype) ở mốc IMP 1 để bảo đảm mọi cú va chạm đều mang lại phản hồi lực tức thì, rõ nét.
+10) Success Metrics
+Độ trễ xử lý nhập lệnh từ Input Buffer đến hành động thực thi của nhân vật đạt < 3 khung hình (frames) nhằm bảo đảm tính mượt mà của combo.
+Tỷ lệ phân bổ lựa chọn nhân vật và bản đồ của người chơi thử nghiệm bên ngoài đạt mức cân bằng tương đối (Không có nhân vật hoặc bản đồ nào bị bỏ trống hoàn toàn hoặc chiếm tỷ lệ chọn áp đảo trên 50%).
+At least 80% người chơi thử nghiệm nhận diện được rõ ràng trạng thái sắp kết thúc trận đấu dựa vào màu sắc hiển thị cao trào trên HUD và cảnh báo dâng trào của bản đồ.

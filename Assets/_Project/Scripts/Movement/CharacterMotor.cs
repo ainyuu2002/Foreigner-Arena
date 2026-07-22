@@ -22,8 +22,14 @@ namespace FA.Movement
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(Animator))]
-    public sealed class CharacterMotor : MonoBehaviour, ICharacterContext, IMoveInput, ICombatContext
+    [RequireComponent(typeof(PlatformDropThrough))]
+    public sealed class CharacterMotor : MonoBehaviour, ICharacterContext, IMoveInput, ICombatContext, IJumpIntent
     {
+        // A2 (Ngồi): ngưỡng input NHẬN vào Ngồi — deadzone kiểu input (như MoveDeadzone trong các state),
+        // KHÔNG phải số balance nên để const (đối xứng const trong IdleState/WalkState).
+        private const float CrouchDownThreshold = 0.5f;   // giữ Xuống < -ngưỡng này mới ngồi
+        private const float CrouchMoveDeadzone = 0.1f;    // |MoveX| < ngưỡng này = "thuần" (không ép ngang)
+
         [Header("Tham chiếu")]
         [Tooltip("Số liệu nhân vật (walkSpeed, mass, gravityScale, nhảy...). BẮT BUỘC gán asset CharacterData.")]
         [SerializeField] private CharacterData data;
@@ -51,6 +57,15 @@ namespace FA.Movement
         [Tooltip("Khi inputScheme=Gamepad & có NHIỀU tay cầm: chọn tay thứ mấy (0 = tay đầu tiên).")]
         [SerializeField] private int gamepadIndex = 0;
 
+        [Tooltip("CHỈ có tác dụng khi inputScheme=Keyboard (prefab P1). Bật = P1 tự 'nhặt' tay cầm PHỤ nếu " +
+                 "người chơi cắm thêm 1 tay nữa giữa trận → P1 điều khiển được CẢ keyboard lẫn tay cầm đó " +
+                 "(keyboard vẫn là backup). Hot-plug tự nhận, không cần bật lại game.")]
+        [SerializeField] private bool pairExtraGamepad = false;
+
+        [Tooltip("Khi pairExtraGamepad: lấy tay cầm thứ mấy làm tay PHỤ cho P1. Mặc định 1 vì P2 (Gamepad) " +
+                 "đã ăn tay index 0 — tay mới cắm rơi vào index 1 = đúng P1.")]
+        [SerializeField] private int extraGamepadIndex = 1;
+
         // --- Nguồn input (P1: Input System trực tiếp; P4: chèn InputBuffer/CommandParser vào giữa) ---
         private FA_Controls _controls;
         private float _moveX;
@@ -64,12 +79,15 @@ namespace FA.Movement
         // --- Phase 4: Input Buffer + Command Parser (1 cặp/Motor → 2 player độc lập) ---
         private InputBuffer _inputBuffer;
         private CommandParser _parser;
+        private IInputSnapshotSource _alternateInput;
         private int _fixedFrame;          // số fixed-step (deterministic) để stamp snapshot
         // Window đọc từ InputConfigSO (KHÔNG hardcode); fallback nếu chưa gán asset.
         private int BufferFrames => inputConfig != null ? inputConfig.bufferFrames : 10;
         private int EdgeWindow => inputConfig != null ? inputConfig.edgeWindow : 6;
         private int MotionWindow => inputConfig != null ? inputConfig.motionWindow : 12;
         private int TapMaxHold => inputConfig != null ? inputConfig.tapMaxHold : 7;
+        private int DoubleTapDownWindow => inputConfig != null ? inputConfig.doubleTapDownWindow : 15;
+        private float DropThroughIgnoreSeconds => inputConfig != null ? inputConfig.dropThroughIgnoreSeconds : 0.35f;
 
         // Cho overlay test P4 đọc trạng thái parser mà KHÔNG lộ field input nội bộ.
         public InputBuffer DebugBuffer => _inputBuffer;
@@ -102,6 +120,10 @@ namespace FA.Movement
         private IState _dash;
         private WallHangState _wallHang; // typed: Motor đọc WallSide đã chốt để cấp cho WallJump
         private IState _wallJump;
+        private IState _crouch;          // A2: ngồi pose-only
+
+        // Rơi xuyên one-way platform (double-tap ↓) — component cùng object, tự gắn ở Awake (mọi nhân vật).
+        private PlatformDropThrough _dropThrough;
 
         // ===== IMoveInput =====
         public float MoveX => _moveX;
@@ -132,6 +154,17 @@ namespace FA.Movement
         // EdgeWindow ở interface implement explicit để KHÔNG đụng property private EdgeWindow nội bộ.
         public CommandParser Parser => _parser;
         int ICombatContext.EdgeWindow => EdgeWindow;
+
+        // (P11 nấm nhún v2) IJumpIntent — môi trường (FA.Stage) hỏi "vừa bấm Jump?" để boost bật
+        // đúng nhịp, qua interface Core (§1.3). CONSUME để DoubleJump không ăn lại cùng cú bấm
+        // (nó sẽ ghi đè vy = jumpSpeed ngay sau boost).
+        public bool TryConsumeRecentJumpPress(int withinFrames)
+        {
+            if (_parser == null || !_parser.WasPressedWithin(InputButton.Jump, withinFrames))
+                return false;
+            _parser.ConsumePress(InputButton.Jump, withinFrames);
+            return true;
+        }
 
         // Cờ "đang bị đánh/juggle" do hurt-state (FA.Combat) set qua SetHitstun — chỉ là CỜ TRẠNG THÁI,
         // KHÔNG đụng logic di chuyển. DefenseController (FA.Specials) đọc để chặn Air Dodge khi bị juggle.
@@ -164,9 +197,37 @@ namespace FA.Movement
             _parser?.ConsumePress(InputButton.Dash, EdgeWindow);
         }
 
+        // (P12 fix) RespawnSystem BroadcastMessage("OnRespawn") — reset TOÀN BỘ trạng thái điều khiển
+        // về neutral (feedback test: chết giữa knockback → respawn vẫn dính tumble, "teleport về rồi
+        // knockback tiếp"). ChangeState(_idle) Exit state cũ tử tế (tumble tự SetHitstun(false)).
+        private void OnRespawn()
+        {
+            if (body != null) body.linearVelocity = Vector2.zero;
+            ResetGravity();
+            ResetAirJumps();
+            RefreshAirDash();
+            SetHitstun(false);
+            _machine.ChangeState(_idle);
+        }
+
         public void ResetAirJumps()
         {
-            _airJumpsRemaining = data != null ? data.maxAirJumps : 0;
+            // (P11 nấm nhún v2) Trong cửa sổ suppress: KHÔNG phục hồi. Chặn "landing giả" 1-2 frame
+            // khi lướt qua mặt nấm (cap thuộc StandableMask → Unity coi là đáp) xóa mất suppress.
+            _airJumpsRemaining = Time.time < _airJumpSuppressUntil
+                ? 0
+                : (data != null ? data.maxAirJumps : 0);
+        }
+
+        // (P11 nấm nhún v2) IJumpIntent.SuppressAirJumps — nấm gọi sau mỗi cú bật: J giữa chuỗi nhún
+        // không bị nuốt thành double-jump (đứt chuỗi). Đáp đất thật (sau cửa sổ) → ResetAirJumps phục hồi.
+        private const float AirJumpSuppressWindow = 0.3f; // đủ che landing-giả trên mặt nấm. CẦN TEST.
+        private float _airJumpSuppressUntil;
+
+        public void SuppressAirJumps()
+        {
+            _airJumpsRemaining = 0;
+            _airJumpSuppressUntil = Time.time + AirJumpSuppressWindow;
         }
 
         public void RefreshAirDash()
@@ -179,6 +240,28 @@ namespace FA.Movement
             if (data != null) body.gravityScale = data.gravityScale;
         }
 
+        /// <summary>Tay cầm đang PAIR với Motor này — cho haptics/rumble (GamepadRumble). Scheme
+        /// Gamepad → đúng pad theo gamepadIndex (P2 không rung nhầm tay P1); Keyboard → null (không
+        /// rumble); AnyDevice → Gamepad.current (tay cầm active gần nhất, null nếu không cắm).
+        /// Resolve MỖI LẦN GỌI (không cache) — bền với rút/cắm tay cầm giữa trận.</summary>
+        public Gamepad PairedGamepad
+        {
+            get
+            {
+                switch (inputScheme)
+                {
+                    case InputScheme.Gamepad:
+                        var pads = Gamepad.all;
+                        return pads.Count > gamepadIndex ? pads[gamepadIndex] : null;
+                    case InputScheme.Keyboard:
+                        // P1: rung tay cầm PHỤ nếu đã pair (pairExtraGamepad); chỉ keyboard → null (không rung).
+                        return ResolveExtraGamepad();
+                    default:
+                        return Gamepad.current;
+                }
+            }
+        }
+
         public IState IdleState() => _idle;
         public IState WalkState() => _walk;
         public IState JumpState() => _jump;
@@ -187,6 +270,7 @@ namespace FA.Movement
         public IState DashState() => _dash;
         public IState WallHangState() => _wallHang;
         public IState WallJumpState() => _wallJump;
+        public IState CrouchState() => _crouch;
 
         public void OnWallJumpStarted()
         {
@@ -201,9 +285,15 @@ namespace FA.Movement
             if (groundCheck == null) groundCheck = GetComponent<GroundCheck>();
             if (wallCheck == null) wallCheck = GetComponent<WallCheck>();
 
+            // Rơi xuyên one-way platform: tự gắn (RequireComponent lo prefab mới; GetComponent??AddComponent
+            // lo prefab ĐÃ instantiate chưa có) → áp dụng cho MỌI nhân vật, KHÔNG wire tay prefab.
+            _dropThrough = GetComponent<PlatformDropThrough>();
+            if (_dropThrough == null) _dropThrough = gameObject.AddComponent<PlatformDropThrough>();
+
             // (P10) Cache buff context (Rage Mode) NULL-SAFE — RageModeController nằm cùng root khi P10
             // gắn; không gắn → null → MoveSpeedMult=×1.0 (P1/P3 không đổi). Chỉ qua interface Core (§1.3).
             _buff = GetComponent<IBuffContext>();
+            _alternateInput = GetComponent<IInputSnapshotSource>();
 
             // Áp số liệu vật lý từ data (KHÔNG hardcode). gravityScale dùng thật ở P2.
             if (data != null)
@@ -221,6 +311,7 @@ namespace FA.Movement
             _dash = new DashState(this);
             _wallHang = new WallHangState(this);
             _wallJump = new WallJumpState(this);
+            _crouch = new CrouchState(this);
 
             // Phase 4: dựng buffer + parser (1 cặp/Motor). State đọc input qua IMoveInput nên
             // KHÔNG biết nguồn đã đổi → không hồi quy P1-P3.
@@ -236,27 +327,55 @@ namespace FA.Movement
             _controls ??= new FA_Controls();
             ApplyInputScheme();
             _controls.Enable();
+            // Hot-plug: cắm/rút thiết bị giữa chừng → re-pair (P2 chết input khi rút pad, sống lại khi cắm).
+            InputSystem.onDeviceChange += OnDeviceChange;
+        }
+
+        private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+        {
+            switch (change)
+            {
+                case InputDeviceChange.Added:
+                case InputDeviceChange.Removed:
+                case InputDeviceChange.Reconnected:
+                case InputDeviceChange.Disconnected:
+                    ApplyInputScheme();
+                    break;
+            }
         }
 
         /// <summary>
         /// Pairing thiết bị (local 2-player): giới hạn wrapper này chỉ đọc 1 control scheme + 1 thiết bị.
         /// bindingMask lọc binding theo group ("Keyboard"/"Gamepad"); devices lọc thiết bị vật lý. Đặt
         /// P1=Keyboard, P2=Gamepad → 2 Motor không đè input. AnyDevice = bỏ lọc (1 người, nghe tất cả).
+        /// THIẾU thiết bị của scheme → wrapper bị KHÓA (devices rỗng, không nghe gì) — quyết định người
+        /// dùng: chỉ có keyboard thì P2 (Gamepad) ĐỨNG YÊN, KHÔNG fallback nghe mọi thiết bị (2 motor
+        /// cùng ăn keyboard). Hot-plug lo bởi OnDeviceChange → re-apply.
         /// </summary>
         private void ApplyInputScheme()
         {
             switch (inputScheme)
             {
                 case InputScheme.Keyboard:
-                    if (Keyboard.current == null) { WarnNoDevice("Keyboard"); return; }
-                    _controls.bindingMask = InputBinding.MaskByGroup("Keyboard");
-                    _controls.devices = new InputDevice[] { Keyboard.current };
+                {
+                    var kb = Keyboard.current;
+                    var extra = ResolveExtraGamepad();   // null nếu không bật/không đủ tay cầm
+                    if (kb == null && extra == null) { LockNoDevice("Keyboard"); return; }
+
+                    // Có tay cầm phụ → bỏ mask (null) để CẢ binding Keyboard lẫn Gamepad resolve (P1 dùng
+                    // được cả 2). Không có → khóa về group "Keyboard" như cũ (không hồi quy P1 1-người).
+                    _controls.bindingMask = (extra != null) ? (InputBinding?)null
+                                                            : InputBinding.MaskByGroup("Keyboard");
+                    _controls.devices = BuildDevices(kb, extra);
+                    DebugLog.Log($"[CharacterMotor] {name}: paired Keyboard" +
+                              $"{(extra != null ? $" + {extra.name}" : "")}.", this);
                     break;
+                }
 
                 case InputScheme.Gamepad:
-                    var pads = Gamepad.all;
-                    if (pads.Count <= gamepadIndex) { WarnNoDevice($"Gamepad[{gamepadIndex}]"); return; }
                     _controls.bindingMask = InputBinding.MaskByGroup("Gamepad");
+                    var pads = Gamepad.all;
+                    if (pads.Count <= gamepadIndex) { LockNoDevice($"Gamepad[{gamepadIndex}]"); return; }
                     _controls.devices = new InputDevice[] { pads[gamepadIndex] };
                     break;
 
@@ -267,12 +386,37 @@ namespace FA.Movement
             }
         }
 
-        private void WarnNoDevice(string which) =>
+        /// <summary>Tay cầm PHỤ cho P1 khi bật pairExtraGamepad: Gamepad.all[extraGamepadIndex] nếu đủ tay,
+        /// ngược lại null. Resolve mỗi lần gọi (không cache) — bền với cắm/rút giữa trận (OnDeviceChange
+        /// re-apply). Index mặc định 1 vì P2 đã ăn tay index 0.</summary>
+        private Gamepad ResolveExtraGamepad()
+        {
+            if (!pairExtraGamepad) return null;
+            var pads = Gamepad.all;
+            return pads.Count > extraGamepadIndex ? pads[extraGamepadIndex] : null;
+        }
+
+        /// <summary>Gộp keyboard + tay cầm phụ thành mảng devices (bỏ phần tử null).</summary>
+        private static InputDevice[] BuildDevices(InputDevice a, InputDevice b)
+        {
+            if (a != null && b != null) return new[] { a, b };
+            if (a != null) return new[] { a };
+            if (b != null) return new[] { b };
+            return new InputDevice[0];
+        }
+
+        /// <summary>Thiếu thiết bị của scheme → KHÓA wrapper (mảng devices RỖNG = không nghe thiết bị nào).
+        /// Nhân vật đứng yên tới khi thiết bị được cắm (OnDeviceChange tự re-apply).</summary>
+        private void LockNoDevice(string which)
+        {
+            _controls.devices = new InputDevice[0];
             Debug.LogWarning($"[CharacterMotor] inputScheme={inputScheme} nhưng không tìm thấy {which}. " +
-                             "Wrapper sẽ nghe mọi thiết bị (fallback) — cắm thiết bị rồi bật lại object.", this);
+                             "Nhân vật KHÔNG nhận input tới khi cắm thiết bị (tự nhận khi cắm).", this);
+        }
 
         private void OnDisable()
         {
+            InputSystem.onDeviceChange -= OnDeviceChange;
             _controls?.Disable();
         }
 
@@ -289,26 +433,39 @@ namespace FA.Movement
 
         private void Update()
         {
+            // (MỤC D) CINEMATIC GATE — intro vào trận / pose kết trận đang mở: nhân vật ĐỨNG YÊN, KHÔNG
+            // nhận điều khiển. Zero ý định + vận tốc ngang rồi RETURN TRƯỚC mọi transition + _machine.Tick
+            // → FSM giữ nguyên state hiện tại (không re-assert Idle/đè StateId Intro/Win/Lose do orchestrator
+            // set). Super/chant cũng Acquire nhưng lúc đó timeScale=0 (thế giới đứng hình) nên guard KHÔNG
+            // đổi hành vi cũ; chỉ thực sự tác dụng lúc intro/outro (timeScale=1). Chỉ zero vận tốc NGANG —
+            // trọng lực vẫn kéo về đất để pose đứng trên sàn.
+            if (CinematicGate.IsActive)
+            {
+                _moveX = _moveY = 0f;
+                _jumpPressed = _dashPressed = false;
+                if (body != null)
+                {
+                    Vector2 v = body.linearVelocity;
+                    v.x = 0f;
+                    body.linearVelocity = v;
+                }
+                return;
+            }
+
             // Đọc input ở Update (không chạm physics). Phase 4: MoveX/MoveY giữ ANALOG (đọc thẳng
             // Input System — di chuyển cần độ mượt). Edge Jump/Dash suy TỪ buffer qua parser
             // (WasPressedWithin) → buffer-tha-thứ: nhập sớm vài frame vẫn ăn. Buffer được nuôi
             // bằng snapshot RAW push ở FixedUpdate.
-            if (_controls != null)
-            {
-                Vector2 move = _controls.Gameplay.Move.ReadValue<Vector2>();
-                _moveX = move.x;
-                _moveY = move.y;
-                // Cache edge "chưa-tiêu-thụ" 1 frame; entry-point gọi ConsumePress để tiêu thụ
-                // (giữ ngữ nghĩa "1 lần nhấn = 1 lần kích" của Motor P3).
-                _jumpPressed = _parser != null && _parser.WasPressedWithin(InputButton.Jump, EdgeWindow);
-                _dashPressed = _parser != null && _parser.WasPressedWithin(InputButton.Dash, EdgeWindow);
-            }
-            else
-            {
-                _moveX = _moveY = 0f;
-                _jumpPressed = false;
-                _dashPressed = false;
-            }
+            bool useAlternate = _alternateInput != null && _alternateInput.IsInputActive;
+            Vector2 move = useAlternate
+                ? _alternateInput.Move
+                : _controls != null ? _controls.Gameplay.Move.ReadValue<Vector2>() : Vector2.zero;
+            _moveX = move.x;
+            _moveY = move.y;
+            // Cache edge "chưa-tiêu-thụ" 1 frame; entry-point gọi ConsumePress để tiêu thụ
+            // (giữ ngữ nghĩa "1 lần nhấn = 1 lần kích" của Motor P3).
+            _jumpPressed = _parser != null && _parser.WasPressedWithin(InputButton.Jump, EdgeWindow);
+            _dashPressed = _parser != null && _parser.WasPressedWithin(InputButton.Dash, EdgeWindow);
 
             // ARM lại re-grab WallHang ngay khi đã RỜI tường thật (raw, không tính grace) ≥1 frame.
             // Sau wall-jump cờ này = false; nhân vật bay ra → IsTouchingRaw=false → armed lại → cho
@@ -347,7 +504,25 @@ namespace FA.Movement
                 _parser.ConsumePress(InputButton.Jump, EdgeWindow);   // 1 lần nhấn không kích double-jump cùng edge
                 _machine.ChangeState(_jump);
             }
-            // Đi khỏi mép sàn (không nhảy) → rơi. Chỉ khi đang ở Idle/Walk mà không còn chạm sàn.
+            // RƠI XUYÊN ONE-WAY PLATFORM (double-tap ↓): đặt TRƯỚC Crouch để double-tap ăn trước khi rơi
+            // vào pose Ngồi (giữ ↓ liên tục chỉ 1 edge → không kích drop, vẫn Ngồi bình thường). CHỈ khi
+            // đang đứng trên one-way (IsOnOneWayPlatform) — double-tap trên sàn Ground cứng no-op, rơi
+            // xuống nhánh Crouch. Logic tắt/bật va chạm nằm trong PlatformDropThrough (Motor chỉ điều phối).
+            else if (_parser != null && IsGrounded && IsGroundState(_machine.CurrentState)
+                     && _dropThrough != null && _dropThrough.IsOnOneWayPlatform()
+                     && _parser.WasDownDoubleTapped(DoubleTapDownWindow))
+            {
+                _parser.ConsumeDownDoubleTap(DoubleTapDownWindow);   // 1 cặp tap = 1 lần drop
+                _dropThrough.TryDrop(DropThroughIgnoreSeconds);
+            }
+            // Lệnh NGỒI TOÀN CỤC (A2): từ Idle/Walk khi đứng đất + giữ Xuống THUẦN → Crouch. Đặt ở Motor
+            // (giống "Any State → Crouch"), SAU dash/wallhang/jump nên các lệnh đó vẫn thoát khỏi Ngồi được
+            // (Crouch ∈ IsGroundState). Crouch tự thoát về Idle/Walk khi nhả xuống/ép ngang (CrouchState.Tick).
+            else if (IsGrounded && CanEnterCrouch())
+            {
+                _machine.ChangeState(_crouch);
+            }
+            // Đi khỏi mép sàn (không nhảy) → rơi. Chỉ khi đang ở ground-state mà không còn chạm sàn (gồm Crouch).
             else if (!IsGrounded && IsGroundState(_machine.CurrentState))
             {
                 _machine.ChangeState(_air);
@@ -377,8 +552,17 @@ namespace FA.Movement
         /// </summary>
         private void PushInputSnapshot()
         {
-            if (_controls == null || _inputBuffer == null) return;
+            if (_inputBuffer == null) return;
             _fixedFrame++;
+
+            if (_alternateInput != null && _alternateInput.IsInputActive)
+            {
+                InputSnapshot alternate = _alternateInput.ReadSnapshot(_fixedFrame);
+                _inputBuffer.Push(in alternate);
+                return;
+            }
+
+            if (_controls == null) return;
 
             Vector2 move = _controls.Gameplay.Move.ReadValue<Vector2>();
             sbyte dx = Quantize(move.x);
@@ -402,8 +586,19 @@ namespace FA.Movement
             return 0;
         }
 
-        /// <summary>True nếu state là state mặt đất (Idle/Walk) — nơi cho phép lệnh nhảy từ đất.</summary>
-        private bool IsGroundState(IState s) => ReferenceEquals(s, _idle) || ReferenceEquals(s, _walk);
+        /// <summary>True nếu state là state mặt đất (Idle/Walk/Crouch) — nơi cho phép lệnh nhảy/dash từ đất
+        /// & phát hiện đi khỏi mép sàn. Crouch (A2) là ground-state → nhảy/dash/rời-đất thoát khỏi Ngồi.</summary>
+        private bool IsGroundState(IState s) =>
+            ReferenceEquals(s, _idle) || ReferenceEquals(s, _walk) || ReferenceEquals(s, _crouch);
+
+        /// <summary>Được vào Ngồi (A2): đang Idle/Walk (KHÔNG phải Crouch, tránh re-enter), giữ Xuống THUẦN
+        /// (MoveY xuống, |MoveX| nhỏ → down-forward/back vẫn đi bộ). Grounded do người gọi kiểm.</summary>
+        private bool CanEnterCrouch()
+        {
+            IState s = _machine.CurrentState;
+            if (!ReferenceEquals(s, _idle) && !ReferenceEquals(s, _walk)) return false;
+            return _moveY < -CrouchDownThreshold && Mathf.Abs(_moveX) < CrouchMoveDeadzone;
+        }
 
         /// <summary>
         /// True nếu state hiện tại là MỘT TRONG các state CỦA CHÍNH Motor (Movement). Whitelist này
@@ -417,7 +612,8 @@ namespace FA.Movement
             ReferenceEquals(s, _idle) || ReferenceEquals(s, _walk) ||
             ReferenceEquals(s, _jump) || ReferenceEquals(s, _air) ||
             ReferenceEquals(s, _doubleJump) || ReferenceEquals(s, _dash) ||
-            ReferenceEquals(s, _wallHang) || ReferenceEquals(s, _wallJump);
+            ReferenceEquals(s, _wallHang) || ReferenceEquals(s, _wallJump) ||
+            ReferenceEquals(s, _crouch);
 
         /// <summary>
         /// Được phép vào Dash khi: đang ở Idle/Walk (dash mặt đất — free, không quota), HOẶC đang trên

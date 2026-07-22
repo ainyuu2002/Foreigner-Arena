@@ -58,6 +58,10 @@ namespace FA.Specials
         private IRageSpender _rageSpender;
         private IKnockbackCanceler _selfKnockback;
 
+        // (Archer) UBW install-mode CÙNG prefab: có component này thì Ultimate CHỈ dùng được KHI ĐANG
+        // install (ấn nộ lần 2 trong UBW) — chặn kích mid-chant. Nhân vật thường: null → như cũ.
+        private UBWInstallController _install;
+
         private GroundDodgeState _groundDodge;
         private AirDodgeState _airDodge;
         private RCDashState _rcDash;
@@ -87,14 +91,31 @@ namespace FA.Specials
             _groundDodge = new GroundDodgeState(_ctx, relay, config);
             _airDodge = new AirDodgeState(_ctx, relay);
             _rcDash = new RCDashState(_ctx, relay, config);
+            _install = GetComponent<UBWInstallController>();
             _burst = new BurstState(_ctx, relay, _selfKnockback);
             _rageState = new RageModeState(_ctx, relay, rageMode);
-            _ultimate = new UltimateState(_ctx, relay, rageMode);
+            _ultimate = new UltimateState(_ctx, relay, rageMode, gameObject, _install);
+        }
+
+        /// <summary>State hiện tại là 1 trong các state CỦA controller này (rage pose/chant, dodge, RC,
+        /// burst, ultimate)? SpecialController tra để KHÔNG cho super cắt ngang (fix kẹt flash: super
+        /// kích giữa RageModeState kéo Animator khỏi clip chant → ChantEnd không bao giờ bắn).</summary>
+        public bool OwnsCurrentState
+        {
+            get
+            {
+                if (_ctx == null) return false;
+                IState s = _ctx.Machine.CurrentState;
+                return ReferenceEquals(s, _groundDodge) || ReferenceEquals(s, _airDodge)
+                    || ReferenceEquals(s, _rcDash) || ReferenceEquals(s, _burst)
+                    || ReferenceEquals(s, _rageState) || ReferenceEquals(s, _ultimate);
+            }
         }
 
         private void Update()
         {
             if (_ctx == null || _ctx.Parser == null) return;
+            if (CinematicGate.IsActive) return;   // đang chant/flash — không kích gì giữa cinematic.
 
             if (_ctx.IsGrounded) _airDodgeUsed = false; // nạp lại quota air-dodge khi chạm đất.
 
@@ -114,6 +135,10 @@ namespace FA.Specials
         {
             if (rageMode == null || !rageMode.IsRageActive) return false;
             if (ultimateMove == null) return false;
+            // Có UBW install-mode (Archer): chỉ ultimate KHI ĐANG install (nộ chưa drain hết) —
+            // chặn kích giữa chant. Và chỉ từ neutral (không phải công cụ thoát combo — Burst mới là).
+            if (_install != null && !_install.IsInstalled) return false;
+            if (!IsNeutralState()) return false;
             if (!Edge(InputButton.Rage)) return false;
 
             // Ultimate cần MoveData cho hitbox (block-break + knockback). Set TRƯỚC ChangeState (HitboxOn sau).

@@ -4,12 +4,16 @@
     "references": [
         "FA.Core",
         "FA.Combat",
+        "FA.Specials",
+        "FA.Effects",
         "FA.Resources",
         "FA.UI",
         "FA.GameFlow",
         "FA.Stage",
         "FA.Movement",
-        "Unity.InputSystem"
+        "FA.Items",
+        "Unity.InputSystem",
+        "Unity.Cinemachine"
     ],
     "includePlatforms": [
         "Editor"

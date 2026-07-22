@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace FA.Core
@@ -63,6 +64,12 @@ namespace FA.Core
         [Tooltip("Frame giữ để charge mạnh hơn (0 = không charge). KHUNG P9. CẦN TEST.")]
         [Min(0)] public int chargeFrames = 0;
 
+        [Tooltip("(Tùy chọn) Biến thể CHARGED của đòn NÀY khi còn GIỮ nút tại Animation Event " +
+                 "ChargeCheck trên clip (giữ ≥ chargeFrames — trần = kích thước InputBuffer ~10). " +
+                 "AttackState BeginMove(chargedVariant) → swap clip giữa chừng (như nối đòn P15). " +
+                 "Trống = đòn không có charge (mặc định — no-regression).")]
+        public MoveData chargedVariant;
+
         [Header("Cost")]
         [Tooltip("Số Ô mana tiêu thụ (P8/P9). 0 cho normal.")]
         [Min(0)] public int manaCostUnits = 0;
@@ -72,6 +79,11 @@ namespace FA.Core
 
         [Tooltip("Yêu cầu đang trong Rage Mode mới ra được (Ultimate P10).")]
         public bool requiresRageMode = false;
+
+        [Tooltip("HỆ SỐ hồi mana khi đòn NÀY trúng/bị đỡ (kinh tế mana per-move, kiểu SF/GG: đòn tiêu " +
+                 "meter không build meter). 1 = hồi đầy đủ (normal L/M); <1 giảm (nH 0.7, special 0.5); " +
+                 "0 = KHÔNG hồi (super/ultimate). CHỈ ảnh hưởng mana — dmg/knockback/nộ giữ nguyên. CẦN TEST.")]
+        [Range(0f, 1f)] public float manaGainMultiplier = 1f;
 
         [Header("Damage / Knockback (Smash %-model + SF base)")]
         [Tooltip("Phần trăm cộng vào thanh % mỗi hit (+5% base GDD). P7 dùng. CẦN TEST.")]
@@ -121,5 +133,45 @@ namespace FA.Core
         [Header("Hitstop")]
         [Tooltip("Số frame freeze cả 2 khi trúng (4–8). P5 dùng (Animator.speed=0 tạm). CẦN TEST.")]
         [Min(0)] public int hitstopFrames = 6;
+
+        [Header("Di chuyển trong đòn (P14 — Move Motion)")]
+        [Tooltip("Danh sách CÚ ĐẨY TỨC THỜI (impulse), FACING-RELATIVE: x = TIẾN dương (lùi âm), " +
+                 "y = LÊN dương. Đơn vị = VẬN TỐC (m/s) vì controller SET linearVelocity (KHÔNG phải lực — " +
+                 "deterministic, không phụ thuộc mass). Animation Event MoveImpulse(i) trên clip chọn phần tử " +
+                 "thứ i (timing 100% từ clip — QUY TẮC VÀNG §1.1, KHÔNG số frame trong code). " +
+                 "y!=0 mới set vy (lao chéo lên), y==0 GIỮ vy hiện tại (không phá rơi/đứng). " +
+                 "Rỗng = không có impulse. Vd nH lao tới [(6,0)]; lao chéo [(4,3)]. CẦN TEST.")]
+        public List<Vector2> motionImpulses = new List<Vector2>();
+
+        [Tooltip("Vận tốc ngang SUSTAINED (m/s) khi cửa sổ MoveDriftOn..MoveDriftOff đang mở — " +
+                 "FACING-RELATIVE (dương = tiến). Mỗi FixedTick controller GÁN vx = facing×driftSpeed (đè " +
+                 "trôi tự nhiên) → trượt đều, dừng dứt khoát khi MoveDriftOff. 0 = không drift. " +
+                 "Vd đá tiến chân trượt: 2.5. CẦN TEST.")]
+        public float driftSpeed = 0f;
+
+        /// <summary>
+        /// CỔNG NO-REGRESSION (P14): true nếu đòn này có khai báo bất kỳ chuyển động nào (impulse hoặc
+        /// drift). State chỉ UỶ QUYỀN vx cho MoveMotionController khi true; false ⇒ giữ NGUYÊN hành vi cũ
+        /// (ghì vx=0 mặt đất) như P5/P9. Mọi MoveData cũ (không điền 2 field trên) ⇒ false ⇒ đứng yên y hệt.
+        /// </summary>
+        public bool HasMoveMotion =>
+            (motionImpulses != null && motionImpulses.Count > 0) || driftSpeed != 0f;
+
+        [Header("Nối đòn (P15 — Combo Chain)")]
+        [Tooltip("Các đòn NỐI TIẾP (target combo / rekka). RỖNG = một-nhấn-một-đòn y như P5/P9 (cổng " +
+                 "no-regression). Mỗi mắt: nút + (tùy) motion + điều kiện (Always = nối tự do trong cửa " +
+                 "sổ cancel; OnHit = đòn này phải TRÚNG, block không tính) + MoveData kế. Cửa sổ nối = " +
+                 "Animation Event CancelWindowOpen/Close trên clip (KHÔNG số frame ở đây — QUY TẮC VÀNG " +
+                 "§1.1). Vd JJJ: nL1.followUps=[{L,None,Always,nL2}], nL2.followUps=[{L,None,OnHit,nL3}]. " +
+                 "Áp cho MỌI move (normal/special/super).")]
+        public List<FollowUp> followUps = new List<FollowUp>();
+
+        [Header("VFX/SFX khi trúng (per-move như MUGEN — mỗi HitDef 1 hitsound + spark riêng)")]
+        [Tooltip("Hiệu ứng khi đòn NÀY trúng thật (spark + tiếng hit tại điểm chạm). TRỐNG = dùng " +
+                 "hiệu ứng mặc định của nhân vật (HitEffectPlayer). HitData mang theo qua kênh.")]
+        public EffectData hitEffect;
+
+        [Tooltip("Hiệu ứng khi đòn NÀY bị đỡ. TRỐNG = mặc định của nhân vật.")]
+        public EffectData blockEffect;
     }
 }

@@ -58,11 +58,15 @@ namespace FA.Combat
             if (onPercentChanged != null) onPercentChanged.RaiseEvent(_percent);
         }
 
+        // Buff context của CHÍNH MÌNH (victim-side): DamageTakenMult <1 khi UBW install (P-Ultimate).
+        private IBuffContext _buff;
+
         private void Awake()
         {
             if (root == null) root = transform.root;
             if (config == null)
                 Debug.LogError("[KnockbackPercent] Thiếu KnockbackConfigSO.", this);
+            _buff = root != null ? root.GetComponent<IBuffContext>() : GetComponent<IBuffContext>();
         }
 
         private void OnEnable()
@@ -82,6 +86,9 @@ namespace FA.Combat
 
             float add = hit.DamagePercent;
             if (add <= 0f && config != null) add = config.percentPerHitFallback;
+
+            // Buff phòng thủ của victim (UBW install: DamageTakenMult <1 → chịu đòn trâu hơn). Null-safe ×1.
+            if (_buff != null) add *= _buff.DamageTakenMult;
 
             // Milestone +1%/hit (GDD) — đếm theo combo của attacker (per-attacker ở ComboCounter).
             if (config != null && attackerCombo != null)

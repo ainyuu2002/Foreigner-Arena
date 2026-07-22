@@ -30,6 +30,11 @@ namespace FA.Specials
         [Tooltip("Tắt NGAY sau hit đầu tiên (1-hit chưởng). Tắt cờ này = chưởng xuyên (multi-hit).")]
         [SerializeField] private bool despawnOnHit = true;
 
+        [Tooltip("Bán kính nhận 'hit CỦA CHÍNH chưởng này' (units). Nhiều chưởng cùng owner bay đồng " +
+                 "thời (Special 3 ném 3 kiếm) → lọc theo owner không đủ: kiếm 1 trúng sẽ hủy nhầm kiếm " +
+                 "2-3 đang bay. ContactPoint nằm trong bán kính này mới despawn. CẦN TEST.")]
+        [Min(0.1f)] [SerializeField] private float despawnOnHitRadius = 0.6f;
+
         // Cấp lúc spawn (ProjectileSpawner.OnSpawnProjectile → Init): để lọc ON-HIT đúng "chưởng của ai".
         private GameObject _owner;
         private HitEventChannelSO _hitChannel;
@@ -37,6 +42,13 @@ namespace FA.Specials
         private float _age;
         private Vector2 _spawnPos;
         private bool _active;      // đã bắt đầu bay (đăng ký lifetime). Tránh despawn-on-hit trước khi spawn xong.
+
+        /// <summary>Root NGƯỜI BẮN (spawner cấp qua Init) — component phụ cùng prefab (ProjectileDrill)
+        /// đọc để lọc "hit của chính mình" thay vì wire trùng lặp.</summary>
+        public GameObject Owner => _owner;
+
+        /// <summary>Kênh OnHitLanded (spawner cấp qua Init) — cho component phụ subscribe chung.</summary>
+        public HitEventChannelSO HitChannel => _hitChannel;
 
         /// <summary>
         /// ProjectileSpawner.OnSpawnProjectile gọi NGAY sau Instantiate: gán owner + kênh hit để lọc
@@ -70,9 +82,11 @@ namespace FA.Specials
         private void OnHitLanded(HitData hit)
         {
             if (!despawnOnHit || !_active) return;
-            // Chỉ tắt khi đây là chưởng CỦA owner gây ra hit (research §4.5 attribution). Nhiều chưởng
-            // cùng owner = giới hạn hiếm ở P9 (cap 1 chưởng/lần đề xuất); chấp nhận đơn giản.
-            if (_owner != null && ReferenceEquals(hit.Attacker, _owner)) Despawn();
+            // Chỉ tắt khi hit là CỦA CHÍNH chưởng này: đúng owner + điểm chạm sát vị trí mình (nhiều
+            // chưởng cùng owner bay đồng thời — Special 3 — không được hủy chéo nhau).
+            if (_owner == null || !ReferenceEquals(hit.Attacker, _owner)) return;
+            if (((Vector2)transform.position - hit.ContactPoint).sqrMagnitude
+                <= despawnOnHitRadius * despawnOnHitRadius) Despawn();
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -86,8 +100,10 @@ namespace FA.Specials
         private void Despawn()
         {
             _active = false;
-            // P9: Destroy đơn giản (pool = tối ưu sau, research §3.4). OnDisable gỡ subscribe.
-            Destroy(gameObject);
+            // OBJECT POOLING (§3.1): trả về pool thay vì Destroy (tránh GC spike bắn/hit liên tục).
+            // OnDisable (chạy khi actionOnRelease SetActive(false)) gỡ subscribe đối xứng. Prefab chưa
+            // đăng ký pool → PrefabPool.Despawn fallback Destroy (backward-compat).
+            PrefabPool.Despawn(gameObject);
         }
     }
 }

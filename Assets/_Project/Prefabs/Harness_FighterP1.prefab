@@ -12,10 +12,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Harness_FighterP1
       objectReference: {fileID: 0}
+    - target: {fileID: 584454292511064029, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 5289793999483661950, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
       propertyPath: onComboChanged
       value: 
       objectReference: {fileID: 11400000, guid: cf785b4fdbb94904a17c7511bd17e517, type: 2}
+    - target: {fileID: 5289793999483661950, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
+      propertyPath: comboResetFrames
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 5807218119454530032, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.20955
@@ -56,8 +64,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8364922129431121209, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
+      propertyPath: onPercentChanged
+      value: 
+      objectReference: {fileID: 11400000, guid: 6fd86b55db69eee408d18c35162fa785, type: 2}
     - target: {fileID: 8462392293323820384, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
       propertyPath: inputScheme
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8462392293323820384, guid: b88fb2650991dde4cadaa3c6e3d01cd1, type: 3}
+      propertyPath: pairExtraGamepad
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -125,6 +141,9 @@ MonoBehaviour:
   body: {fileID: 4759567282326988132}
   invulnerability: {fileID: 9160494972867570027}
   fallbackRespawnPoint: {fileID: 0}
+  respawnHeightOffset: 6
+  platformMaxSeconds: 10
+  platformSprite: {fileID: 0}
 --- !u!114 &6219539400092109617
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -32,6 +32,11 @@ namespace FA.Core
         /// <summary>Hệ số nhân TỐC ĐỘ di chuyển của RIÊNG nguồn này (×1.0 thường; &gt;1 khi buff speed).</summary>
         float MoveSpeedMult { get; }
 
+        /// <summary>Hệ số nhân % DAMAGE NHẬN VÀO của RIÊNG nguồn này (&lt;1 = chịu đòn trâu hơn — UBW install).
+        /// Victim-side, KnockbackPercent nhân khi cộng %. DEFAULT interface member ×1.0 — implementer cũ
+        /// (Rage/ItemBuff) KHÔNG phải sửa.</summary>
+        float DamageTakenMult => 1f;
+
         /// <summary>Nguồn này đang đặt cờ "Rage active" (Burst bị chặn khi true). Aggregator OR các nguồn.</summary>
         bool IsRageActive { get; }
 

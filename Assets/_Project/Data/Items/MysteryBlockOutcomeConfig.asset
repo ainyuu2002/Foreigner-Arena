@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c46d98db4cb54da38b5a1b2f8df26a41, type: 3}
+  m_Name: MysteryBlockOutcomeConfig
+  m_EditorClassIdentifier: FA.Items::FA.Items.MysteryBlockOutcomeConfigSO
+  outcomes:
+  - type: 0
+    tier: 1
+    value: 5
+    durationSeconds: 0
+    spawnWeight: 3
+  - type: 0
+    tier: 2
+    value: 10
+    durationSeconds: 0
+    spawnWeight: 2
+  - type: 0
+    tier: 3
+    value: 20
+    durationSeconds: 0
+    spawnWeight: 1
+  - type: 1
+    tier: 1
+    value: 0.05
+    durationSeconds: 0
+    spawnWeight: 3
+  - type: 1
+    tier: 2
+    value: 0.1
+    durationSeconds: 0
+    spawnWeight: 2
+  - type: 1
+    tier: 3
+    value: 0.2
+    durationSeconds: 0
+    spawnWeight: 1
+  - type: 3
+    tier: 1
+    value: 3
+    durationSeconds: 0
+    spawnWeight: 2
+  - type: 3
+    tier: 2
+    value: 5
+    durationSeconds: 0
+    spawnWeight: 1.5
+  - type: 3
+    tier: 3
+    value: 8
+    durationSeconds: 0
+    spawnWeight: 1
+  - type: 4
+    tier: 1
+    value: 0.25
+    durationSeconds: 12
+    spawnWeight: 1.5
+  - type: 4
+    tier: 2
+    value: 0.45
+    durationSeconds: 16
+    spawnWeight: 1
+  - type: 4
+    tier: 3
+    value: 0.65
+    durationSeconds: 20
+    spawnWeight: 0.75
+  - type: 5
+    tier: 1
+    value: 0.05
+    durationSeconds: 12
+    spawnWeight: 2
+  - type: 5
+    tier: 2
+    value: 0.1
+    durationSeconds: 16
+    spawnWeight: 1.5
+  - type: 5
+    tier: 3
+    value: 0.2
+    durationSeconds: 20
+    spawnWeight: 1
+  - type: 6
+    tier: 1
+    value: 0.1
+    durationSeconds: 0
+    spawnWeight: 1.5
+  - type: 6
+    tier: 2
+    value: 0.15
+    durationSeconds: 0
+    spawnWeight: 1
+  - type: 6
+    tier: 3
+    value: 0.2
+    durationSeconds: 0
+    spawnWeight: 0.75

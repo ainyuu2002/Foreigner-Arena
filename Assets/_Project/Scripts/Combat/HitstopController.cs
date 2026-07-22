@@ -34,6 +34,11 @@ namespace FA.Combat
         [SerializeField] private Animator animator;
 
         private int _framesLeft;            // số FixedUpdate còn freeze (0 = không freeze).
+
+        /// <summary>Đang trong hitstop? HurtState/BlockState (cùng module) hỏi để ĐÓNG BĂNG đồng hồ
+        /// hitstun/blockstun trong freeze — nếu vẫn đếm, thời gian hiển thị hurt = hitstun − hitstop
+        /// (vừa vào đã thoát) và pushback bị hitstop nuốt. Đồng hồ chỉ chạy khi hết freeze.</summary>
+        public bool IsFrozen => _framesLeft > 0;
         private Vector2 _savedVelocity;
         private float _savedGravityScale;
         private float _savedAnimatorSpeed;
@@ -61,6 +66,14 @@ namespace FA.Combat
             GameObject me = root != null ? root.gameObject : gameObject;
             bool involved = ReferenceEquals(hit.Attacker, me) || ReferenceEquals(hit.Victim, me);
             if (!involved) return;
+
+            // Đang chant/flash (CinematicGate, đồng nhất HitReactionController/CombatController/
+            // SpecialController/DefenseController): KHÔNG freeze Animator.speed=0 — freeze này chỉ tự mở
+            // khoá qua FixedUpdate đếm frame, mà FixedUpdate NGỪNG HẲN khi cinematic set Time.timeScale=0 →
+            // Animator.speed kẹt ở 0 vĩnh viễn → clip cinematic không bao giờ tới event kết (SuperFlashEnd/
+            // ChantEnd) → CinematicGate không bao giờ Release → đơ trong flash vĩnh viễn (hit trúng đúng lúc
+            // đang ở flash/chant của chính mình hoặc đối thủ).
+            if (CinematicGate.IsActive) return;
 
             // (P10) ULTIMATE miễn nhiễm hitstop (animation speed CỐ ĐỊNH, research §3.5). Nếu attacker
             // HOẶC victim đang Ultimate → BỎ QUA freeze (cả Animator.speed lẫn velocity-freeze). Null-safe.
@@ -123,6 +136,16 @@ namespace FA.Combat
                 body.linearVelocity = _savedVelocity;
                 body.gravityScale = _savedGravityScale;
             }
+            if (animator != null) animator.speed = _savedAnimatorSpeed;
+        }
+
+        // (P12 fix) RespawnSystem BroadcastMessage("OnRespawn"): chết ĐÚNG giữa hitstop → hủy freeze
+        // nhưng KHÔNG hoàn velocity đã lưu (đó là đà của mạng trước — Motor.OnRespawn vừa zero).
+        private void OnRespawn()
+        {
+            if (_framesLeft <= 0) return;
+            _framesLeft = 0;
+            if (body != null) body.gravityScale = _savedGravityScale;
             if (animator != null) animator.speed = _savedAnimatorSpeed;
         }
     }

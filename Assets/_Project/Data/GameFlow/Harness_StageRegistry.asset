@@ -13,6 +13,12 @@ MonoBehaviour:
   m_Name: Harness_StageRegistry
   m_EditorClassIdentifier: FA.GameFlow::FA.GameFlow.StageRegistrySO
   entries:
-  - displayName: Harness Stage
-    icon: {fileID: 0}
-    sceneName: Test_Phase12_Map
+  - displayName: Toxic Mist Forest (Swamp)
+    icon: {fileID: 21300000, guid: ebe11a32429344b4b8d3443cebfbb5ef, type: 3}
+    sceneName: Map_Swamp
+  - displayName: Lava Forge (Fire)
+    icon: {fileID: 21300000, guid: 853f26bdb85bce14f975a07c23f765e6, type: 3}
+    sceneName: Map_Fire
+  - displayName: Eternal Winter Peak (Ice)
+    icon: {fileID: 21300000, guid: f28ecb44121ad9f4a9cbf06823dd2aed, type: 3}
+    sceneName: Map_Ice

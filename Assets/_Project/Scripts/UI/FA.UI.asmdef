@@ -2,7 +2,9 @@
     "name": "FA.UI",
     "rootNamespace": "FA.UI",
     "references": [
-        "FA.Core"
+        "FA.Core",
+        "FA.GameFlow",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,0 +1,23 @@
+{
+    "name": "FA.AI.Tests",
+    "rootNamespace": "FA.AI.Tests",
+    "references": [
+        "FA.Core",
+        "FA.AI",
+        "FA.GameFlow"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}

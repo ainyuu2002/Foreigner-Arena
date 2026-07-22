@@ -86,6 +86,11 @@ namespace FA.Combat
             GameObject me = root != null ? root.gameObject : gameObject;
             if (!ReferenceEquals(hit.Victim, me)) return;
             if (_ctx == null || combat == null) return;
+            // Đang chant/flash (CinematicGate, đồng nhất CombatController/SpecialController/DefenseController):
+            // KHÔNG ép ChangeState(Hurt/Block) — kéo Animator khỏi clip cinematic giữa chừng làm Animation Event
+            // kết (SuperFlashEnd/UltimateInstall/ChantEnd) không bao giờ bắn → CinematicGate kẹt mở → đơ vĩnh viễn
+            // trong flash (bug user bắt: dùng super/ultimate lúc đang hurt/hitstun/hitstop).
+            if (CinematicGate.IsActive) return;
 
             // 1) BLOCK reactive: chỉ đỡ khi — TẠI THỜI ĐIỂM TRÚNG — victim đang GIỮ LÙI (away khỏi địch)
             //    + ĐANG Ở TRẠNG THÁI CÓ THỂ THỦ (đứng đất + Idle/Walk/đang-Block; KHÔNG đỡ được khi đang
@@ -96,20 +101,15 @@ namespace FA.Combat
             if (hit.Role != MoveRole.BlockBreak &&
                 CanGuardNow() && IsHoldingBackAway(hit) && GuardTypeMatches(hit, out bool guardLow))
             {
-                combat.BlockState.SetBlock(guardLow, blockstunFrames);
+                // Pushback ra-xa-địch giao BlockState áp PENDING sau hitstop (set thẳng velocity ở đây
+                // bị hitstop zero-velocity nuốt tùy thứ tự subscriber — không deterministic).
+                combat.BlockState.SetBlock(guardLow, blockstunFrames, hit.FacingSign * blockPushback);
                 _ctx.Machine.ChangeState(combat.BlockState);
+                SnapAnimatorNow(); // hiện pose Block NGAY frame trúng (trước khi hitstop freeze "nhìn thấy").
 
                 float blocked = hit.DamagePercent * blockDamageMult;
 
-                // Pushback nhẹ ra-xa-địch (đẩy dần ra rìa). KHÔNG triệt tiêu — vẫn lùi từng hit (GDD).
-                if (hit.FacingSign != 0)
-                {
-                    Vector2 v = _ctx.Body.linearVelocity;
-                    v.x = hit.FacingSign * blockPushback;
-                    _ctx.Body.linearVelocity = v;
-                }
-
-                Debug.Log($"[BLOCK] {hit.Attacker.name} → {me.name}  " +
+                DebugLog.Log($"[BLOCK] {hit.Attacker.name} → {me.name}  " +
                           $"chip +{blocked:0.#}% (full {hit.DamagePercent:0.#}%)  " +
                           $"type={(guardLow ? "Low" : "High")}", me);
 
@@ -125,12 +125,31 @@ namespace FA.Combat
             HitData hurtHit = ScaleHurtstun(hit);
             combat.HurtState.SetHit(hurtHit);
             _ctx.Machine.ChangeState(combat.HurtState);
+            SnapAnimatorNow(); // hiện pose Hurt_k NGAY frame trúng — cả re-hit đổi variant giữa hitstop.
 
-            Debug.Log($"[HIT] {hit.Attacker.name} → {me.name}  +{hit.DamagePercent:0.#}%  " +
+            DebugLog.Log($"[HIT] {hit.Attacker.name}(y={hit.Attacker.transform.position.y:0.00}) → " +
+                      $"{me.name}(y={me.transform.position.y:0.00})  +{hit.DamagePercent:0.#}%  " +
                       $"hitstun={hit.HitstunFrames}f  hitstop={hit.HitstopFrames}f  facing={hit.FacingSign}", me);
 
             // "Trúng thật không-block" → ComboCounter/Knockback(P7)/Mana(P8) nghe (tách khỏi OnHitLanded).
             if (onHitConfirmed != null) onHitConfirmed.RaiseEvent(hit);
+        }
+
+        /// <summary>(Fix mượt combat) Ép Animator EVALUATE NGAY trong frame trúng đòn. Vấn đề: Animator
+        /// chỉ xét transition trong update của nó, mà HitstopController freeze (speed=0) CÙNG frame →
+        /// StateId/HurtVariant vừa set nhưng transition KHÔNG bắn → victim đứng nguyên pose TRƯỚC-trúng
+        /// suốt hitstop, hết freeze mới hiện Hurt (nhìn như "hurt chạy trễ"); hit chồng trong freeze thì
+        /// variant giữa bị nuốt. Snap = mở speed tạm + Update(0) → transition duration-0 ăn liền, victim
+        /// đóng băng Ở pose Hurt/Block frame 0 (chuẩn fighting game). Trả lại speed cũ → hitstop giữ
+        /// nguyên bất kể thứ tự subscriber (freeze trước hay sau handler này đều đúng).</summary>
+        private void SnapAnimatorNow()
+        {
+            Animator anim = _ctx.Animator;
+            if (anim == null) return;
+            float saved = anim.speed;
+            anim.speed = 1f;
+            anim.Update(0f);
+            anim.speed = saved;
         }
 
         /// <summary>(P10) Nhân hurtstun nhận theo Rage Mode (HitstunTakenMult). Mult=1 (không buff/null) →
@@ -144,7 +163,8 @@ namespace FA.Combat
             return new HitData(
                 hit.Attacker, hit.Victim, hit.DamagePercent, hit.LaunchAngle, hit.BaseKnockback,
                 hit.KnockbackGrowth, hit.HitstopFrames, hit.FacingSign, hit.IsSpike, hit.CausesLaunch,
-                hit.HitsLow, hit.HitsHigh, scaled, hit.ContactPoint, hit.Role);
+                hit.HitsLow, hit.HitsHigh, scaled, hit.ContactPoint, hit.Role,
+                hit.HitEffect, hit.BlockEffect, hit.ManaGainMult); // forward per-move (VFX/SFX + mana).
         }
 
         /// <summary>Chỉ thủ được khi đứng đất + đang Idle/Walk hoặc đang Block (đỡ tiếp). KHÔNG thủ được

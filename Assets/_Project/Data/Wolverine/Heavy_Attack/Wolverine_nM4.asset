@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4b9168800b97d4eb5191c6042d08ba, type: 3}
+  m_Name: Wolverine_nM4
+  m_EditorClassIdentifier: FA.Core::FA.Core.MoveData
+  moveId: move
+  category: 0
+  animatorStateId: 34
+  clip: {fileID: 7400000, guid: be8a81ca329641cebf72e3513c51fdeb, type: 2}
+  motion: 0
+  button: 3
+  chargeFrames: 0
+  manaCostUnits: 0
+  rageCost: 0
+  requiresRageMode: 0
+  baseDamagePercent: 5
+  launchAngle: 30
+  baseKnockback: 5
+  knockbackGrowth: 0.1
+  isSpike: 0
+  causesLaunch: 0
+  role: 0
+  onBlockAdvantage: 0
+  onHitAdvantage: 0
+  hitsLow: 0
+  hitsHigh: 1
+  hitstunFrames: 16
+  hitstopFrames: 14
+  motionImpulses:
+  - {x: 2, y: 0}
+  driftSpeed: 0
+  followUps: []

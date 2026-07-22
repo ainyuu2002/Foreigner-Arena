@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5620cd6879778c7479bf0f299edbc953, type: 3}
+  m_Name: M1_Swing
+  m_EditorClassIdentifier: FA.Core::FA.Core.EffectData
+  vfxPrefab: {fileID: 1318622226591705014, guid: 3ea9a6f901635cb4d8612a1803f9fd19, type: 3}
+  offset: {x: 0.3, y: 0.3}
+  attachToOwner: 1
+  sfxClips:
+  - {fileID: 8300000, guid: 5597a283fbe322a4ea3c81a33271aaf2, type: 3}
+  volume: 1
+  scale: 1

@@ -8,8 +8,8 @@ namespace FA.Specials
     /// C# event PER-INSTANCE <see cref="AnimationEventRelay.SpawnProjectileEvent"/> (đặt event
     /// "SpawnProjectile" trên clip special tại frame muốn bắn — frame-precise, KHÔNG đếm frame §1.1).
     ///
-    /// Mỗi spawn:
-    ///  1) Instantiate prefab tại MUZZLE (offset theo Facing) — KHÔNG dời transform sau đó (vật lý lo).
+    /// Mỗi spawn (POOLING §3.1 — lấy từ PrefabPool, KHÔNG Instantiate):
+    ///  1) Spawn prefab tại MUZZLE (offset theo Facing) — KHÔNG dời transform sau đó (vật lý lo).
     ///  2) Set hướng nhìn chưởng + <see cref="Rigidbody2D.linearVelocity"/> = facing × speed (Unity-native).
     ///  3) Gán NGƯỜI BẮN (attackerRoot) + kênh hit (OnHitLandedChannel) cho HitboxAuthoring con của chưởng
     ///     (qua SendMessage → FA.Specials KHÔNG ref FA.Combat §1.3) + cho Projectile.Init (lọc despawn-on-hit).
@@ -81,23 +81,50 @@ namespace FA.Specials
             Vector3 spawnPos = transform.TransformPoint(new Vector3(muzzleLocal.x, muzzleLocal.y, muzzleLocal.z));
             // (transform.TransformPoint đã tính localScale.x âm khi lật facing → muzzle tự sang đúng phía.)
 
-            Projectile proj = Instantiate(prefab, spawnPos, Quaternion.identity);
+            // OBJECT POOLING (§3.1): lấy từ PrefabPool thay Instantiate. PooledInstance.OnGet (chạy
+            // trong Spawn) đã SetActive(true) + RESTORE tuyệt đối localScale/gravityScale gốc + zero
+            // linear/angularVelocity → mọi bước dưới đặt state TUYỆT ĐỐI (không cộng dồn qua tái dùng).
+            GameObject go = PrefabPool.Spawn(prefab.gameObject, spawnPos, Quaternion.identity);
+            Projectile proj = go.GetComponent<Projectile>();
+            if (proj == null) { Debug.LogWarning("[ProjectileSpawner] Prefab thiếu Projectile.", this); return; }
 
-            // Lật hướng nhìn chưởng theo facing người bắn (hitbox/visual đúng phía).
-            Vector3 s = proj.transform.localScale;
+            // Độ phóng NGƯỜI BẮN (root ×2.5 — user chốt 2026-07-11): đạn to hơn + bay nhanh hơn +
+            // trọng lực đạn ×k → quỹ đạo phóng to đúng tỉ lệ, TIMING giữ nguyên. .y không đổi dấu facing.
+            float k = Mathf.Abs(transform.lossyScale.y);
+
+            // Lật hướng nhìn chưởng theo facing người bắn (hitbox/visual đúng phía) + nhân k.
+            // localScale đã do OnGet reset về gốc → *k là TUYỆT ĐỐI (không phải *= dồn từ lần trước).
+            Vector3 s = proj.transform.localScale * k;
             float mag = Mathf.Abs(s.x);
             s.x = facing > 0 ? mag : -mag;
             proj.transform.localScale = s;
 
-            // MOVEMENT Unity-native: set linearVelocity 1 lần. gravityScale prefab quyết bay thẳng/cung.
+            // MOVEMENT Unity-native: set linearVelocity 1 lần (nền velocity=0 do OnGet). gravityScale gốc
+            // (OnGet restore) ×k quyết bay thẳng/cung — TUYỆT ĐỐI, không dồn qua tái dùng pool.
             var rb = proj.GetComponent<Rigidbody2D>();
-            if (rb != null) rb.linearVelocity = new Vector2(facing * projectileSpeed, rb.linearVelocity.y);
+            if (rb != null)
+            {
+                rb.linearVelocity = new Vector2(facing * projectileSpeed * k, 0f);
+                rb.gravityScale *= k;
+            }
+
+            // Cho launcher trên đạn (ProjectileLaunchSetup/Drill) tự nhân k vào tốc độ riêng của nó.
+            proj.BroadcastMessage("SetSpeedScale", k, SendMessageOptions.DontRequireReceiver);
 
             // Gán NGƯỜI BẮN + kênh hit cho HitboxAuthoring con của chưởng (SendMessage → không ref FA.Combat).
             proj.BroadcastMessage("SetAttacker", shooterRoot, SendMessageOptions.DontRequireReceiver);
 
-            // Projectile tự lo lifetime/despawn + lọc despawn-on-hit theo owner.
+            // POOLING: reset hitbox con về BASELINE (tắt collider + xóa ignore-set "nhớ" victim đời trước)
+            // TRƯỚC Launch — nếu không, đạn tái dùng có thể hit hụt victim cũ hoặc để collider bật sẵn.
+            proj.BroadcastMessage("SetEnabled", false, SendMessageOptions.DontRequireReceiver);
+            proj.BroadcastMessage("ResetIgnore", SendMessageOptions.DontRequireReceiver);
+
+            // Projectile tự lo lifetime/despawn + lọc despawn-on-hit theo owner (re-subscribe mỗi Init).
             proj.Init(shooterRoot != null ? shooterRoot.gameObject : gameObject, hitChannel);
+
+            // BƯỚC CUỐI (ordering an toàn): Launch dựng vy/spin + bật hitbox (ProjectileLaunchSetup/Drill)
+            // — thay Start() cũ (Start chỉ chạy 1 lần đời object, pool tái dùng không gọi lại §3.1).
+            proj.BroadcastMessage("Launch", SendMessageOptions.DontRequireReceiver);
         }
 
         private Projectile GetPrefab(int variantId)

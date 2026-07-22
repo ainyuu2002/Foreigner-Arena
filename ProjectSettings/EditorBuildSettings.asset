@@ -6,13 +6,16 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
+    path: Assets/_Project/Scenes/Items.unity
+    guid: 879827ea7d32183438e27494d70092d1
   - enabled: 1
-    path: Assets/_Project/Scenes/Test_Phase12_Map.unity
-    guid: 52df18a7bca34cd4ab04ed88ee4a5877
+    path: Assets/_Project/Scenes/Map_Swamp.unity
+    guid: 89b67d5b53ac35a48996b8bd3993e4e7
   - enabled: 1
-    path: Assets/_Project/Scenes/Test_Phase12.unity
-    guid: 5fa82e81454e7fd4fbb6964a4447dba4
+    path: Assets/_Project/Scenes/Map_Fire.unity
+    guid: 231646f2ef594c547ba3defcf852f748
+  - enabled: 1
+    path: Assets/_Project/Scenes/Map_Ice.unity
+    guid: 532165a8a7b713e478dc1db557e4449f
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

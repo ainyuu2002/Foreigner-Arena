@@ -46,10 +46,13 @@ namespace FA.Combat
             float speed = collision.relativeVelocity.magnitude;
             int otherLayer = collision.collider.gameObject.layer;
 
-            // TƯỜNG tốc-độ-cao → dán tường (splat). Ưu tiên xét tường trước (đập ngang).
-            if (IsInMask(otherLayer, wallLayers) && speed >= config.wallSplatSpeedThreshold)
+            // TƯỜNG tốc-độ-cao → dán tường (splat) — CHỈ khi enableWallSplat bật. Mặc định TẮT (quyết
+            // định người dùng): không đổi state → PhysicsMaterial2D bounciness trên thân (đang tumble)
+            // tự phản xạ victim BẬT RA như bóng, hấp thụ theo hệ số material — Unity lo, không code.
+            if (IsInMask(otherLayer, wallLayers))
             {
-                knockback.EnterWallSplat();
+                if (config.enableWallSplat && speed >= config.wallSplatSpeedThreshold)
+                    knockback.EnterWallSplat();
                 return;
             }
 

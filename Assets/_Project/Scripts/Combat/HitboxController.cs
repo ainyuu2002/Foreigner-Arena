@@ -60,6 +60,8 @@ namespace FA.Combat
         private void OnHitboxOn(int index)
         {
             HitboxAuthoring hb = Get(index);
+            // Debug multi-hit: xác nhận event tới đúng hộp (NULL = index ngoài mảng/chưa gán — lỗi wiring).
+            DebugLog.Log($"[HBX] {transform.root.name}: On({index}) → {(hb != null ? hb.name : "NULL")}", this);
             if (hb == null) return;
             hb.ResetIgnore();       // mỗi active-window = 1 hit/victim (§3.6)
             hb.SetEnabled(true);

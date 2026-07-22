@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9c8e1446bd6a6d4f90774f1f6283237, type: 3}
   m_Name: Emiya_Archer_Data
   m_EditorClassIdentifier: FA.Movement::FA.Movement.CharacterData
-  walkSpeed: 4
+  walkSpeed: 10
   mass: 1
-  gravityScale: 3
-  jumpSpeed: 10
+  gravityScale: 7.5
+  jumpSpeed: 25
   maxAirJumps: 1
   airControl: 0.8
-  dashSpeed: 10
-  dashDuration: 0.18
+  dashSpeed: 25
+  dashDuration: 0.3
   allowAirDash: 1
   maxAirDashes: 1
-  wallSlideSpeed: 2
-  wallStickSpeed: 1.5
-  wallJumpSpeedX: 3
-  wallJumpSpeedY: 6
+  wallSlideSpeed: 5
+  wallStickSpeed: 3.75
+  wallJumpSpeedX: 7.5
+  wallJumpSpeedY: 15
   wallJumpControlLock: 0.1
